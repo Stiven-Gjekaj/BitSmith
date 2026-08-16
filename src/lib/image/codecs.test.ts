@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { withOrientation } from "../../../tests/support/orientation";
 import { decode, encode, sniff } from "./codecs";
 
 const png = new Uint8Array(readFileSync("tests/fixtures/gradient.png"));
@@ -250,5 +251,126 @@ describe("decode, on a HEIC", () => {
    */
   it("refuses a truncated HEIC with an error", async () => {
     await expect(decode(heic.subarray(0, 200))).rejects.toThrow();
+  });
+});
+
+/**
+ * The tag that says which way is up.
+ *
+ * The fixture is 64 wide and 48 high. A quarter turn must give 48 by 64, and
+ * that swap is what proves the turn happened at all: a picture that came back
+ * the same size would look plausible while being wrong.
+ */
+describe("decode, on a photograph that records its own rotation", () => {
+  it("leaves a picture alone when the tag says it is upright", async () => {
+    const image = await decode(withOrientation(1));
+    expect([image.width, image.height]).toEqual([64, 48]);
+  });
+
+  it("turns a picture the tag says was taken sideways", async () => {
+    const image = await decode(withOrientation(6));
+    expect([image.width, image.height]).toEqual([48, 64]);
+  });
+
+  it("turns the other four values that change the shape", async () => {
+    for (const value of [5, 6, 7, 8]) {
+      const image = await decode(withOrientation(value));
+      expect([image.width, image.height], `orientation ${value}`).toEqual([
+        48, 64,
+      ]);
+    }
+  });
+
+  it("keeps the shape for the four values that only mirror or invert", async () => {
+    for (const value of [1, 2, 3, 4]) {
+      const image = await decode(withOrientation(value));
+      expect([image.width, image.height], `orientation ${value}`).toEqual([
+        64, 48,
+      ]);
+    }
+  });
+
+  /**
+   * Every value must give a different picture, which is what catches a table
+   * with two entries the same. Four of them share a shape and four share the
+   * other, so shape alone cannot tell them apart.
+   */
+  it("gives a different picture for each of the eight", async () => {
+    const seen = new Set<string>();
+    for (const value of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const image = await decode(withOrientation(value));
+      seen.add(Buffer.from(image.data).toString("base64"));
+    }
+    expect(seen.size).toBe(8);
+  });
+
+  /**
+   * A mirror and a turn do not commute. Getting the order wrong swaps the
+   * pictures for 5 and 7 with each other, and both still have the right
+   * shape, so only the pixels can say.
+   */
+  it("does not confuse the two values that turn and mirror", async () => {
+    const five = await decode(withOrientation(5));
+    const seven = await decode(withOrientation(7));
+    expect([...five.data]).not.toEqual([...seven.data]);
+  });
+
+  /**
+   * Which value means which picture, not merely that they differ.
+   *
+   * The test above passes just as happily when 5 and 7 are swapped with each
+   * other, because both still give eight different pictures of the right
+   * shapes. Only a named corner in a known place can say that 5 is a
+   * reflection along one diagonal and 7 along the other.
+   *
+   * The picture goes through a JPEG on the way, so the colours arrive close
+   * rather than exact, and the check is which channel is loudest.
+   */
+  it("puts 5 and 7 the right way round, not merely apart", async () => {
+    const corners = {
+      width: 64,
+      height: 48,
+      data: new Uint8ClampedArray(64 * 48 * 4),
+    };
+    for (let y = 0; y < 48; y += 1) {
+      for (let x = 0; x < 64; x += 1) {
+        const at = (y * 64 + x) * 4;
+        const right = x >= 32;
+        const low = y >= 24;
+        // Red, green, blue and yellow in the four quarters.
+        corners.data[at] = right === low ? 255 : right ? 0 : 0;
+        corners.data[at + 1] = low ? (right ? 255 : 0) : right ? 255 : 0;
+        corners.data[at + 2] = !low && !right ? 0 : low && !right ? 255 : 0;
+        corners.data[at + 3] = 255;
+      }
+    }
+    corners.data[0] = 255;
+    const base = await encode(corners, "jpeg", 95);
+
+    const loudest = (image: { data: Uint8ClampedArray; width: number }) => {
+      const at = 0;
+      const [r, g, b] = [
+        image.data[at],
+        image.data[at + 1],
+        image.data[at + 2],
+      ];
+      if (r > g && r > b) return "red";
+      if (g > r && g > b) return "green";
+      if (b > r && b > g) return "blue";
+      return "mixed";
+    };
+
+    const five = await decode(withOrientation(5, true, "Exif\0\0", base));
+    const seven = await decode(withOrientation(7, true, "Exif\0\0", base));
+
+    // Reflecting along the main diagonal keeps the top left corner where it
+    // was. Reflecting along the other one brings the far corner to it.
+    expect(loudest(five)).not.toBe(loudest(seven));
+    expect(loudest(five)).toBe("red");
+  });
+
+  it("leaves a picture with no tag exactly as it was", async () => {
+    const withNone = await decode(jpg);
+    expect([withNone.width, withNone.height]).toEqual([64, 48]);
   });
 });

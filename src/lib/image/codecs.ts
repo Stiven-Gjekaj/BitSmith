@@ -9,6 +9,8 @@ import * as avif from "@jsquash/avif";
 import * as jpeg from "@jsquash/jpeg";
 import * as png from "@jsquash/png";
 import * as webp from "@jsquash/webp";
+import { type Orientation, readJpegOrientation } from "./exif";
+import { flipRaw, rotateRaw, type Turns } from "./transform";
 
 /** A format this project can write. */
 export type EncodableFormat = "png" | "jpeg" | "webp" | "avif";
@@ -166,7 +168,10 @@ export async function decode(bytes: Uint8Array): Promise<RawImage> {
     case "png":
       return (await png.decode(buffer)) as RawImage;
     case "jpeg":
-      return (await jpeg.decode(buffer)) as RawImage;
+      return applyOrientation(
+        (await jpeg.decode(buffer)) as RawImage,
+        readJpegOrientation(bytes),
+      );
     case "webp":
       return (await webp.decode(buffer)) as RawImage;
     case "avif":
@@ -174,6 +179,48 @@ export async function decode(bytes: Uint8Array): Promise<RawImage> {
     case "heic":
       return await decodeHeic(bytes);
   }
+}
+
+/**
+ * Turns a decoded picture the way its orientation tag says.
+ *
+ * The decoder gives back the pixels as they are stored, which for a
+ * photograph taken sideways is not how anybody has ever seen it. Every viewer
+ * turns the picture as it draws it, using a tag that this project then throws
+ * away, because the encoders write no Exif at all. Doing nothing here would
+ * mean a portrait photograph came out of every tool lying on its side.
+ *
+ * So the turn is baked into the pixels once, at the point of decoding, and
+ * every tool downstream works on the picture the visitor actually saw.
+ *
+ * The eight values are each a quarter turn and sometimes a mirror. They are
+ * written out rather than computed, because the pattern is not quite regular
+ * enough to be worth the cleverness, and a wrong entry here is the kind of
+ * fault that only shows up on somebody else's holiday photograph.
+ */
+const ORIENTATIONS: Record<Orientation, { turns: Turns; mirror: boolean }> = {
+  1: { turns: 0, mirror: false },
+  2: { turns: 0, mirror: true },
+  3: { turns: 2, mirror: false },
+  4: { turns: 2, mirror: true },
+  5: { turns: 1, mirror: true },
+  6: { turns: 1, mirror: false },
+  7: { turns: 3, mirror: true },
+  8: { turns: 3, mirror: false },
+};
+
+function applyOrientation(
+  image: RawImage,
+  orientation: Orientation | null,
+): RawImage {
+  if (orientation === null || orientation === 1) {
+    return image;
+  }
+  const { turns, mirror } = ORIENTATIONS[orientation];
+  // The turn happens first, and the mirror after it. The other order gives a
+  // different picture for the four values that use both.
+  const turned = turns === 0 ? image : rotateRaw(image, turns);
+  return mirror ? flipRaw(turned, "horizontal") : turned;
 }
 
 /**
