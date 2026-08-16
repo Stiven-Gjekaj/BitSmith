@@ -37,42 +37,6 @@ let session: ort.InferenceSession | null = null;
 let sessionUrl: string | null = null;
 let starting: Promise<ort.InferenceSession> | null = null;
 
-/**
- * Builds the session, and gives up on threads rather than on the visitor.
- *
- * A threaded build that cannot start its workers does not fail. It waits, and
- * the page waits with it, and nothing ever says why. That happened here: the
- * bundler renamed the thread script, onnxruntime looked for the old name, and
- * the tool hung with the model apparently still downloading.
- *
- * `wasmPaths` above is the fix. This is the guard, so that a future change to
- * the build cannot bring the hang back. One core is slower, and slower is a
- * great deal better than stuck.
- */
-async function withOneThreadIfSlow(
-  bytes: Uint8Array,
-  cores: number,
-): Promise<ort.InferenceSession> {
-  const options = {
-    executionProviders: ["wasm" as const],
-    graphOptimizationLevel: "all" as const,
-  };
-
-  if (cores > 1) {
-    ort.env.wasm.numThreads = cores;
-    const threaded = await Promise.race([
-      ort.InferenceSession.create(bytes, options).catch(() => null),
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), 10_000)),
-    ]);
-    if (threaded) {
-      return threaded;
-    }
-  }
-
-  ort.env.wasm.numThreads = 1;
-  return ort.InferenceSession.create(bytes, options);
-}
-
 async function build(modelUrl: string): Promise<ort.InferenceSession> {
   // Threads need SharedArrayBuffer, and a browser only offers that to a page
   // that is cross-origin isolated. The service worker in
@@ -98,11 +62,23 @@ async function build(modelUrl: string): Promise<ort.InferenceSession> {
   }
   const bytes = new Uint8Array(await response.arrayBuffer());
 
-  const cores = self.crossOriginIsolated
-    ? Math.min(4, navigator.hardwareConcurrency || 1)
-    : 1;
+  // One thread, always.
+  //
+  // Threads need SharedArrayBuffer, which needs cross-origin isolation, which
+  // GitHub Pages cannot give. A service worker can supply the headers, and
+  // that part worked: the page reported crossOriginIsolated. onnxruntime then
+  // hung inside session creation and never came back, on every attempt, with
+  // no error to catch and a fallback timer that could not rescue it, because
+  // the backend is initialised once and stays broken.
+  //
+  // So this asks for one thread and gets a working tool. The measured cost is
+  // about five seconds for each photograph.
+  ort.env.wasm.numThreads = 1;
 
-  const built = await withOneThreadIfSlow(bytes, cores);
+  const built = await ort.InferenceSession.create(bytes, {
+    executionProviders: ["wasm"],
+    graphOptimizationLevel: "all",
+  });
 
   session = built;
   sessionUrl = modelUrl;
