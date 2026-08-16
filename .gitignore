@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnp
+.pnp.*
+
+# Build output
+dist/
+.astro/
+.output/
+.vercel/
+.netlify/
+
+# Environment files
+# These files hold secrets.
+# Never commit them.
+# Commit .env.example instead, and put no real value in it.
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Test output
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Cloudflare
+.wrangler/
+.dev.vars
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editors
+.idea/
+*.swp
+*.swo
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Claude Code
+# This block hides the personal files and keeps the shared ones.
+# Keep settings.json in the repository.
+# It holds the commit attribution rule that AGENTS.md demands.
+# That rule must travel with the repository, and not stay on one machine.
+# The AGENTS.md section "What to keep" gives this reason.
+.claude/*
+!.claude/settings.json
+
+# Add a line like the next one when you create a shared directory.
+# !.claude/commands/
+
+# Machine learning models
+# A model file is tens of megabytes.
+# Git keeps every version of it forever, so the repository grows fast.
+# Put the models in object storage instead.
+# The docs/plan.md file, section 6, gives the method.
+public/models/
+*.onnx
