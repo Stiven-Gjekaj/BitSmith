@@ -30,22 +30,30 @@ test("switching to page picking shows the range box", async ({ page }) => {
   await expect(page.getByLabel("Pages to keep")).toBeVisible();
 });
 
-/*
- * There is no browser test here for acting in the page-picking mode.
+/**
+ * Acting in the page picking mode, which had no browser test until now.
  *
- * One was written and it failed reproducibly inside the suite while passing
- * every time on its own. At the moment of failure the page showed the merge
- * mode with the file already listed, which means the mode reverted after the
- * control and React had both agreed on it. Reordering the steps, waiting for
- * React to accept the change, and running with a single worker each changed
- * nothing. The cause was not found, and a test nobody can explain is not
- * evidence.
+ * One was written before and removed. It failed reproducibly inside the suite
+ * while passing on its own, and at the moment of failure the page showed the
+ * merge mode with the file already listed: the mode had reverted after the
+ * control and React appeared to have agreed on it.
  *
- * The behaviour is still covered. src/tools/pdf-pages/engine.test.ts checks
- * the range parsing on its own, and checks that a six page file comes back
- * with three pages, in Node, deterministically. The test above covers the
- * control that reveals the range box in a browser.
- *
- * Worth another look, with the trace in test-results/, before adding more
- * browser tests that switch a mode and then act on it.
+ * That was this race. The mode was chosen while the page was still the HTML
+ * Astro rendered, and React then mounted with the mode it starts in and threw
+ * the choice away. The note said the cause was not found. It is now, and the
+ * test comes back.
  */
+test("keeps only the pages that were named", async ({ page }) => {
+  await givePdf(page, "report.pdf", 6);
+  await chooseOption(page, "What do you want to do", /Keep only some pages/);
+  await page.getByLabel("Pages to keep").fill("1-3");
+
+  await runAndWait(page, /Take those pages/);
+
+  const bytes = await resultBytes(page);
+  expect(sniff(bytes)).toBe("pdf");
+  // Six pages in, three named, three out.
+  const { PDFDocument } = await import("pdf-lib");
+  const pdf = await PDFDocument.load(bytes);
+  expect(pdf.getPageCount()).toBe(3);
+});
