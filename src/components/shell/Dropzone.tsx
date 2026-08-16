@@ -46,7 +46,7 @@ function keyFor(file: File): string {
  *
  * It carries a real file input as well as the drop target. A keyboard user
  * cannot drop a file, and a phone has nothing to drop with, so the input is
- * the control that always works. Section 17 of docs/plan.md records this.
+ * the control that always works.
  */
 export function Dropzone({
   accept,

@@ -5,8 +5,9 @@
  * the structured data, and the related links. To add a tool you add one entry,
  * one engine, one component, and one page text. Nothing else changes.
  *
- * Section 7 of docs/plan.md explains why this file carries `runsOn` and
- * `isolated` from the first day.
+ * `runsOn` and `isolated` are here from the first day even though nothing
+ * needs them yet. They cost one line each now, and adding them later means
+ * touching every entry and every page that reads one.
  */
 
 /** Where the work happens. This drives the badge on the tool page. */
@@ -28,8 +29,9 @@ export interface ToolMeta {
   accept?: string;
   /** Whether the tool takes more than one file. */
   multiple?: boolean;
-  /** The largest file the tool accepts. Section 16 of the plan explains why a
-   *  limit with a message beats a crash on a phone. */
+  /** The largest file the tool accepts. A limit with a clear message beats a
+   *  crash: mobile Safari stops a tab that uses too much memory and tells the
+   *  visitor nothing. */
   maxBytes?: number;
   /** Tier 1 and tier 2 tools run on the device. Tier 3 needs a server. */
   runsOn: RunsOn;

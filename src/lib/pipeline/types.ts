@@ -5,9 +5,8 @@
  * browser API and no React, which is the only reason a test can run it in
  * Node against a fixture file.
  *
- * The same shape works for a Web Worker and for a network call, so a tier 3
- * tool that needs a server can arrive later without changing the shell.
- * Section 18 of docs/plan.md records that.
+ * The same shape works for a Web Worker and for a network call, so a tool
+ * that needs a server can arrive later without changing the shell.
  */
 
 /** A file on its way into an engine. */
