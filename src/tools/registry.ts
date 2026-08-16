@@ -97,6 +97,30 @@ export const tools: ToolMeta[] = [
     ],
   },
   {
+    slug: "compress-image",
+    title: "Compress Image",
+    tagline: "Make a picture fit inside a size an upload form allows.",
+    description:
+      "Give a size in kilobytes and get the best looking picture that fits " +
+      "inside it. Useful when a form refuses a photograph for being too big. " +
+      "Nothing is uploaded.",
+    inputKind: "files",
+    accept:
+      "image/png,image/jpeg,image/webp,image/avif,image/heic,image/heif," +
+      ".heic,.heif",
+    multiple: true,
+    maxBytes: 30 * MB,
+    runsOn: "device",
+    isolated: false,
+    keywords: [
+      "compress image",
+      "reduce image size",
+      "make photo under 2mb",
+      "resize photo for upload",
+      "shrink jpg",
+    ],
+  },
+  {
     slug: "strip-metadata",
     title: "Remove Photo Metadata",
     tagline: "Take the place, the date, and the camera out of a picture.",

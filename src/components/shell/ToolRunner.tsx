@@ -20,6 +20,7 @@ const uis: Record<
   "crop-image": lazy(() => import("../../tools/image-crop/Tool")),
   "rotate-image": lazy(() => import("../../tools/image-rotate/Tool")),
   "strip-metadata": lazy(() => import("../../tools/strip-meta/Tool")),
+  "compress-image": lazy(() => import("../../tools/compress/Tool")),
   "merge-pdf": lazy(() => import("../../tools/pdf-pages/Tool")),
   "remove-background": lazy(() => import("../../tools/bg-remove/Tool")),
 };
