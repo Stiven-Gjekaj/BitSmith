@@ -30,9 +30,10 @@ export default function Tool() {
       />
 
       <p className="mt-4 text-sm text-muted-foreground">
-        The camera, the date, and the place are removed. The colour profile
-        stays, because dropping it would change how the picture looks. The
-        picture itself is never rebuilt, so it loses no quality at all.
+        The camera, the date, and the place are removed. Two things stay,
+        because dropping either would change how the picture looks: the colour
+        profile, and the tag that says which way up a photograph was taken.
+        The picture itself is never rebuilt, so it loses no quality at all.
       </p>
 
       <div className="mt-6">
