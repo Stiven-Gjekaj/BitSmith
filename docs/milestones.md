@@ -207,10 +207,9 @@ known place can tell a reflection along one diagonal from the other.
 
 Unresolved, and recorded here rather than hidden behind a retry count.
 
-The suite is 112 tests across two projects at one worker. Every so often one
-of them fails, and it is a different one each run. Measured across three runs:
-two failures, then one, then a clean run earlier the same evening. Every test
-that failed was then run on its own and passed:
+A different test fails on each run, and every one that failed then passed on
+its own in under two seconds after timing out at eighty in the suite. Every
+failure is a click, or a wait, on a page that had loaded.
 
 | Test | Alone | In the suite |
 | ---- | ----- | ------------ |
@@ -218,19 +217,28 @@ that failed was then run on its own and passed:
 | different text gives a different code | passed, 2.1s | timed out at 80s |
 | refuses something that is not a PDF | passed, 0.8s | timed out at 80s |
 
-Every failure is a click that never becomes actionable, on a page that loaded.
-This is the same signature as the older defect recorded in the comment in
-`tests/e2e/pdf.spec.ts`, which was never explained either, and it has grown
-more common as the suite has grown.
+It then stopped happening. Four consecutive full runs passed, three of them
+back to back, with no change made that should have affected it. So the rate
+is somewhere near half of runs and the cause is still unknown. It is the same
+signature as the older defect recorded in the comment in
+`tests/e2e/pdf.spec.ts`, which was never explained either.
 
-What has been ruled out by measurement: memory, which shows no swap in use at
-all, and stray processes from earlier runs, of which there are none. What has
-not been tried: giving each spec its own browser, raising the action timeout,
-or finding what holds the page busy.
+Ruled out by measurement, so that nobody spends the time again:
+
+- **Memory.** No swap in use at all, on a machine with 16 GB.
+- **Processes left behind by earlier runs.** None.
+- **The test server dying.** It was watched through a full run and stayed up.
+- **File handles leaking in the test server.** This one is real and was
+  fixed: 30 downloads cut off part way left 30 open handles. It is still not
+  the cause here, because the open file limit on this machine is over a
+  million and a run of a hundred tests cannot approach it. It would matter on
+  a host with the more usual limit of 1024.
+
+Not tried yet: giving each spec file its own browser, raising the action
+timeout, and finding what holds the page busy when it happens.
 
 A retry count would make the suite green and would be the wrong answer while
-the cause is unknown, because the same fault would then reach the site
-unseen.
+the cause is unknown, because the same fault would then reach the site unseen.
 
 ## Open items
 

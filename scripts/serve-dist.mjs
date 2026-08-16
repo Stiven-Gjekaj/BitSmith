@@ -90,7 +90,34 @@ const server = createServer((request, response) => {
     "Content-Type": TYPES[extname(file)] ?? "application/octet-stream",
     "Cache-Control": "no-store",
   });
-  createReadStream(file).pipe(response);
+
+  // The stream is closed when the response is, and without this it is not.
+  //
+  // A browser test navigates away constantly, which closes the socket while a
+  // file is still being sent. Measured on the version before this change: 30
+  // downloads cut off part way left 30 open handles on the file, and they
+  // stayed open for as long as the server ran.
+  //
+  // What this is not: the cause of the intermittent timeouts in the browser
+  // suite, which is what the search that found it was actually looking for.
+  // The open file limit on this machine is over a million, so a leak of one
+  // handle per request cannot reach it during a run of a hundred tests. It
+  // would matter on a host with the more usual limit of 1024. The timeouts
+  // remain unexplained.
+  const stream = createReadStream(file);
+  stream.on("error", () => {
+    response.destroy();
+  });
+  response.on("close", () => {
+    stream.destroy();
+  });
+  stream.pipe(response);
+});
+
+// The same reasoning one level up. A socket that fails after the headers are
+// written cannot be answered, but it must not end the process either.
+server.on("clientError", (_error, socket) => {
+  socket.destroy();
 });
 
 server.listen(PORT, "127.0.0.1", () => {
