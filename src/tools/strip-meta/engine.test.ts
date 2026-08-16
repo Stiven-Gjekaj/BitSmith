@@ -44,15 +44,15 @@ describe("the strip metadata engine", () => {
    */
   it("says plainly that it will not do a HEIC", async () => {
     await expect(run([file("IMG.heic", heic)], {}, () => {})).rejects.toThrow(
-      /HEIC.*JPEG and PNG/s,
+      /HEIC.*JPEG, PNG and WebP/s,
     );
   });
 
-  it("says plainly that it will not do a WebP", async () => {
+  it("does a WebP now, which it used to refuse", async () => {
     const webp = await encode(await decode(png), "webp", 80);
-    await expect(run([file("a.webp", webp)], {}, () => {})).rejects.toThrow(
-      /WebP/,
-    );
+    const [result] = await run([file("a.webp", webp)], {}, () => {});
+    expect(result.type).toBe("image/webp");
+    expect(result.name).toBe("a.webp");
   });
 
   it("refuses something that is not a picture at all", async () => {

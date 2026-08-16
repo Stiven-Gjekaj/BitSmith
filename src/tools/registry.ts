@@ -127,9 +127,9 @@ export const tools: ToolMeta[] = [
     description:
       "A photograph carries where it was taken, when, and on what. This " +
       "removes all of it without rebuilding the picture, so nothing is lost. " +
-      "JPEG and PNG. The file never leaves your device.",
+      "JPEG, PNG and WebP. The file never leaves your device.",
     inputKind: "files",
-    accept: "image/png,image/jpeg",
+    accept: "image/png,image/jpeg,image/webp",
     multiple: true,
     maxBytes: 30 * MB,
     runsOn: "device",
