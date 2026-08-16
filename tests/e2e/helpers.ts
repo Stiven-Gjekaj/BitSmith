@@ -143,6 +143,17 @@ export async function toolReady(
   page: Page,
   selector = 'input[type="file"]',
 ): Promise<void> {
+  // Waiting for the control to be attached is not enough, and that is what
+  // this used to do. Astro renders the controls on the server, so they are in
+  // the page before React has mounted anything. Text typed in that gap sits in
+  // the box without ever reaching React, and the run button stays disabled for
+  // ever, because it is disabled on React's own idea of whether the box is
+  // empty.
+  //
+  // The attribute is set from an effect in ToolRunner, and an effect cannot
+  // run on the server, so its presence means React has mounted and is
+  // listening.
+  await hydrated(page);
   await page.locator(selector).first().waitFor({ state: "attached" });
 }
 
@@ -244,6 +255,7 @@ export function resultName(page: Page): Promise<string | null> {
 
 /** Presses the one action button and waits for a file to appear. */
 export async function runAndWait(page: Page, label: RegExp): Promise<void> {
+  await hydrated(page);
   await page.getByRole("button", { name: label }).click();
   await expect(page.locator("a[download]").first()).toBeVisible({
     timeout: 80_000,
@@ -262,8 +274,21 @@ export async function chooseOption(
   label: string,
   option: string | RegExp,
 ): Promise<void> {
+  await hydrated(page);
   await page.getByLabel(label).click();
   await page.getByRole("option", { name: option }).click();
+}
+
+/**
+ * Waits until React has taken the page over.
+ *
+ * Put inside the helpers rather than left to each test, because forgetting it
+ * does not fail: it produces a control that holds its text, a button that
+ * never enables, and a timeout ninety seconds later on whichever test was
+ * unlucky. One spec had already forgotten it.
+ */
+export async function hydrated(page: Page): Promise<void> {
+  await page.locator("html[data-tool-ready]").waitFor({ state: "attached" });
 }
 
 /** Names the format from the first bytes, the way the engine does. */

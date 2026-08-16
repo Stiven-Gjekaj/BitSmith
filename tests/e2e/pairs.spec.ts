@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { pairs } from "../../src/tools/image-convert/pairs";
 import {
   chooseOption,
+  hydrated,
   giveImage,
   resultBytes,
   resultName,
@@ -21,6 +22,7 @@ import {
 
 test("png to jpg opens already pointed at JPG", async ({ page }) => {
   await page.goto("./png-to-jpg/");
+  await hydrated(page);
   // The trigger shows the chosen option, so its text is what proves the page
   // arrived pointed the right way.
   await expect(page.getByLabel("Convert to")).toContainText("JPEG");
@@ -34,6 +36,7 @@ test("png to jpg opens already pointed at JPG", async ({ page }) => {
 
 test("webp to png opens already pointed at PNG", async ({ page }) => {
   await page.goto("./webp-to-png/");
+  await hydrated(page);
   await expect(page.getByLabel("Convert to")).toContainText("PNG");
 });
 
@@ -42,6 +45,7 @@ test("the controls are not locked", async ({ page }) => {
   // than for the person who arrived. Somebody who lands on png to jpg and
   // decides they want WebP should not have to find another address.
   await page.goto("./png-to-jpg/");
+  await hydrated(page);
   await chooseOption(page, "Convert to", /WebP/);
   await expect(page.getByLabel("Convert to")).toContainText("WebP");
 
@@ -94,6 +98,7 @@ test("no two pages say the same thing", async ({ page }) => {
 
 test("a conversion page answers the three questions", async ({ page }) => {
   await page.goto("./jpg-to-webp/");
+  await hydrated(page);
   await expect(
     page.getByRole("heading", { name: /Why turn a JPG into a WebP/ }),
   ).toBeVisible();
@@ -119,6 +124,7 @@ test("a conversion page carries its own title and description", async ({
   page,
 }) => {
   await page.goto("./avif-to-jpg/");
+  await hydrated(page);
   expect(await page.title()).toContain("Convert AVIF to JPG");
 
   const description = await page
