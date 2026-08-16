@@ -18,7 +18,7 @@ export const site = {
    * out of the snippet it gives you, and paste it here. The token is not a
    * secret. It is visible in the page of every site that uses one.
    */
-  cloudflareAnalyticsToken: "ce6030a180d746a9b3d58e4a443ec4db",
+  cloudflareAnalyticsToken: "",
 
   /**
    * GoatCounter, as the alternative.
