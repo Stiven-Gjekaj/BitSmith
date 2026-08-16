@@ -144,3 +144,47 @@ function readOrientationFromTiff(
 
   return null;
 }
+
+/**
+ * Builds the smallest Exif segment that can carry an orientation.
+ *
+ * This exists so that the metadata remover can throw an Exif block away and
+ * still keep the picture the right way up. Everything private goes with the
+ * old block: the place, the time, the camera, its serial number. What is
+ * written back is a single instruction for drawing the picture, and nothing
+ * about the person who took it.
+ *
+ * 36 bytes, whatever the block it replaces held.
+ */
+export function buildOrientationSegment(value: Orientation): Uint8Array {
+  const tiff = new Uint8Array(26);
+  const view = new DataView(tiff.buffer);
+  // Least significant byte first, then the magic 42 the format asks for.
+  tiff[0] = 0x49;
+  tiff[1] = 0x49;
+  view.setUint16(2, 42, true);
+  // The one directory sits straight after this 8 byte header.
+  view.setUint32(4, 8, true);
+  view.setUint16(8, 1, true);
+  view.setUint16(10, TAG_ORIENTATION, true);
+  // Type 3 is SHORT, and there is one of them.
+  view.setUint16(12, 3, true);
+  view.setUint32(14, 1, true);
+  view.setUint16(18, value, true);
+  // No directory follows this one.
+  view.setUint32(22, 0, true);
+
+  const name = new TextEncoder().encode("Exif\0\0");
+  const payload = new Uint8Array(name.length + tiff.length);
+  payload.set(name, 0);
+  payload.set(tiff, name.length);
+
+  const segment = new Uint8Array(payload.length + 4);
+  segment[0] = 0xff;
+  segment[1] = 0xe1;
+  // The length counts itself but not the two marker bytes.
+  segment[2] = (payload.length + 2) >> 8;
+  segment[3] = (payload.length + 2) & 0xff;
+  segment.set(payload, 4);
+  return segment;
+}

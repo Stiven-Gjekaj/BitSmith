@@ -1,6 +1,11 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { withOrientation } from "../../../tests/support/orientation";
 import { decode } from "../../lib/image/codecs";
+import {
+  buildOrientationSegment,
+  readJpegOrientation,
+} from "../../lib/image/exif";
 import { stripJpeg } from "./jpeg";
 
 const plain = new Uint8Array(readFileSync("tests/fixtures/gradient.jpg"));
@@ -25,6 +30,32 @@ function withSegment(marker: number, body: string): Uint8Array {
   out.set(plain.subarray(0, 2), 0);
   out.set(segment, 2);
   out.set(plain.subarray(2), 2 + segment.length);
+  return out;
+}
+
+/** One segment, marker and length included. */
+function segment(marker: number, body: string): Uint8Array {
+  const payload = new TextEncoder().encode(body);
+  const out = new Uint8Array(payload.length + 4);
+  out[0] = 0xff;
+  out[1] = marker;
+  out[2] = (payload.length + 2) >> 8;
+  out[3] = (payload.length + 2) & 0xff;
+  out.set(payload, 4);
+  return out;
+}
+
+/** The fixture with any number of segments put in after the opening marker. */
+function withSegments(...segments: Uint8Array[]): Uint8Array {
+  const added = segments.reduce((total, one) => total + one.length, 0);
+  const out = new Uint8Array(plain.length + added);
+  out.set(plain.subarray(0, 2), 0);
+  let at = 2;
+  for (const one of segments) {
+    out.set(one, at);
+    at += one.length;
+  }
+  out.set(plain.subarray(2), at);
   return out;
 }
 
@@ -116,5 +147,78 @@ describe("stripJpeg", () => {
     const { bytes, removed } = stripJpeg(broken);
     expect(removed).toBe(0);
     expect(bytes.length).toBe(broken.length);
+  });
+});
+
+/**
+ * The one field that survives, and why.
+ *
+ * A camera held sideways records the rotation in the Exif block rather than
+ * turning the pixels. Dropping the block with everything else would leave the
+ * photograph lying on its side, which is a visible change to a picture this
+ * tool promises not to touch.
+ */
+describe("stripJpeg, on a photograph that records its own rotation", () => {
+  it("keeps the picture the right way up", () => {
+    const { bytes } = stripJpeg(withOrientation(6));
+    expect(readJpegOrientation(bytes)).toBe(6);
+  });
+
+  it("keeps every one of the eight", () => {
+    for (const value of [2, 3, 4, 5, 6, 7, 8]) {
+      const { bytes } = stripJpeg(withOrientation(value));
+      expect(readJpegOrientation(bytes), `orientation ${value}`).toBe(value);
+    }
+  });
+
+  /**
+   * The whole point of keeping it is that the private parts still go. A test
+   * that only checked the orientation survived would pass an implementation
+   * that kept the entire block.
+   */
+  it("still throws the private parts away", () => {
+    // A real photograph carries more than one block, so the location and the
+    // comment go in beside the orientation, each in the segment that really
+    // holds it: APP13 for caption data and COM for free text.
+    const both = withSegments(
+      buildOrientationSegment(6),
+      segment(0xed, "IPTC GPS 51.5074N 0.1278W"),
+      segment(0xfe, "taken by somebody"),
+    );
+    expect(Buffer.from(both).includes("GPS 51.5074N")).toBe(true);
+
+    const { bytes } = stripJpeg(both);
+    expect(Buffer.from(bytes).includes("GPS 51.5074N")).toBe(false);
+    expect(Buffer.from(bytes).includes("taken by somebody")).toBe(false);
+    expect(readJpegOrientation(bytes)).toBe(6);
+  });
+
+  /**
+   * The replacement is a fixed 36 bytes whatever it replaced, so a file whose
+   * Exif block was large shrinks a great deal and one whose block was already
+   * minimal stays the same size. The fixture built here is already minimal,
+   * which is why this checks the exact size rather than a reduction.
+   */
+  it("writes back a block of a fixed small size", () => {
+    const { bytes } = stripJpeg(withOrientation(6));
+    expect(bytes.length).toBe(plain.length + 36);
+  });
+
+  /**
+   * Orientation 1 means upright, which is what a picture with no tag at all
+   * already is. Writing it back would add bytes and say nothing.
+   */
+  it("adds nothing when the tag only says the picture is upright", () => {
+    const { bytes } = stripJpeg(withOrientation(1));
+    expect([...bytes]).toEqual([...plain]);
+  });
+
+  it("leaves the picture itself untouched", async () => {
+    const { decode } = await import("../../lib/image/codecs");
+    const { bytes } = stripJpeg(withOrientation(6));
+    const after = await decode(bytes);
+    // Decoding now honours the tag, so the sides come back swapped. That is
+    // the proof the tag survived in a form a decoder can actually read.
+    expect([after.width, after.height]).toEqual([48, 64]);
   });
 });

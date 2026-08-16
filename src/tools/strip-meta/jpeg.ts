@@ -11,6 +11,10 @@
  * A JPEG is a run of segments. Each one starts with 0xFF, then a marker byte,
  * and most then carry a two byte length that counts itself.
  */
+import {
+  buildOrientationSegment,
+  readJpegOrientation,
+} from "../../lib/image/exif";
 
 /** Segments carrying no length: start of image, restart marks, and 0x01. */
 const STANDALONE = new Set([0xd8, 0x01]);
@@ -49,7 +53,21 @@ export function stripJpeg(input: Uint8Array): StripResult {
     throw new Error("This is not a JPEG.");
   }
 
-  const keep: Array<[number, number]> = [[0, 2]];
+  // The one field that is kept out of everything being thrown away.
+  //
+  // A camera held sideways records the rotation in the Exif block rather than
+  // turning the pixels, and every viewer turns the picture as it draws it.
+  // Dropping the block along with everything else would leave the photograph
+  // lying on its side, which is a visible change to a picture this tool
+  // promises not to touch. So the block goes and a 36 byte replacement
+  // carrying only the orientation takes its place. The place, the time, the
+  // camera and its serial number all still go.
+  const orientation = readJpegOrientation(input);
+
+  const pieces: Uint8Array[] = [input.subarray(0, 2)];
+  if (orientation !== null && orientation !== 1) {
+    pieces.push(buildOrientationSegment(orientation));
+  }
   let at = 2;
   let removed = 0;
 
@@ -72,7 +90,7 @@ export function stripJpeg(input: Uint8Array): StripResult {
     const marker = input[markerAt];
 
     if (STANDALONE.has(marker) || isRestart(marker)) {
-      keep.push([at, markerAt + 1]);
+      pieces.push(input.subarray(at, markerAt + 1));
       at = markerAt + 1;
       continue;
     }
@@ -83,7 +101,7 @@ export function stripJpeg(input: Uint8Array): StripResult {
     // would find markers that are not there and destroy the file. So the rest
     // of the file is copied exactly as it stands, and the walk stops.
     if (marker === 0xda) {
-      keep.push([at, input.length]);
+      pieces.push(input.subarray(at, input.length));
       break;
     }
 
@@ -99,21 +117,24 @@ export function stripJpeg(input: Uint8Array): StripResult {
     if (isDropped(marker)) {
       removed += end - at;
     } else {
-      keep.push([at, end]);
+      pieces.push(input.subarray(at, end));
     }
     at = end;
   }
 
   let size = 0;
-  for (const [from, to] of keep) {
-    size += to - from;
+  for (const piece of pieces) {
+    size += piece.length;
   }
   const bytes = new Uint8Array(size);
   let written = 0;
-  for (const [from, to] of keep) {
-    bytes.set(input.subarray(from, to), written);
-    written += to - from;
+  for (const piece of pieces) {
+    bytes.set(piece, written);
+    written += piece.length;
   }
 
-  return { bytes, removed };
+  // What the visitor is told is the net change, which is what they can see on
+  // the file. Counting the removed block while ignoring the replacement would
+  // overstate it by 34 bytes.
+  return { bytes, removed: Math.max(0, input.length - bytes.length) };
 }
