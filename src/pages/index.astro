@@ -10,6 +10,26 @@ const description =
   "Free tools for pictures, PDF files, and QR codes. Everything runs on " +
   "your own device. No upload, no account, no server.";
 
+// The count is read and not written. "Five tools" was a literal, and a
+// literal beside a list is a sentence that goes wrong the day somebody adds
+// to the list, quietly and on every page.
+const NUMBER_WORDS = [
+  "no",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+  "eleven",
+  "twelve",
+];
+const toolCount = NUMBER_WORDS[tools.length] ?? String(tools.length);
+
 const facts = [
   ["No upload", "The file is read by your browser and never sent anywhere."],
   ["No account", "Nothing to sign up for, and nothing to sign in to."],
@@ -19,7 +39,9 @@ const facts = [
 
 <BaseLayout title={title} description={description}>
   <section class="max-w-3xl py-12">
-    <p class="tag rise" style="animation-delay:60ms">Five tools / zero uploads</p>
+    <p class="tag rise" style="animation-delay:60ms">
+      {toolCount} tools / zero uploads
+    </p>
 
     <h1
       class="rise mt-4 text-4xl leading-[1.05] font-bold tracking-tighter sm:text-6xl"
