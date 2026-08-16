@@ -32,6 +32,34 @@ at https://stiven-gjekaj.github.io/bitsmith/.
 
 ### Changed
 
+- **The interface is rebuilt on ShadCN.** Buttons, cards, badges, inputs,
+  alerts, and the select, slider and progress bar now come from Radix with
+  ShadCN styling. The select is the one that matters beyond appearance: Radix
+  manages focus, announces the chosen option, and handles arrow keys the same
+  way in every browser, which the hand-written control only approximated.
+- **The backdrop is three dimensional and drawn on the graphics card.** A field
+  of points with perspective and parallax, in about a hundred lines of WebGL
+  and two shaders. It is written here rather than embedded from a 3D service,
+  because an embed would fetch a runtime and a scene from another company on
+  every page load and every tool page promises that nothing does.
+- **The crop can be dragged.** The tool asked for four numbers and showed the
+  picture nowhere near them, which on a phone is close to unusable. The numbers
+  remain, and the two stay in step.
+
+### Added
+
+- **Twelve conversion pages**, at addresses people actually search for, such as
+  `/png-to-jpg`. Each opens the converter already pointed the right way and
+  carries its own writing: why somebody wants that conversion, what it costs,
+  and when to do something else. Measured vocabulary overlap between them is
+  0.52, and a test fails if two pages ever pass 0.6.
+- **Browser tests.** 66 across desktop and a phone, run in CI against the built
+  site. This is the check that was missing when a background remover that hung
+  for ever shipped with a green build.
+- **Cookieless analytics**, off until somebody sets a token. Both choices avoid
+  a consent banner, and the built page carries no third-party script while the
+  settings are empty.
+
 - **The background remover runs on the graphics card.** About six seconds
   becomes about one, with the same result. onnxruntime has two builds and
   neither is imported at the top: the engine picks one at run time, so a

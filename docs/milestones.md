@@ -170,16 +170,17 @@ six seconds. Nothing cheap remains for that case.
 
 ## Open items
 
-1. Choose the git email address. The repository uses
-   `stivenagostingjekaj@gmail.com` from the global git configuration, and it
-   is in the public history of every commit.
-2. Decide the address shape for conversion pairs before writing any of them.
-   Both `/png-to-jpg` and `/convert/png-to-jpg` work. Changing it later costs
-   search rank, so choose once.
-3. Confirm that your analytics choice needs no consent banner. Nothing is
-   installed yet. Cloudflare Web Analytics and GoatCounter both work without
-   cookies, so version 1 may need no banner at all.
-4. Read the address section above again when search traffic starts.
+1. Set an analytics token in `src/site.config.ts`. The code is in place and
+   both choices are cookieless, so no consent banner is needed. Until a token
+   is set the site measures nothing, and nothing can be known about whether
+   any of the work above is working.
+2. Read the address section above again when search traffic starts.
+3. Write more conversion pairs only where a real answer exists to the three
+   questions the twelve already answer. A pair that cannot be given one does
+   not deserve a page, and thin pages lower the whole site.
+
+Closed: the git email is `stivenagostingjekaj@gmail.com` and is now pinned in
+the repository configuration. The conversion pages use `/png-to-jpg`.
 
 ---
 
