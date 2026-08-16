@@ -84,5 +84,56 @@ jobs:
       - name: Build the site
         run: pnpm build
 
-      # The end-to-end tests need a browser download and a built site, so they
-      # get their own job when the shell in step 0 lands.
+      # Keep the built site for the browser job, so it tests the same bytes
+      # rather than building them a second time.
+      - name: Keep the built site
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist
+          retention-days: 1
+
+  browser:
+    name: Drive the site in a browser
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install the dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Take the built site from the job before
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: dist
+
+      # Only Chromium. The tools use the same WebAssembly everywhere, and the
+      # difference this suite is looking for is in this project rather than in
+      # a browser engine.
+      - name: Install the browser
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Run the browser tests
+        run: pnpm test:e2e
+
+      - name: Keep the report when something fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
