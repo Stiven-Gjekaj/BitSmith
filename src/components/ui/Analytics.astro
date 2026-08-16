@@ -18,8 +18,22 @@
  */
 import { site } from "../../site.config";
 
-const cloudflare = site.cloudflareAnalyticsToken;
-const goat = site.goatCounterCode;
+/**
+ * Only the real deployment counts.
+ *
+ * The browser tests drive every page dozens of times on every push. With the
+ * beacon in the build, each of those runs would arrive in the dashboard as
+ * real visits, and the number that is supposed to say whether anybody found
+ * the site would be mostly us. The tests also run against 127.0.0.1, where the
+ * beacon is refused and fills the console with errors.
+ *
+ * So the workflow that publishes sets ANALYTICS, and nothing else does. A
+ * local build, a test build, and a fresh clone all stay silent.
+ */
+const publishing = process.env.ANALYTICS === "on";
+
+const cloudflare = publishing ? site.cloudflareAnalyticsToken : "";
+const goat = publishing ? site.goatCounterCode : "";
 ---
 
 {

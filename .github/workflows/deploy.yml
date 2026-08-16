@@ -39,8 +39,13 @@ jobs:
       - name: Install the dependencies
         run: pnpm install --frozen-lockfile
 
+      # ANALYTICS is set here and nowhere else. The browser tests drive every
+      # page many times on each push, and those runs must not arrive in the
+      # dashboard as visitors.
       - name: Build
         run: pnpm build
+        env:
+          ANALYTICS: "on"
 
       # A last check that the two values in astro.config.mjs still match this
       # repository. If `base` is wrong, every page still builds and every link
