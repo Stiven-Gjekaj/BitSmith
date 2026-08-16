@@ -29,13 +29,16 @@ export type WorkerRequest =
 export type WorkerResponse =
   | { id: number; kind: "progress"; fraction: number; message?: string }
   | { id: number; kind: "done"; results: EngineResult[] }
-  | { id: number; kind: "ready" }
+  | { id: number; kind: "ready"; note?: string }
   | { id: number; kind: "error"; message: string };
 
 interface EngineModule {
   run: Engine<never>;
-  /** Optional. A tool with a large model loads it before it is needed. */
-  prepare?: (options: never) => Promise<void>;
+  /**
+   * Optional. A tool with a large model loads it before it is needed, and may
+   * report something about how it will run.
+   */
+  prepare?: (options: never) => Promise<string | void>;
 }
 
 const engines: Record<string, () => Promise<EngineModule>> = {
@@ -67,8 +70,8 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
 
     if (request.kind === "prepare") {
       // Nothing to prepare is not a failure. Most tools have no model.
-      await module.prepare?.(request.options as never);
-      post({ id, kind: "ready" });
+      const note = await module.prepare?.(request.options as never);
+      post({ id, kind: "ready", note: note ?? undefined });
       return;
     }
 

@@ -1,11 +1,4 @@
 import resize from "@jsquash/resize";
-// The wasm entry point, and not the package root.
-//
-// The root pulls in the JSEP build, which carries WebGPU and WebNN support in
-// a 25.6 MB WebAssembly file. This project asks for the wasm execution
-// provider only, so all of that arrives and none of it runs. The wasm entry
-// point ships a 12.9 MB file instead, which is half the cold start.
-import * as ort from "onnxruntime-web/wasm";
 import { decode, encode, type RawImage } from "../../lib/image/codecs";
 import {
   type Engine,
@@ -18,6 +11,9 @@ export interface BgRemoveOptions {
   modelUrl: string;
 }
 
+/** Which of the two runtimes ended up doing the work. */
+export type Backend = "webgpu" | "processor";
+
 /** The size that u2netp takes. Every input is scaled to this square. */
 const SIDE = 320;
 
@@ -26,34 +22,97 @@ const MEAN = [0.485, 0.456, 0.406];
 const STD = [0.229, 0.224, 0.225];
 
 /**
- * The session, kept between runs.
+ * The two onnxruntime builds, and why neither is imported at the top.
  *
- * Building a session parses 2.3 MB of model and compiles the graph. Doing that
- * again for a second photograph is pure waste, so the worker that owns this
- * module stays alive and the session stays with it. `reusesWorker` on the
- * registry entry is what keeps that worker.
+ * The processor build is 12.9 MB of WebAssembly. The build that can drive a
+ * graphics card is 25.6 MB, because it carries WebGPU and WebNN support.
+ * Importing both at the top would bundle both and send 38 MB to everybody.
+ *
+ * Each import below is dynamic, so the bundler gives each one its own chunk
+ * and a visitor fetches only the one their browser can use.
  */
-let session: ort.InferenceSession | null = null;
+type Runtime = typeof import("onnxruntime-web/wasm");
+type Session = import("onnxruntime-web/wasm").InferenceSession;
+
+let runtime: Runtime | null = null;
+let backend: Backend = "processor";
+
+let session: Session | null = null;
 let sessionUrl: string | null = null;
-let starting: Promise<ort.InferenceSession> | null = null;
+let starting: Promise<Session> | null = null;
 
-async function build(modelUrl: string): Promise<ort.InferenceSession> {
-  // Threads need SharedArrayBuffer, and a browser only offers that to a page
-  // that is cross-origin isolated. The service worker in
-  // public/remove-background/coi.js supplies the headers that GitHub Pages
-  // cannot, so this asks the browser what it actually got rather than
-  // assuming either answer.
-  //
-  // The measured difference is the whole point of that worker: one core runs
-  // this model in about five seconds.
-  ort.env.wasm.simd = true;
+export function currentBackend(): Backend {
+  return backend;
+}
 
-  // onnxruntime works out the address of its thread script from this path.
+/** Asks the browser whether a graphics adapter is really available. */
+async function hasGraphics(): Promise<boolean> {
+  const gpu = (navigator as { gpu?: { requestAdapter(): Promise<unknown> } })
+    .gpu;
+  if (!gpu) {
+    return false;
+  }
+  try {
+    // Having the object is not having an adapter. A browser can offer the API
+    // and then refuse to hand one out, on a machine with no suitable card.
+    return (await gpu.requestAdapter()) !== null;
+  } catch {
+    return false;
+  }
+}
+
+function configure(module: Runtime) {
+  // onnxruntime works out the address of its runtime files from this path.
   // The bundled copies carry a hash in the name, so it would look for a file
   // that does not exist. These are plain copies, put there by
   // scripts/copy-ort.mjs.
-  ort.env.wasm.wasmPaths = `${import.meta.env.BASE_URL}ort/`;
+  module.env.wasm.wasmPaths = `${import.meta.env.BASE_URL}ort/`;
 
+  // One thread. Threads need SharedArrayBuffer, which needs cross-origin
+  // isolation, which GitHub Pages cannot give. A service worker was tried and
+  // onnxruntime hung inside session creation every time, with no error to
+  // catch, so this asks for one thread and gets a working tool.
+  module.env.wasm.numThreads = 1;
+  module.env.wasm.simd = true;
+}
+
+/**
+ * Refuses to wait for ever, and says why it gave up.
+ *
+ * A hang here would look to a visitor like a slow download. A silent failure
+ * is worse: the tool quietly takes the slow path and nobody can tell whether
+ * the fast one was ever tried. Both are reported to the console.
+ */
+function within<T>(
+  work: Promise<T>,
+  ms: number,
+  what: string,
+): Promise<T | null> {
+  let timer: ReturnType<typeof setTimeout>;
+
+  return Promise.race([
+    work
+      .catch((error) => {
+        console.warn(
+          `${what} did not start, using the processor instead:`,
+          error,
+        );
+        return null;
+      })
+      // Stop the timer once the work has settled. Without this the warning
+      // below arrives twenty seconds after a decision that was already made,
+      // and reads as a second, separate failure.
+      .finally(() => clearTimeout(timer)),
+    new Promise<null>((resolve) => {
+      timer = setTimeout(() => {
+        console.warn(`${what} took longer than ${ms} ms, using the processor.`);
+        resolve(null);
+      }, ms);
+    }),
+  ]);
+}
+
+async function build(modelUrl: string): Promise<Session> {
   const response = await fetch(modelUrl);
   if (!response.ok) {
     throw new Error(
@@ -61,38 +120,61 @@ async function build(modelUrl: string): Promise<ort.InferenceSession> {
     );
   }
   const bytes = new Uint8Array(await response.arrayBuffer());
+  const options = { graphOptimizationLevel: "all" as const };
 
-  // One thread, always.
-  //
-  // Threads need SharedArrayBuffer, which needs cross-origin isolation, which
-  // GitHub Pages cannot give. A service worker can supply the headers, and
-  // that part worked: the page reported crossOriginIsolated. onnxruntime then
-  // hung inside session creation and never came back, on every attempt, with
-  // no error to catch and a fallback timer that could not rescue it, because
-  // the backend is initialised once and stays broken.
-  //
-  // So this asks for one thread and gets a working tool. The measured cost is
-  // about five seconds for each photograph.
-  ort.env.wasm.numThreads = 1;
+  // The graphics card first, where there is one. The model is stored at half
+  // precision and a card that reports shader-f16 runs it in the format it is
+  // already in.
+  if (await hasGraphics()) {
+    const gpu = (await import("onnxruntime-web/webgpu")) as unknown as Runtime;
+    configure(gpu);
 
-  const built = await ort.InferenceSession.create(bytes, {
+    const made = await within(
+      gpu.InferenceSession.create(bytes, {
+        ...options,
+        executionProviders: ["webgpu"],
+      }),
+      20_000,
+      "WebGPU",
+    );
+
+    if (made) {
+      runtime = gpu;
+      backend = "webgpu";
+      session = made;
+      sessionUrl = modelUrl;
+      return made;
+    }
+    // A card that refuses the model is not worth an error. Fall through to the
+    // processor, which always works.
+  }
+
+  const cpu = await import("onnxruntime-web/wasm");
+  configure(cpu);
+  const made = await cpu.InferenceSession.create(bytes, {
+    ...options,
     executionProviders: ["wasm"],
-    graphOptimizationLevel: "all",
   });
 
-  session = built;
+  runtime = cpu;
+  backend = "processor";
+  session = made;
   sessionUrl = modelUrl;
-  return built;
+  return made;
 }
 
 /**
  * Loads the model, or returns the one already loaded.
  *
+ * Building a session parses 2.3 MB of model and compiles the graph, so the
+ * worker that owns this module stays alive and the session stays with it.
+ * `reusesWorker` on the registry entry is what keeps that worker.
+ *
  * Two calls that arrive together share one download. Without the `starting`
  * promise, opening the page and pressing the button quickly would fetch the
  * model twice and build two sessions.
  */
-export function warm(modelUrl: string): Promise<ort.InferenceSession> {
+export function warm(modelUrl: string): Promise<Session> {
   if (session && sessionUrl === modelUrl) {
     return Promise.resolve(session);
   }
@@ -125,9 +207,17 @@ async function scale(
  */
 export async function removeBackground(
   image: RawImage,
-  loaded: ort.InferenceSession,
+  loaded: Session,
   onProgress: ProgressReporter = () => {},
 ): Promise<RawImage> {
+  // A test builds its own session and never calls warm, so the runtime may not
+  // be loaded yet. Node has no graphics adapter, so this takes the processor
+  // build, which is the same module the test used.
+  if (!runtime) {
+    runtime = await import("onnxruntime-web/wasm");
+    configure(runtime);
+  }
+
   onProgress(0.5, "Looking at the picture");
   const small = await scale(image, SIDE, SIDE);
 
@@ -143,7 +233,7 @@ export async function removeBackground(
 
   onProgress(0.6, "Finding the subject");
   const outputs = await loaded.run({
-    [loaded.inputNames[0]]: new ort.Tensor("float32", input, [
+    [loaded.inputNames[0]]: new runtime.Tensor("float32", input, [
       1,
       3,
       SIDE,
@@ -192,9 +282,10 @@ export async function removeBackground(
   return { data: out, width: image.width, height: image.height };
 }
 
-/** Loads the model without doing any work, so a run afterwards is quick. */
-export async function prepare(options: BgRemoveOptions): Promise<void> {
+/** Loads the model without doing any work, and says which runtime it got. */
+export async function prepare(options: BgRemoveOptions): Promise<Backend> {
   await warm(options.modelUrl);
+  return backend;
 }
 
 export const run: Engine<BgRemoveOptions> = async (

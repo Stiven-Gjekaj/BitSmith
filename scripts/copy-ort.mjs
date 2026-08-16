@@ -21,9 +21,23 @@ const to = join(process.cwd(), "public", "ort");
 
 mkdirSync(to, { recursive: true });
 
-// The wasm build this project asks for, and the module that starts its
-// threads. Both names must survive, so they are copied and not bundled.
-const files = ["ort-wasm-simd-threaded.wasm", "ort-wasm-simd-threaded.mjs"];
+// Both builds are copied. The engine picks one at run time and fetches only
+// that one, so a visitor never downloads both:
+//
+//   ort-wasm-simd-threaded.*            12.9 MB, the processor build
+//   ort-wasm-simd-threaded.asyncify.*   23.1 MB, the WebGPU build
+//
+// The asyncify build is the one the WebGPU provider asks for by name. The
+// jsep build is not copied, because nothing requests it, and it is 25.6 MB
+// that would sit in the deployment doing nothing.
+//
+// Each build needs its module beside its WebAssembly, under the real name.
+const files = [
+  "ort-wasm-simd-threaded.wasm",
+  "ort-wasm-simd-threaded.mjs",
+  "ort-wasm-simd-threaded.asyncify.wasm",
+  "ort-wasm-simd-threaded.asyncify.mjs",
+];
 
 for (const name of files) {
   // Resolve each file through the package exports. The package does not

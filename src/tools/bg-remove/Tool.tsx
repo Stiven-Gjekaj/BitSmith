@@ -10,13 +10,13 @@ const meta = findTool("remove-background");
 
 // The model is served from this site, and not from somebody else's. The site
 // must keep working if a third party goes away, and the cache headers must be
-// ours. Section 6 of docs/plan.md records that rule.
+// ours.
 const MODEL_URL = `${import.meta.env.BASE_URL}models/u2netp-fp16.onnx`;
 
 export default function Tool() {
   const { state, run, reset, resultRef } = useToolRun("remove-background");
   const [files, setFiles] = useState<File[]>([]);
-  const [ready, setReady] = useState(false);
+  const [backend, setBackend] = useState<string | null>(null);
 
   // Start the download as the page opens, rather than when the button is
   // pressed. The visitor then spends that time choosing a photograph, which is
@@ -39,8 +39,8 @@ export default function Tool() {
       .catch(() => {});
 
     prepareTool("remove-background", { modelUrl: MODEL_URL })
-      .then(() => {
-        if (!cancelled) setReady(true);
+      .then((note) => {
+        if (!cancelled) setBackend(note ?? "processor");
       })
       .catch(() => {
         // A failure here is not worth an alarm. The run will fetch the model
@@ -51,6 +51,8 @@ export default function Tool() {
     };
   }, []);
 
+  const ready = backend !== null;
+
   return (
     <div>
       <Dropzone
@@ -60,10 +62,12 @@ export default function Tool() {
         onChange={setFiles}
       />
 
-      <p className="mt-4 rounded-lg bg-slate-100 p-3 text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-        {ready
-          ? "The model is loaded and stays loaded, so each photograph takes a few seconds rather than starting over."
-          : "The model is downloading, about 2 MB, while you choose a photograph."}{" "}
+      <p className="alert alert-quiet" style={{ marginTop: 16 }}>
+        {!ready
+          ? "The model is downloading, about 2 MB, while you choose a photograph."
+          : backend === "webgpu"
+            ? "The model is loaded and running on your graphics card, which is the fast path."
+            : "The model is loaded and running on your processor. This browser offers no graphics adapter, so a photograph takes a few seconds."}{" "}
         It runs on your device, so the photograph is never sent anywhere.
       </p>
 

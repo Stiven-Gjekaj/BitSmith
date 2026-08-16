@@ -140,14 +140,14 @@ export function runTool(
 export function prepareTool(
   slug: string,
   options: Record<string, unknown>,
-): Promise<void> {
-  return send<void>(
+): Promise<string | undefined> {
+  return send<string | undefined>(
     slug,
     true,
     { kind: "prepare", slug, options },
     (message, settle, fail) => {
       if (message.kind === "ready") {
-        settle();
+        settle(message.note);
         return;
       }
       if (message.kind === "error") {
