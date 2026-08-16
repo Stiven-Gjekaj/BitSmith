@@ -168,6 +168,41 @@ six seconds. Nothing cheap remains for that case.
 
 ---
 
+## Which way up a photograph is
+
+This was found by suspicion and settled by measurement, so the numbers are
+here to stop anybody investigating it twice.
+
+A camera held sideways does not usually turn the pixels. It writes them the
+way the sensor read them and records the rotation in an Exif tag, and the
+viewer turns the picture as it draws it. Measured before any fix:
+
+| What was measured | Result |
+| ----------------- | ------ |
+| `decode()` of a JPEG with orientation 6 | 64 by 48, pixels byte for byte identical to the same file without the tag |
+| Exif marker in `encode()` output | none |
+| Any APP1 segment in `encode()` output | none |
+| Orientation tag after the metadata remover ran | gone, output identical to a file that never had one |
+
+So the decoder ignored the tag, the encoder wrote none back, and every tool
+turned a portrait photograph on its side. The metadata remover was the worst
+of the three, because its whole promise is that the picture is untouched, and
+the pixels being untouched is precisely why the photograph came out sideways.
+
+Two different fixes, because the tools work differently:
+
+- Anything that decodes now turns the pixels to match the tag, once, at the
+  point of decoding. The converter, the cropper and the rotate tool all
+  inherit it.
+- The metadata remover never decodes, so it writes back a 36 byte Exif block
+  carrying only the orientation. Everything private still goes.
+
+One trap is recorded here because a test walked into it. Applying the mirror
+before the turn instead of after swaps the pictures for orientation 5 and 7
+with each other. Both orders still give eight different pictures with the
+right shapes, so the obvious tests pass either way. Only a named corner in a
+known place can tell a reflection along one diagonal from the other.
+
 ## Open items
 
 1. Set an analytics token in `src/site.config.ts`. The code is in place and
