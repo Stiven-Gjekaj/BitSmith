@@ -10,6 +10,7 @@ import { RunPanel } from "../../components/shell/RunPanel";
 import { useToolRun } from "../../components/shell/useToolRun";
 import type { ImageFormat } from "../../lib/image/codecs";
 import { findTool } from "../registry";
+import { CropCanvas } from "./CropCanvas";
 
 const meta = findTool("crop-image");
 
@@ -91,10 +92,24 @@ export default function Tool() {
         onChange={setFiles}
       />
 
-      {size ? (
-        <p className="mt-3 text-sm text-slate-500">
-          This picture is {size.width} by {size.height} pixels.
-        </p>
+      {size && files[0] ? (
+        <>
+          <CropCanvas
+            file={files[0]}
+            size={size}
+            box={{
+              x: num(box.x),
+              y: num(box.y),
+              width: num(box.width) || size.width,
+              height: num(box.height) || size.height,
+            }}
+            onChange={(next) => setBox(next)}
+          />
+          <p className="mt-3 text-sm text-muted-foreground">
+            Drag the frame, or type exact numbers below. This picture is{" "}
+            {size.width} by {size.height} pixels.
+          </p>
+        </>
       ) : null}
 
       <fieldset className="mt-6" disabled={!size}>
