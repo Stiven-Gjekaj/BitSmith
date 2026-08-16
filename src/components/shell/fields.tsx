@@ -15,17 +15,14 @@ export function Field({
   const id = useId();
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium">
+      <label htmlFor={id} className="label">
         {label}
       </label>
-      {hint ? <p className="mt-0.5 text-xs text-slate-500">{hint}</p> : null}
-      <div className="mt-1">{children(id)}</div>
+      {hint ? <p className="hint">{hint}</p> : null}
+      {children(id)}
     </div>
   );
 }
-
-const control =
-  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100";
 
 export function Select({
   id,
@@ -43,7 +40,7 @@ export function Select({
       id={id}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className={control}
+      className="control"
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>
@@ -82,7 +79,7 @@ export function NumberInput({
         const raw = event.target.value;
         onChange(raw === "" ? "" : Number(raw));
       }}
-      className={control}
+      className="control"
     />
   );
 }
@@ -105,7 +102,7 @@ export function TextInput({
       value={value}
       placeholder={placeholder}
       onChange={(event) => onChange(event.target.value)}
-      className={control}
+      className="control"
     />
   );
 }
@@ -128,7 +125,8 @@ export function TextArea({
       value={value}
       placeholder={placeholder}
       onChange={(event) => onChange(event.target.value)}
-      className={control}
+      className="control"
+      style={{ resize: "vertical", fontFamily: "var(--font-mono)" }}
     />
   );
 }
@@ -149,9 +147,28 @@ export function RunButton({
       type="button"
       onClick={onClick}
       disabled={busy || disabled}
-      className="rounded-lg bg-sky-600 px-5 py-2.5 font-medium text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
+      className="btn"
     >
-      {busy ? "Working" : children}
+      {busy ? (
+        <>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            aria-hidden="true"
+            style={{ animation: "spin 0.9s linear infinite" }}
+          >
+            <path d="M12 3a9 9 0 1 0 9 9" />
+          </svg>
+          Working
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 }

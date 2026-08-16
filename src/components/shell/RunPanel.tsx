@@ -41,19 +41,24 @@ function ResultRow({ result }: { result: EngineResult }) {
   const isImage = result.type.startsWith("image/");
 
   return (
-    <li className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+    <li className="result">
       {isImage && url ? (
-        <img
-          src={url}
-          alt={result.name}
-          className="mb-3 max-h-64 w-auto rounded-lg bg-[repeating-conic-gradient(#e2e8f0_0%_25%,transparent_0%_50%)] bg-[length:16px_16px]"
-        />
+        <img src={url} alt={result.name} className="result-image" />
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate font-medium">{result.name}</p>
-          <p className="text-sm text-slate-500">
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
+          <p className="file-name" style={{ fontWeight: 560 }}>
+            {result.name}
+          </p>
+          <p className="tag" style={{ marginTop: 2 }}>
             {readable(result.bytes.byteLength)}
           </p>
         </div>
@@ -62,8 +67,22 @@ function ResultRow({ result }: { result: EngineResult }) {
           <a
             href={url}
             download={result.name}
-            className="rounded-lg bg-sky-600 px-4 py-2 font-medium text-white hover:bg-sky-700"
+            className="btn"
+            style={{ marginLeft: "auto", textDecoration: "none" }}
           >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v12M7 12l5 5 5-5M5 20h14" />
+            </svg>
             Download
           </a>
         ) : null}
@@ -74,7 +93,7 @@ function ResultRow({ result }: { result: EngineResult }) {
 
 export function RunPanel({ state, resultRef, onReset }: Props) {
   return (
-    <div className="mt-6">
+    <div style={{ marginTop: 22 }}>
       {/* The live region announces progress to a screen reader. Without it the
           page looks frozen to anybody who cannot see the bar move. */}
       <div aria-live="polite" className="sr-only">
@@ -84,45 +103,47 @@ export function RunPanel({ state, resultRef, onReset }: Props) {
 
       {state.busy ? (
         <div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+          <div className="bar">
             <div
-              className="h-full bg-sky-600 transition-[width] duration-200"
-              style={{ width: `${Math.round(state.fraction * 100)}%` }}
+              className="bar-fill"
+              style={{
+                width: `${Math.max(4, Math.round(state.fraction * 100))}%`,
+              }}
             />
           </div>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="tag" style={{ marginTop: 10 }}>
             {state.message}
           </p>
         </div>
       ) : null}
 
       {state.error ? (
-        <p
-          role="alert"
-          className="rounded-xl bg-red-50 p-4 text-red-900 dark:bg-red-950 dark:text-red-200"
-        >
+        <p role="alert" className="alert alert-bad">
           {state.error}
         </p>
       ) : null}
 
       {state.results ? (
-        <div ref={resultRef} tabIndex={-1} className="outline-none">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">
+        <div ref={resultRef} tabIndex={-1} style={{ outline: "none" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 12,
+            }}
+          >
+            <h2 className="tag">
               {state.results.length === 1
                 ? "Your file"
                 : `Your ${state.results.length} files`}
             </h2>
-            <button
-              type="button"
-              onClick={onReset}
-              className="text-sm underline hover:no-underline"
-            >
+            <button type="button" className="btn-quiet" onClick={onReset}>
               Start again
             </button>
           </div>
 
-          <ul className="space-y-4">
+          <ul style={{ display: "grid", gap: 14 }}>
             {state.results.map((result) => (
               <ResultRow key={result.name} result={result} />
             ))}

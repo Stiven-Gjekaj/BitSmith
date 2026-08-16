@@ -1,4 +1,4 @@
-import { useCallback, useId, useRef, useState } from "react";
+import { useCallback, useId, useState } from "react";
 
 interface Props {
   accept?: string;
@@ -58,9 +58,8 @@ export function Dropzone({
   const inputId = useId();
   const [over, setOver] = useState(false);
   const [refused, setRefused] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  const accept_ = useCallback(
+  const take = useCallback(
     (incoming: FileList | null) => {
       if (!incoming || incoming.length === 0) {
         return;
@@ -90,9 +89,11 @@ export function Dropzone({
   return (
     <div>
       {/* biome-ignore lint/a11y/noStaticElementInteractions: the label and
-          input inside provide the accessible control; this element only adds
-          a pointer affordance on top of it. */}
+          input inside are the accessible control. This element only adds a
+          drop target on top of them. */}
       <div
+        data-over={over}
+        className="drop"
         onDragOver={(event) => {
           event.preventDefault();
           setOver(true);
@@ -101,65 +102,57 @@ export function Dropzone({
         onDrop={(event) => {
           event.preventDefault();
           setOver(false);
-          accept_(event.dataTransfer.files);
+          take(event.dataTransfer.files);
         }}
-        className={`rounded-xl border-2 border-dashed p-8 text-center transition ${
-          over
-            ? "border-sky-500 bg-sky-50 dark:bg-sky-950"
-            : "border-slate-300 dark:border-slate-700"
-        }`}
       >
-        <p className="mb-3 text-slate-600 dark:text-slate-400">
-          Drop {multiple ? "files" : "a file"} here, or
-        </p>
+        <p className="drop-note">Drop {multiple ? "files" : "a file"} here</p>
 
-        <label
-          htmlFor={inputId}
-          className="inline-block cursor-pointer rounded-lg bg-slate-900 px-4 py-2 font-medium text-white hover:bg-slate-700 focus-within:ring-2 focus-within:ring-sky-500 dark:bg-slate-100 dark:text-slate-900"
-        >
+        <label htmlFor={inputId} className="drop-pick">
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 17V5M7 10l5-5 5 5M5 19h14" />
+          </svg>
           Choose {multiple ? "files" : "a file"}
           <input
             id={inputId}
-            ref={inputRef}
             type="file"
             accept={accept}
             multiple={multiple}
             className="sr-only"
-            onChange={(event) => accept_(event.target.files)}
+            onChange={(event) => take(event.target.files)}
           />
         </label>
 
         {maxBytes ? (
-          <p className="mt-3 text-sm text-slate-500">
-            Up to {readable(maxBytes)}
-          </p>
+          <p className="drop-limit">Up to {readable(maxBytes)}</p>
         ) : null}
       </div>
 
       {refused ? (
-        <p
-          role="alert"
-          className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200"
-        >
+        <p role="alert" className="alert alert-warn" style={{ marginTop: 12 }}>
           {refused}
         </p>
       ) : null}
 
       {files.length > 0 ? (
-        <ul className="mt-4 space-y-2">
+        <ul style={{ marginTop: 14, display: "grid", gap: 8 }}>
           {files.map((file, index) => (
-            <li
-              key={keyFor(file)}
-              className="flex items-center justify-between gap-3 rounded-lg bg-slate-100 px-3 py-2 text-sm dark:bg-slate-800"
-            >
-              <span className="truncate">{file.name}</span>
-              <span className="shrink-0 text-slate-500">
-                {readable(file.size)}
-              </span>
+            <li key={keyFor(file)} className="file-row">
+              <span className="file-name">{file.name}</span>
+              <span className="file-size">{readable(file.size)}</span>
               <button
                 type="button"
+                className="btn-quiet"
                 onClick={() => onChange(files.filter((_, i) => i !== index))}
-                className="shrink-0 rounded px-2 py-1 text-slate-600 underline hover:text-slate-900 dark:text-slate-400"
               >
                 Remove
               </button>
