@@ -190,10 +190,15 @@ page.
 Adding a tool means one entry, one engine, one component, and nothing else.
 
 **The split between the engine and the interface.**
-An engine takes bytes, reports progress, and returns bytes.
-It touches no browser API and no React.
-That is the only reason a test can run it in Node, and it is also why a tool
-that needs a server later can arrive without changing the shell.
+An engine takes bytes, reports progress, and returns bytes, and never touches
+React.
+Almost all of them touch no browser API either, which is what lets a test run
+them in Node against a fixture, and why a tool that needs a server later can
+arrive without changing the shell.
+Two do, and they say so in their own files: the background remover fetches its
+model, and the PDF rasteriser needs a canvas, because a PDF page is not data
+to be converted but a program to be drawn.
+Those two are covered in a browser instead.
 
 | Area | Files | Lines | Responsibility |
 | ---- | ----- | ----- | -------------- |
@@ -202,7 +207,7 @@ that needs a server later can arrive without changing the shell.
 | **Tools** | `src/tools/` | 3525 | The registry, ten engines, ten interfaces, the conversion pages |
 | **Pages** | `src/pages/`, `src/layouts/` | 300 | Routes, page shell, metadata |
 | **Styles** | `src/styles/global.css` | 254 | The token palette, the animations, the shell classes |
-| **Total** | **62 files** | **6868** | Not counting 3155 lines of tests |
+| **Total** | **62 files** | **6844** | Not counting 3327 lines of tests |
 
 ```
 src/
