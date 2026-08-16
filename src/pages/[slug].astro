@@ -1,0 +1,41 @@
+---
+/**
+ * Every page that is one segment deep.
+ *
+ * Two kinds of page live here: a tool, and a pair of formats. They share this
+ * file because they share the shape of their address, and a visitor should not
+ * have to learn the difference. Nobody searches for a category, so a
+ * conversion page sits at `/png-to-jpg` rather than under a folder that only
+ * makes sense to whoever built the site.
+ *
+ * The routes come from the two registries, so adding either kind needs no
+ * change here.
+ */
+import PairPage from "../components/pages/PairPage.astro";
+import ToolPage from "../components/pages/ToolPage.astro";
+import { type Pair, pairs } from "../tools/image-convert/pairs";
+import { type ToolMeta, tools } from "../tools/registry";
+
+export function getStaticPaths() {
+  return [
+    ...tools.map((tool) => ({
+      params: { slug: tool.slug },
+      props: { tool, pair: undefined },
+    })),
+    ...pairs.map((pair) => ({
+      params: { slug: pair.slug },
+      props: { tool: undefined, pair },
+    })),
+  ];
+}
+
+interface Props {
+  tool?: ToolMeta;
+  pair?: Pair;
+}
+
+const { tool, pair } = Astro.props;
+---
+
+{tool ? <ToolPage tool={tool} /> : null}
+{pair ? <PairPage pair={pair} /> : null}

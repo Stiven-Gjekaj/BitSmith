@@ -1,18 +1,9 @@
 ---
-import ToolRunner from "../components/shell/ToolRunner";
-import ToolIcon from "../components/ui/ToolIcon.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import { href } from "../lib/url";
-import { otherTools, type ToolMeta, tools } from "../tools/registry";
-
-export function getStaticPaths() {
-  // One entry in the registry becomes one page. Adding a tool needs no change
-  // to this file.
-  return tools.map((tool) => ({
-    params: { slug: tool.slug },
-    props: { tool },
-  }));
-}
+import ToolRunner from "../shell/ToolRunner";
+import ToolIcon from "../ui/ToolIcon.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { href } from "../../lib/url";
+import { otherTools, type ToolMeta } from "../../tools/registry";
 
 interface Props {
   tool: ToolMeta;
