@@ -203,42 +203,53 @@ with each other. Both orders still give eight different pictures with the
 right shapes, so the obvious tests pass either way. Only a named corner in a
 known place can tell a reflection along one diagonal from the other.
 
-## The browser suite times out on a test at a time
+## Why the browser suite used to time out
 
-Unresolved, and recorded here rather than hidden behind a retry count.
+Solved. Recorded because the answer explains two separate faults that looked
+unrelated, and because the shape of it will come back the next time a control
+is added.
 
-A different test fails on each run, and every one that failed then passed on
-its own in under two seconds after timing out at eighty in the suite. Every
-failure is a click, or a wait, on a page that had loaded.
+Astro renders the controls on the server, so they are in the page before any
+JavaScript runs. They look finished and they are not: nothing typed into them
+reaches React until the tool has mounted, and the tool sits behind a lazy
+import, so it arrives after the page does. Measured gap between the control
+appearing and React mounting:
 
-| Test | Alone | In the suite |
-| ---- | ----- | ------------ |
-| reads the HEIC an iPhone writes | passed, 1.6s | timed out at 80s |
-| different text gives a different code | passed, 2.1s | timed out at 80s |
-| refuses something that is not a PDF | passed, 0.8s | timed out at 80s |
+| Machine speed | Control attached | React mounted | Gap |
+| ------------- | ---------------- | ------------- | --- |
+| Idle | 186ms | 231ms | 45ms |
+| Six times slower | 319ms | 557ms | 238ms |
+| Twenty times slower | 1006ms | 2066ms | 1060ms |
 
-It then stopped happening. Four consecutive full runs passed, three of them
-back to back, with no change made that should have affected it. So the rate
-is somewhere near half of runs and the cause is still unknown. It is the same
-signature as the older defect recorded in the comment in
-`tests/e2e/pdf.spec.ts`, which was never explained either.
+A test that typed inside that gap got a box holding its text and a run button
+that never enabled, because the button is disabled on React's own idea of
+whether the box is empty, and React's state was still the empty one it mounts
+with. The test then waited ninety seconds and failed on whichever control it
+was holding, which is why it looked like a different fault every run.
 
-Ruled out by measurement, so that nobody spends the time again:
+The trace of a real failure says it plainly: the button was found, and then
+"element is not enabled", 168 times over.
 
-- **Memory.** No swap in use at all, on a machine with 16 GB.
-- **Processes left behind by earlier runs.** None.
-- **The test server dying.** It was watched through a full run and stayed up.
-- **File handles leaking in the test server.** This one is real and was
-  fixed: 30 downloads cut off part way left 30 open handles. It is still not
-  the cause here, because the open file limit on this machine is over a
-  million and a run of a hundred tests cannot approach it. It would matter on
-  a host with the more usual limit of 1024.
+The fix is a signal that cannot exist before React mounts, because it is set
+from an effect and an effect does not run on the server. The wait sits in the
+test helpers rather than in each test, because forgetting it does not fail
+loudly. One spec had already forgotten it, and that is the spec the failures
+kept landing on.
 
-Not tried yet: giving each spec file its own browser, raising the action
-timeout, and finding what holds the page busy when it happens.
+Confirmed by reproducing it deliberately: with the browser slowed twenty
+times and the old wait in place, the button is still disabled after React has
+mounted; with the new wait it is not.
 
-A retry count would make the suite green and would be the wrong answer while
-the cause is unknown, because the same fault would then reach the site unseen.
+This also explains the older defect recorded in `tests/e2e/pdf.spec.ts`,
+where a test switched a mode and the mode reverted. That test is back and
+passes.
+
+What was ruled out first, so that nobody covers the ground again: memory, no
+swap in use at all; processes left behind, none; the test server dying, it
+was watched through a full run; the test server stalling, 480 concurrent
+requests with none over 24ms; and file handles leaking in the test server,
+which was real and is fixed but could not be the cause on a machine whose
+limit is over a million.
 
 ## Open items
 
