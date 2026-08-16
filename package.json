@@ -13,8 +13,8 @@
     "lint": "biome ci .",
     "format": "biome format --write .",
     "verify": "pnpm biome ci . && pnpm astro check && pnpm vitest run && pnpm build",
-    "prebuild": "node scripts/copy-ort.mjs",
-    "predev": "node scripts/copy-ort.mjs",
+    "prebuild": "node scripts/copy-ort.mjs && node scripts/copy-pdfjs.mjs",
+    "predev": "node scripts/copy-ort.mjs && node scripts/copy-pdfjs.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -39,6 +39,7 @@
     "lucide-react": "^1.31.0",
     "onnxruntime-web": "^1.27.0",
     "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.2.108",
     "qrcode": "^1.5.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

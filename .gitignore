@@ -86,6 +86,11 @@ public/models/*
 # Copied from node_modules by scripts/copy-ort.mjs on every build.
 public/ort/
 
+# Copied out of pdfjs-dist by scripts/copy-pdfjs.mjs on every build. These are
+# the standard fonts and character maps that pdfjs fetches at run time, and a
+# document using one that it did not embed renders blank without them.
+public/pdfjs/
+
 # Playwright output
 /test-results/
 /playwright-report/
