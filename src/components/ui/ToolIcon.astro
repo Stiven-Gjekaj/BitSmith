@@ -2,9 +2,9 @@
 /**
  * One line drawing for each tool.
  *
- * These are written here rather than pulled from an icon set. Five icons is
- * less code than a dependency, and each one inherits the accent colour and the
- * stroke weight of the design instead of bringing its own.
+ * These are written here rather than pulled from an icon set. A handful of
+ * icons is less code than a dependency, and each one inherits the accent
+ * colour and the stroke weight of the design instead of bringing its own.
  */
 interface Props {
   slug: string;
@@ -39,7 +39,17 @@ const paths: Record<string, string[]> = {
   ],
 };
 
-const shape = paths[slug] ?? ["M5 12h14"];
+const shape = paths[slug];
+
+// A missing icon used to fall back to a single dash. That is the worst kind
+// of failure: the page still builds, the card still renders, and the tool
+// merely looks slightly wrong to anybody who never saw the others. Stopping
+// the build is louder and cheaper.
+if (!shape) {
+  throw new Error(
+    `No icon for the tool "${slug}". Add its paths to ToolIcon.astro.`,
+  );
+}
 ---
 
 <svg
