@@ -14,6 +14,16 @@
  *
  * The picture is 64 wide and 48 high on purpose. A square fixture hides a bug
  * that swaps width for height, and this project resizes and crops.
+ *
+ * One fixture is not written here. `gradient.heic` cannot be, because this
+ * project decodes HEIC and never encodes it, so it holds no HEIC encoder to
+ * make one with. It was made once on macOS from the PNG this script writes:
+ *
+ *     sips -s format heic tests/fixtures/gradient.png \
+ *       --out tests/fixtures/gradient.heic
+ *
+ * It is committed like the others. Anybody regenerating it needs a machine
+ * that can write HEIC, which in practice means macOS.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
