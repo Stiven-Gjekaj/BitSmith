@@ -50,31 +50,47 @@ test("the controls are not locked", async ({ page }) => {
   expect(sniff(await resultBytes(page))).toBe("webp");
 });
 
-test("each page says something of its own", async ({ page }) => {
+test("no two pages say the same thing", async ({ page }) => {
   // Pages that share their words with two swapped are read as spam, and that
-  // can lower the whole site. This compares the writing on two pages that are
-  // as close as any two get.
-  const read = async (slug: string) => {
-    await page.goto(`./${slug}/`);
-    return (await page.locator("section.notes").innerText()).toLowerCase();
-  };
-
-  const first = await read("png-to-jpg");
-  const second = await read("webp-to-jpg");
-
-  expect(first.length).toBeGreaterThan(400);
-  expect(second.length).toBeGreaterThan(400);
-
+  // can lower the whole site.
+  //
+  // This used to compare one hand picked pair and trust that it was the worst
+  // case. It was a guess, and it stopped being the worst case the moment a
+  // pair was added. Every page is read once here and all of them are then
+  // compared, so the number that gets checked is the real maximum rather than
+  // a sample. Fourteen pages cost about three seconds to read.
   const words = (text: string) => new Set(text.match(/[a-z']+/g) ?? []);
-  const a = words(first);
-  const b = words(second);
-  const shared = [...a].filter((word) => b.has(word)).length;
-  const overlap = shared / new Set([...a, ...b]).size;
 
-  // Half is comfortable for two pages that discuss the same subject in the
-  // same voice. Anything approaching one would mean the words were reused.
-  expect(overlap).toBeLessThan(0.6);
+  const read = new Map<string, Set<string>>();
+  for (const pair of pairs) {
+    await page.goto(`./${pair.slug}/`);
+    const text = (await page.locator("section.notes").innerText()).toLowerCase();
+    expect(text.length, pair.slug).toBeGreaterThan(400);
+    read.set(pair.slug, words(text));
+  }
+
+  let worst = { overlap: 0, a: "", b: "" };
+  for (let i = 0; i < pairs.length; i += 1) {
+    for (let j = i + 1; j < pairs.length; j += 1) {
+      const a = read.get(pairs[i].slug) as Set<string>;
+      const b = read.get(pairs[j].slug) as Set<string>;
+      const shared = [...a].filter((word) => b.has(word)).length;
+      const overlap = shared / new Set([...a, ...b]).size;
+      if (overlap > worst.overlap) {
+        worst = { overlap, a: pairs[i].slug, b: pairs[j].slug };
+      }
+    }
+  }
+
+  // Half is comfortable for pages that discuss the same subject in the same
+  // voice. Anything approaching one would mean the words were reused. The
+  // names are in the message so a failure says which two pages to rewrite.
+  expect(
+    worst.overlap,
+    `${worst.a} and ${worst.b} are the closest two pages`,
+  ).toBeLessThan(0.6);
 });
+
 
 test("a conversion page answers the three questions", async ({ page }) => {
   await page.goto("./jpg-to-webp/");
