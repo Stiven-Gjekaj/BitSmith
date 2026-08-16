@@ -133,7 +133,7 @@ Nothing else in this plan needs money before tier 3.
 |---|---|---|
 | Product name | Bitsmith | Decided |
 | Repository name | `bitsmith` | Decided |
-| Launch address | `bitsmith.pages.dev` | Free today. Take it now. |
+| Launch address | `stiven-gjekaj.github.io/bitsmith` | Live now, on GitHub Pages. |
 | Future domain | `bitsmith.tools` | Not registered. See the risk below. |
 
 The old directory name `QRmachina` names the site after one tool of
@@ -141,10 +141,9 @@ many.
 A visitor who wants a PDF tool does not trust a site named for QR codes.
 Bitsmith names no single tool, so every tool fits under it.
 
-**Take `bitsmith.pages.dev` today.**
-The `pages.dev` namespace is global, and one person holds each name.
-A check of twelve common words found only three of them still free.
-The address costs nothing and it needs only a free Cloudflare account.
+The site is published from this repository by a workflow.
+The name `bitsmith.pages.dev` is still free at Cloudflare and still matches,
+so it stays available if the header limit in section 6 ever forces a move.
 
 ### Free addresses
 
@@ -274,7 +273,38 @@ For a utility site, speed beats a custom typeface.
 
 ## 6. The host
 
-**Use Cloudflare Pages, on the free plan.**
+**The site runs on GitHub Pages.**
+
+This is a change from the first plan, which chose Cloudflare Pages.
+The reason for the change is that the code already lives on GitHub, so one
+workflow builds and publishes with no second account and no second service.
+The address is `https://stiven-gjekaj.github.io/bitsmith/`.
+
+Be clear about what the change costs, because two of these are permanent.
+
+- **GitHub Pages sends no custom header.** Section 11 plans tier 2 video by
+  putting cross-origin isolation on single routes through a `_headers` file.
+  That method does not exist here. Fast multi-threaded video therefore needs a
+  move to a host that sets headers, or it needs the slower single-threaded
+  build. This is the largest cost, and it only arrives with tier 2.
+- **A project site sits under a path.** The address carries `/bitsmith/`
+  rather than a root. Two settings in `astro.config.mjs` must stay correct
+  together, and a wrong one breaks every link on the live site while the build
+  still passes. The deploy workflow checks the built pages for that path.
+- **Jekyll runs by default and drops any directory that starts with an
+  underscore.** Astro writes everything into `_astro/`. The file
+  `public/.nojekyll` turns Jekyll off, and the deploy workflow refuses to
+  publish without it.
+- **The bandwidth is a soft limit, not an unmetered one.** Confirm the current
+  terms if the traffic grows.
+
+The model is committed to the repository rather than kept in object storage.
+It is 4.5 MB, which is small enough that git does not suffer, and holding it
+here is what lets the site serve it from its own address.
+
+### The earlier choice, for the record
+
+**Cloudflare Pages, on the free plan.**
 
 The reason is bandwidth.
 This site sends large binary files to each visitor.
