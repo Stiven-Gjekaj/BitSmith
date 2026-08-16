@@ -1,14 +1,14 @@
 import {
   decode,
+  type EncodableFormat,
   EXTENSION,
   encode,
-  type ImageFormat,
   MIME,
 } from "../../lib/image/codecs";
 import { type Engine, withExtension } from "../../lib/pipeline/types";
 
 export interface ConvertOptions {
-  format: ImageFormat;
+  format: EncodableFormat;
   quality: number;
 }
 

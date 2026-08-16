@@ -4,7 +4,7 @@ import { Field, RunButton, Select } from "../../components/shell/fields";
 import { RunPanel } from "../../components/shell/RunPanel";
 import { useToolRun } from "../../components/shell/useToolRun";
 import { Slider } from "../../components/ui/slider";
-import type { ImageFormat } from "../../lib/image/codecs";
+import type { EncodableFormat } from "../../lib/image/codecs";
 import { findTool } from "../registry";
 import { DEFAULTS } from "./engine";
 
@@ -19,13 +19,13 @@ interface Props {
    * page built for a search engine rather than for the person who arrived, and
    * a visitor who changes their mind should not have to find another address.
    */
-  preset?: { format?: ImageFormat; accept?: string };
+  preset?: { format?: EncodableFormat; accept?: string };
 }
 
 export default function Tool({ preset }: Props) {
   const { state, run, reset, resultRef } = useToolRun("image-converter");
   const [files, setFiles] = useState<File[]>([]);
-  const [format, setFormat] = useState<ImageFormat>(
+  const [format, setFormat] = useState<EncodableFormat>(
     preset?.format ?? DEFAULTS.format,
   );
   const [quality, setQuality] = useState(DEFAULTS.quality);
@@ -46,7 +46,7 @@ export default function Tool({ preset }: Props) {
             <Select
               id={id}
               value={format}
-              onChange={(value) => setFormat(value as ImageFormat)}
+              onChange={(value) => setFormat(value as EncodableFormat)}
               options={[
                 { value: "webp", label: "WebP (small, wide support)" },
                 { value: "jpeg", label: "JPEG (photographs)" },

@@ -8,7 +8,7 @@ import {
 } from "../../components/shell/fields";
 import { RunPanel } from "../../components/shell/RunPanel";
 import { useToolRun } from "../../components/shell/useToolRun";
-import type { ImageFormat } from "../../lib/image/codecs";
+import type { EncodableFormat } from "../../lib/image/codecs";
 import { findTool } from "../registry";
 import { CropCanvas } from "./CropCanvas";
 
@@ -32,7 +32,7 @@ export default function Tool() {
     width: number | "";
     height: number | "";
   }>({ width: "", height: "" });
-  const [format, setFormat] = useState<ImageFormat>("png");
+  const [format, setFormat] = useState<EncodableFormat>("png");
 
   // Read the real size as soon as a picture arrives, so the boxes below can be
   // filled in and the visitor is not guessing at numbers.
@@ -190,7 +190,7 @@ export default function Tool() {
               <Select
                 id={id}
                 value={format}
-                onChange={(value) => setFormat(value as ImageFormat)}
+                onChange={(value) => setFormat(value as EncodableFormat)}
                 options={[
                   { value: "png", label: "PNG" },
                   { value: "jpeg", label: "JPEG" },

@@ -1,9 +1,9 @@
 import resize from "@jsquash/resize";
 import {
   decode,
+  type EncodableFormat,
   EXTENSION,
   encode,
-  type ImageFormat,
   MIME,
   type RawImage,
 } from "../../lib/image/codecs";
@@ -14,7 +14,7 @@ export interface CropOptions {
   crop?: { x: number; y: number; width: number; height: number };
   /** The size to finish at. Leave out to keep the cropped size. */
   resize?: { width: number; height: number };
-  format: ImageFormat;
+  format: EncodableFormat;
   quality: number;
 }
 

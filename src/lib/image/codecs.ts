@@ -10,7 +10,7 @@ import * as jpeg from "@jsquash/jpeg";
 import * as png from "@jsquash/png";
 import * as webp from "@jsquash/webp";
 
-export type ImageFormat = "png" | "jpeg" | "webp" | "avif";
+export type EncodableFormat = "png" | "jpeg" | "webp" | "avif";
 
 /** A plain ImageData, so that Node needs no browser global. */
 export interface RawImage {
@@ -19,14 +19,14 @@ export interface RawImage {
   height: number;
 }
 
-export const MIME: Record<ImageFormat, string> = {
+export const MIME: Record<EncodableFormat, string> = {
   png: "image/png",
   jpeg: "image/jpeg",
   webp: "image/webp",
   avif: "image/avif",
 };
 
-export const EXTENSION: Record<ImageFormat, string> = {
+export const EXTENSION: Record<EncodableFormat, string> = {
   png: "png",
   jpeg: "jpg",
   webp: "webp",
@@ -40,7 +40,7 @@ export const EXTENSION: Record<ImageFormat, string> = {
  * and is often wrong or empty, and a file that a visitor renamed lies about
  * itself. The first bytes of a file do not lie, so this reads those.
  */
-export function sniff(bytes: Uint8Array): ImageFormat | null {
+export function sniff(bytes: Uint8Array): EncodableFormat | null {
   if (bytes.length < 12) {
     return null;
   }
@@ -111,7 +111,7 @@ export async function decode(bytes: Uint8Array): Promise<RawImage> {
  */
 export async function encode(
   image: RawImage,
-  format: ImageFormat,
+  format: EncodableFormat,
   quality = 82,
 ): Promise<Uint8Array> {
   const input = image as unknown as ImageData;

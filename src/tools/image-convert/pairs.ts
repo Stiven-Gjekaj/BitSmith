@@ -1,4 +1,4 @@
-import type { ImageFormat } from "../../lib/image/codecs";
+import type { EncodableFormat } from "../../lib/image/codecs";
 
 /**
  * One page for each pair of formats.
@@ -18,8 +18,8 @@ export interface Pair {
   /** The address. Written the way a person searches, so `jpg` and not
    *  `jpeg`. */
   slug: string;
-  from: ImageFormat;
-  to: ImageFormat;
+  from: EncodableFormat;
+  to: EncodableFormat;
   /** How the source is named in a sentence. */
   fromLabel: string;
   toLabel: string;
