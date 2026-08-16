@@ -65,7 +65,8 @@ The ten tools together cost nothing to run and nothing to serve.
 - **[Compress image](https://stiven-gjekaj.github.io/BitSmith/compress-image/)**
   makes a picture fit inside a size an upload form allows.
 - **[Remove photo metadata](https://stiven-gjekaj.github.io/BitSmith/strip-metadata/)**
-  takes out the place, the date and the camera, without rebuilding the picture.
+  takes the place, the date and the camera out of a JPEG, PNG or WebP,
+  without rebuilding the picture.
 - **[Rotate and mirror](https://stiven-gjekaj.github.io/BitSmith/rotate-image/)**
   turns a picture the right way up.
 - **[Crop and resize](https://stiven-gjekaj.github.io/BitSmith/crop-image/)**

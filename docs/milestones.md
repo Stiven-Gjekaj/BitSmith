@@ -250,19 +250,18 @@ the cause is unknown, because the same fault would then reach the site unseen.
 3. Write more conversion pairs only where a real answer exists to the three
    questions the fourteen already answer. A pair that cannot be given one does
    not deserve a page, and thin pages lower the whole site.
-4. Strip the metadata from a WebP. The tool refuses WebP, AVIF and HEIC today
-   and says so. WebP is the reachable one of the three: it needs a RIFF walk,
-   dropping the `EXIF` and `XMP ` chunks, clearing the matching bits in the
-   `VP8X` flags byte, and rewriting the container length. The flag bits must
-   be read from the container specification rather than recalled. AVIF and
-   HEIC keep metadata in nested boxes reached through offset tables, and
-   rewriting those is a great deal of code for a fragile result.
+4. Strip the metadata from an AVIF or a HEIC. Both keep it in nested boxes
+   reached through tables of offsets, so removing one means rewriting those
+   tables and every offset after them. The tool refuses both today and says
+   so. This is a great deal of code for a fragile result, and it may never be
+   worth doing.
 5. Decide whether the copied pdfjs character maps earn their size. Measured:
    text in a Latin font draws correctly without the font folder, because pdfjs
    carries the fourteen standard fonts itself. The maps are kept for documents
    in other writing systems, which nothing here tests yet.
 
-Closed: the git email is `stivenagostingjekaj@gmail.com` and is now pinned in
+Closed: WebP metadata stripping is done, so the tool now takes JPEG, PNG and
+WebP. The git email is `stivenagostingjekaj@gmail.com` and is now pinned in
 the repository configuration. The conversion pages use `/png-to-jpg`. HEIC is
 read, under the LGPL terms recorded in the README, and the two pages for it
 are live. The background remover has browser coverage.

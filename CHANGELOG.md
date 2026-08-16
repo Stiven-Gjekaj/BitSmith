@@ -27,6 +27,8 @@ Ten tools instead of five, and fourteen conversion pages instead of twelve.
 - **Five tools.** Compress to a target size, remove photo metadata, rotate and
   mirror, PDF to image, and image to PDF.
 - **Two conversion pages**, `heic-to-jpg` and `heic-to-png`.
+- **WebP metadata stripping.** The tool takes JPEG, PNG and WebP. AVIF and
+  HEIC are refused with a sentence saying why.
 - **A note on a result**, for the tools where the size cannot say what
   happened. A file that carried no metadata and one that was cleaned come back
   at almost the same size.
