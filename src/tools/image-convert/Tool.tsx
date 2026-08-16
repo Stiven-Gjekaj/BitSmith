@@ -3,6 +3,7 @@ import { Dropzone } from "../../components/shell/Dropzone";
 import { Field, RunButton, Select } from "../../components/shell/fields";
 import { RunPanel } from "../../components/shell/RunPanel";
 import { useToolRun } from "../../components/shell/useToolRun";
+import { Slider } from "../../components/ui/slider";
 import type { ImageFormat } from "../../lib/image/codecs";
 import { findTool } from "../registry";
 import { DEFAULTS } from "./engine";
@@ -39,7 +40,7 @@ export default function Tool({ preset }: Props) {
         onChange={setFiles}
       />
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-5 sm:grid-cols-2">
         <Field label="Convert to">
           {(id) => (
             <Select
@@ -65,15 +66,16 @@ export default function Tool({ preset }: Props) {
           }
         >
           {(id) => (
-            <input
+            <Slider
               id={id}
-              type="range"
               min={10}
               max={100}
-              value={quality}
+              step={1}
+              value={[quality]}
               disabled={format === "png"}
-              onChange={(event) => setQuality(Number(event.target.value))}
-              className="w-full accent-sky-600 disabled:opacity-40"
+              onValueChange={([next]) => setQuality(next)}
+              aria-label="Quality"
+              className="py-2"
             />
           )}
         </Field>

@@ -38,7 +38,7 @@ interface EngineModule {
    * Optional. A tool with a large model loads it before it is needed, and may
    * report something about how it will run.
    */
-  prepare?: (options: never) => Promise<string | void>;
+  prepare?: (options: never) => Promise<string | undefined>;
 }
 
 const engines: Record<string, () => Promise<EngineModule>> = {

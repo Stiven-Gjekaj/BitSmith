@@ -3,6 +3,7 @@ import { Dropzone } from "../../components/shell/Dropzone";
 import { RunButton } from "../../components/shell/fields";
 import { RunPanel } from "../../components/shell/RunPanel";
 import { useToolRun } from "../../components/shell/useToolRun";
+import { Alert, AlertDescription } from "../../components/ui/alert";
 import { prepareTool } from "../../lib/pipeline/runTool";
 import { findTool } from "../registry";
 
@@ -62,14 +63,16 @@ export default function Tool() {
         onChange={setFiles}
       />
 
-      <p className="alert alert-quiet" style={{ marginTop: 16 }}>
-        {!ready
-          ? "The model is downloading, about 2 MB, while you choose a photograph."
-          : backend === "webgpu"
-            ? "The model is loaded and running on your graphics card, which is the fast path."
-            : "The model is loaded and running on your processor. This browser offers no graphics adapter, so a photograph takes a few seconds."}{" "}
-        It runs on your device, so the photograph is never sent anywhere.
-      </p>
+      <Alert className="mt-4">
+        <AlertDescription>
+          {!ready
+            ? "The model is downloading, about 2 MB, while you choose a photograph."
+            : backend === "webgpu"
+              ? "The model is loaded and running on your graphics card, which is the fast path."
+              : "The model is loaded and running on your processor. This browser offers no graphics adapter, so a photograph takes a few seconds."}{" "}
+          It runs on your device, so the photograph is never sent anywhere.
+        </AlertDescription>
+      </Alert>
 
       <div className="mt-6">
         <RunButton
