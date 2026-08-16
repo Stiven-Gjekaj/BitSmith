@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { resultBytes, resultName, runAndWait, sniff } from "./helpers";
+import { resultBytes, resultName, runAndWait, sniff, toolReady } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("./qr-code-generator/");
+  await toolReady(page, "textarea");
 });
 
 test("makes an SVG from a link", async ({ page }) => {

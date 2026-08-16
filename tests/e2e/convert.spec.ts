@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   giveImage,
+  giveImages,
   resultBytes,
   resultName,
   runAndWait,
@@ -36,8 +37,7 @@ test("writes each format it offers", async ({ page }) => {
 });
 
 test("converts more than one file at a time", async ({ page }) => {
-  await giveImage(page, "one.png");
-  await giveImage(page, "two.png");
+  await giveImages(page, ["one.png", "two.png"]);
   await expect(page.getByText("one.png")).toBeVisible();
   await expect(page.getByText("two.png")).toBeVisible();
 

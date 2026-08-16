@@ -23,7 +23,22 @@ export default defineConfig({
   // A flaky pass is worse than a failure, because it teaches people to press
   // the button again. Failing once is the report.
   retries: 0,
-  fullyParallel: true,
+
+  // Files run in parallel, tests inside a file do not. Running everything at
+  // once made two of the PDF tests flaky: a different one failed on each run,
+  // because a page was still fetching megabytes of WebAssembly while another
+  // test was asserting against it. A flaky test is worse than a failing one,
+  // because it teaches people to press the button again.
+  fullyParallel: false,
+
+  // One at a time. Each tool page pulls several megabytes of WebAssembly and
+  // decodes pictures on the main thread of its own tab. Running two at once
+  // left a different test hanging on each run, always one that was merely
+  // waiting for work the machine had not got to yet.
+  //
+  // A flaky suite is worse than a slow one. It teaches people to press the
+  // button again, and that is how a real failure gets ignored.
+  workers: 1,
   forbidOnly: !!process.env.CI,
 
   reporter: process.env.CI ? [["github"], ["list"]] : [["list"]],
