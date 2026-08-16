@@ -13,6 +13,56 @@ A version moves only when something is released.
 
 ## Unreleased
 
+### The formats and tools update
+
+Ten tools instead of five, and fourteen conversion pages instead of twelve.
+
+**Added**
+
+- **HEIC reading.** The format an iPhone writes by default, which almost
+  nothing outside Apple opens. Decoding only: writing one needs an HEVC
+  encoder that is patent encumbered, and nobody searches for a way to make a
+  HEIC. `EncodableFormat` and `DecodableFormat` are separate types, so asking
+  for a HEIC to be written does not compile.
+- **Five tools.** Compress to a target size, remove photo metadata, rotate and
+  mirror, PDF to image, and image to PDF.
+- **Two conversion pages**, `heic-to-jpg` and `heic-to-png`.
+- **A note on a result**, for the tools where the size cannot say what
+  happened. A file that carried no metadata and one that was cleaned come back
+  at almost the same size.
+
+**Fixed**
+
+- **A photograph taken sideways came out sideways.** Measured: a JPEG carrying
+  orientation 6 decoded to the same pixels as one with no tag, and the encoder
+  wrote no tag back, so every tool turned portrait photographs onto their
+  side. Decoding now turns the pixels to match the tag. The metadata remover
+  never decodes, so it writes back a 36 byte block carrying only the
+  orientation.
+- **An AVIF whose major brand is `mif1` was refused at the door**, although it
+  decodes perfectly well. Only the major brand was read; the whole brand list
+  is read now.
+- **The worker carried every engine at once.** Vite writes a worker as one
+  self contained script by default, and that format cannot split, so the
+  824,346 byte worker became 2,284,316 bytes when the HEIC decoder arrived and
+  a QR code paid for it. Building the worker as a module made it 927 bytes,
+  with each engine and the decoder fetched only when used.
+
+**Changed**
+
+- The suite reads the tool and page lists from the registries. It counted five
+  tools and twelve pages as written numbers, so the first addition turned it
+  red before any new code was wrong.
+- The vocabulary gate compares every conversion page rather than two chosen
+  ones. Measured worst overlap across the 91 comparisons is 0.255, against a
+  threshold of 0.6.
+- A missing tool icon stops the build. It used to fall back to a single dash,
+  so a forgotten icon shipped looking almost right.
+
+---
+
+### Version 1
+
 Version 1 is built. All five tools work, and the site is live on GitHub Pages
 at https://stiven-gjekaj.github.io/bitsmith/.
 
