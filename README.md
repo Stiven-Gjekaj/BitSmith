@@ -45,7 +45,7 @@ Bitsmith moves the work to the browser instead, which removes the bill, the
 account, and the stranger at the same time.
 
 The site is static files on GitHub Pages.
-The five tools together cost nothing to run and nothing to serve.
+The ten tools together cost nothing to run and nothing to serve.
 
 ---
 
@@ -60,9 +60,20 @@ The five tools together cost nothing to run and nothing to serve.
 - **[QR code generator](https://stiven-gjekaj.github.io/bitsmith/qr-code-generator/)**
   turns a link or a note into an SVG or a PNG.
 - **[Image converter](https://stiven-gjekaj.github.io/bitsmith/image-converter/)**
-  moves a picture between PNG, JPEG, WebP, and AVIF, at a quality you choose.
+  moves a picture between PNG, JPEG, WebP and AVIF, and reads the HEIC an
+  iPhone writes.
+- **[Compress image](https://stiven-gjekaj.github.io/bitsmith/compress-image/)**
+  makes a picture fit inside a size an upload form allows.
+- **[Remove photo metadata](https://stiven-gjekaj.github.io/bitsmith/strip-metadata/)**
+  takes out the place, the date and the camera, without rebuilding the picture.
+- **[Rotate and mirror](https://stiven-gjekaj.github.io/bitsmith/rotate-image/)**
+  turns a picture the right way up.
 - **[Crop and resize](https://stiven-gjekaj.github.io/bitsmith/crop-image/)**
   cuts a picture down, then changes its size.
+- **[PDF to image](https://stiven-gjekaj.github.io/bitsmith/pdf-to-image/)**
+  gives one numbered picture for each page.
+- **[Image to PDF](https://stiven-gjekaj.github.io/bitsmith/image-to-pdf/)**
+  puts pictures into one document, a page each.
 - **[Merge and split PDF](https://stiven-gjekaj.github.io/bitsmith/merge-pdf/)**
   joins files, or keeps the pages you name.
 - **[Background remover](https://stiven-gjekaj.github.io/bitsmith/remove-background/)**
@@ -152,9 +163,11 @@ your file
 | Language | TypeScript, strict mode |
 | Styles | Hand-written CSS on a token palette, and the system font stack |
 | Image codecs | The `@jsquash` modules from Squoosh, one per format |
-| PDF | `pdf-lib` |
+| HEIC reading | `libheif`, through `libheif-js`, fetched only when a HEIC arrives |
+| PDF writing | `pdf-lib` |
+| PDF drawing | `pdfjs-dist` |
 | Background removal | `u2netp` at half precision, through `onnxruntime-web` |
-| Tests | Vitest for the engines, run in Node with no browser |
+| Tests | Vitest for the engines in Node, Playwright for the browser |
 | Host | GitHub Pages, deployed by a workflow |
 
 The home page sends **216 bytes of JavaScript**, inline, and nothing else.
@@ -183,12 +196,12 @@ that needs a server later can arrive without changing the shell.
 
 | Area | Files | Lines | Responsibility |
 | ---- | ----- | ----- | -------------- |
-| **Library** | `src/lib/` | 465 | Codecs, the worker pipeline, the engine contract, link building |
-| **Shell** | `src/components/` | 822 | Drop area, progress, results, form fields, backdrop, icons |
-| **Tools** | `src/tools/` | 1283 | The registry, five engines, five interfaces |
-| **Pages** | `src/pages/`, `src/layouts/` | 664 | Routes, page shell, metadata |
-| **Styles** | `src/styles/global.css` | 506 | The token palette, the animations, the shell classes |
-| **Total** | **27 files** | **3234** | Not counting 689 lines of tests or the stylesheet |
+| **Library** | `src/lib/` | 957 | Codecs, Exif, transforms, the worker pipeline, the engine contract |
+| **Shell** | `src/components/` | 1832 | Drop area, progress, results, form fields, backdrop, icons |
+| **Tools** | `src/tools/` | 3525 | The registry, ten engines, ten interfaces, the conversion pages |
+| **Pages** | `src/pages/`, `src/layouts/` | 300 | Routes, page shell, metadata |
+| **Styles** | `src/styles/global.css` | 254 | The token palette, the animations, the shell classes |
+| **Total** | **62 files** | **6868** | Not counting 3155 lines of tests |
 
 ```
 src/
