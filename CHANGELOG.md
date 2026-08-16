@@ -44,6 +44,28 @@ Ten tools instead of five, and fourteen conversion pages instead of twelve.
 - **An AVIF whose major brand is `mif1` was refused at the door**, although it
   decodes perfectly well. Only the major brand was read; the whole brand list
   is read now.
+- **The browser suite timed out on a different test every few runs.** The
+  cause turned out to explain two faults that had looked unrelated. Astro
+  renders the controls on the server, so they are in the page before React has
+  mounted anything, and the tool sits behind a lazy import that arrives later
+  still. Measured gap between a control appearing and React mounting: 45ms on
+  an idle machine, 1060ms at twenty times slower. A test typing inside that
+  gap got a box that held its text and a run button that never enabled,
+  because the button is disabled on React's own idea of whether the box is
+  empty. The page now says when React has taken over, using an effect, which
+  cannot run on the server. This also explains the older failure that forced a
+  PDF page picking test to be deleted as unexplainable; that test is back.
+- **The site broke when the repository was renamed.** GitHub Pages paths are
+  case sensitive, so bitsmith to BitSmith moved the site while the built pages
+  still asked for assets under the old path. Every asset returned 404 and the
+  site loaded with no styles and no working tool. The check meant to catch
+  this compared the build against a name written out in the workflow, so
+  renaming the repository changed neither and it stayed green. It now reads
+  the name from the repository itself.
+- **The test server never closed a file that a browser stopped reading.**
+  Measured: 30 downloads cut off part way left 30 open handles. Not the cause
+  of the timeouts above, because the open file limit on the machine measured
+  is over a million, but it would matter on a host with the usual 1024.
 - **The worker carried every engine at once.** Vite writes a worker as one
   self contained script by default, and that format cannot split, so the
   824,346 byte worker became 2,284,316 bytes when the HEIC decoder arrived and
