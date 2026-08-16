@@ -1,0 +1,295 @@
+---
+import { href } from "../../lib/url";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { EXTENSION, MIME } from "../../lib/image/codecs";
+import { type Pair, relatedPairs } from "../../tools/image-convert/pairs";
+import ToolRunner from "../shell/ToolRunner";
+import ToolIcon from "../ui/ToolIcon.astro";
+
+interface Props {
+  pair: Pair;
+}
+
+const { pair } = Astro.props;
+const related = relatedPairs(pair);
+
+const title = `Convert ${pair.fromLabel} to ${pair.toLabel}`;
+const description =
+  `Turn a ${pair.fromLabel} into a ${pair.toLabel} in your browser. ` +
+  `${pair.tagline} No upload, no account, and the file never leaves your ` +
+  `device.`;
+
+// Two kinds of structured data, because the page is two things. It is a tool
+// a person can use, and it is an answer to three questions they were about to
+// ask. The questions are the ones the writing below already answers, so the
+// data and the page cannot drift apart.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      name: title,
+      description,
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Any browser",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: `Why convert ${pair.fromLabel} to ${pair.toLabel}?`,
+          acceptedAnswer: { "@type": "Answer", text: pair.why },
+        },
+        {
+          "@type": "Question",
+          name: `What is lost converting ${pair.fromLabel} to ${pair.toLabel}?`,
+          acceptedAnswer: { "@type": "Answer", text: pair.cost },
+        },
+        {
+          "@type": "Question",
+          name: `When should I not convert ${pair.fromLabel} to ${pair.toLabel}?`,
+          acceptedAnswer: { "@type": "Answer", text: pair.caution },
+        },
+      ],
+    },
+  ],
+};
+---
+
+<BaseLayout title={`${title} | Bitsmith`} description={description} jsonLd={jsonLd}>
+  <a class="back" href={href()}>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 18l-6-6 6-6"></path>
+    </svg>
+    All tools
+  </a>
+
+  <header class="head-block rise">
+    <span class="head-icon"><ToolIcon slug="image-converter" size={26} /></span>
+    <div>
+      <h1>{title}</h1>
+      <p class="lede">{pair.tagline}</p>
+    </div>
+  </header>
+
+  <p class="badge rise" style="animation-delay:120ms">
+    <span class="dot" aria-hidden="true"></span>
+    This file stays on your device
+  </p>
+
+  <div class="panel work rise" style="animation-delay:200ms">
+    <ToolRunner
+      client:load
+      slug="image-converter"
+      preset={{ format: pair.to, accept: MIME[pair.from] }}
+    />
+  </div>
+
+  <section class="notes rise" style="animation-delay:300ms">
+    <article>
+      <h2>Why turn a {pair.fromLabel} into a {pair.toLabel}</h2>
+      <p>{pair.why}</p>
+    </article>
+
+    <article>
+      <h2>What the change costs</h2>
+      <p>{pair.cost}</p>
+    </article>
+
+    <article>
+      <h2>When to do something else</h2>
+      <p>{pair.caution}</p>
+    </article>
+  </section>
+
+  <section class="more rise" style="animation-delay:380ms">
+    <h2 class="tag">Other conversions</h2>
+    <div class="more-grid">
+      {
+        related.map((other) => (
+          <a class="panel sweep more-card" href={href(other.slug)}>
+            <span class="more-icon">
+              <ToolIcon slug="image-converter" size={18} />
+            </span>
+            <span>
+              <span class="more-title">
+                {other.fromLabel} to {other.toLabel}
+              </span>
+              <span class="more-line">{other.tagline}</span>
+            </span>
+          </a>
+        ))
+      }
+    </div>
+    <p class="all-link">
+      <a href={href("image-converter")}>
+        Or use the converter with every format at once
+      </a>
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--mist);
+    text-decoration: none;
+    transition: color 0.25s ease;
+  }
+  .back:hover {
+    color: var(--glow);
+  }
+  .back svg {
+    transition: transform 0.25s ease;
+  }
+  .back:hover svg {
+    transform: translateX(-3px);
+  }
+
+  .head-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 1.6rem;
+  }
+
+  .head-icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    flex: none;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    color: var(--glow);
+    background: color-mix(in oklab, var(--glow) 8%, transparent);
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    font-weight: 660;
+  }
+
+  .lede {
+    margin-top: 0.45rem;
+    color: var(--mist);
+    font-size: 1.02rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    color: var(--good);
+    background: color-mix(in oklab, var(--good) 9%, transparent);
+    border: 1px solid color-mix(in oklab, var(--good) 26%, transparent);
+  }
+  .badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--good);
+    animation: breathe 2.6s ease-in-out infinite;
+  }
+
+  .work {
+    margin-top: 1.75rem;
+    padding: 1.5rem;
+  }
+  .work:hover {
+    transform: none;
+  }
+
+  .notes {
+    margin-top: 3.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 2rem;
+  }
+  .notes h2 {
+    font-size: 1.05rem;
+    font-weight: 590;
+    letter-spacing: -0.012em;
+  }
+  .notes p {
+    margin-top: 0.6rem;
+    color: var(--mist);
+    line-height: 1.75;
+    max-width: 42rem;
+  }
+
+  .more {
+    margin-top: 3rem;
+  }
+  .more-grid {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .more-card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.95rem 1.1rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .more-icon {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex: none;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    color: var(--mist);
+  }
+  .more-card:hover .more-icon {
+    color: var(--glow);
+    border-color: color-mix(in oklab, var(--glow) 40%, transparent);
+  }
+  .more-title {
+    display: block;
+    font-weight: 550;
+    font-size: 0.95rem;
+  }
+  .more-line {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--mist);
+  }
+
+  .all-link {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+  }
+  .all-link a {
+    color: var(--mist);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .all-link a:hover {
+    color: var(--glow);
+  }
+
+  @media (min-width: 40rem) {
+    .more-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .notes {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
