@@ -203,6 +203,35 @@ with each other. Both orders still give eight different pictures with the
 right shapes, so the obvious tests pass either way. Only a named corner in a
 known place can tell a reflection along one diagonal from the other.
 
+## The browser suite times out on a test at a time
+
+Unresolved, and recorded here rather than hidden behind a retry count.
+
+The suite is 112 tests across two projects at one worker. Every so often one
+of them fails, and it is a different one each run. Measured across three runs:
+two failures, then one, then a clean run earlier the same evening. Every test
+that failed was then run on its own and passed:
+
+| Test | Alone | In the suite |
+| ---- | ----- | ------------ |
+| reads the HEIC an iPhone writes | passed, 1.6s | timed out at 80s |
+| different text gives a different code | passed, 2.1s | timed out at 80s |
+| refuses something that is not a PDF | passed, 0.8s | timed out at 80s |
+
+Every failure is a click that never becomes actionable, on a page that loaded.
+This is the same signature as the older defect recorded in the comment in
+`tests/e2e/pdf.spec.ts`, which was never explained either, and it has grown
+more common as the suite has grown.
+
+What has been ruled out by measurement: memory, which shows no swap in use at
+all, and stray processes from earlier runs, of which there are none. What has
+not been tried: giving each spec its own browser, raising the action timeout,
+or finding what holds the page busy.
+
+A retry count would make the suite green and would be the wrong answer while
+the cause is unknown, because the same fault would then reach the site
+unseen.
+
 ## Open items
 
 1. Set an analytics token in `src/site.config.ts`. The code is in place and
