@@ -73,15 +73,15 @@ Desktop.ini
 # The rule is to keep a model out of git, because a model file is often tens of
 # megabytes and git keeps every version of it forever.
 #
-# u2netp.onnx is the exception, and it is committed on purpose. It is 4.5 MB,
-# which is small enough that the repository does not suffer, and committing it
-# is what lets the site serve the model from its own address. Section 6 of
-# docs/plan.md refuses to load a model from a third party at run time, because
-# the site must keep working when that third party does not.
+# u2netp-fp16.onnx is the exception, and it is committed on purpose. It is
+# 2.3 MB, which is small enough that the repository does not suffer, and
+# committing it is what lets the site serve the model from its own address.
+# Section 6 of docs/plan.md refuses to load a model from a third party at run
+# time, because the site must keep working when that third party does not.
 #
 # Keep this exception narrow. A larger model belongs in object storage.
 public/models/*
-!public/models/u2netp.onnx
+!public/models/u2netp-fp16.onnx
 
 # Copied from node_modules by scripts/copy-ort.mjs on every build.
 public/ort/

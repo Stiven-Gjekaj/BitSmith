@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import type { RawImage } from "../../lib/image/codecs";
 import { removeBackground } from "./engine";
 
-const MODEL = "public/models/u2netp.onnx";
+const MODEL = "public/models/u2netp-fp16.onnx";
 
 /**
  * A picture with an obvious subject: a solid disc on a flat background.
@@ -81,6 +81,51 @@ describe.skipIf(!hasModel)("the background remover", () => {
       alphas.add(out.data[index * 4 + 3]);
     }
     expect(alphas.size).toBeGreaterThan(1);
+  });
+
+  it("keeps the subject and clears the ground", async () => {
+    // This is the test that says the model still works, and the one above is
+    // not. An int8 build of this model was tried and it returned a mask that
+    // called every pixel foreground. That mask is not flat, because the
+    // normalising step stretches whatever noise is left across the full
+    // range, so the check above passed it. Only a comparison between the
+    // subject and the ground can tell the difference.
+    const width = 96;
+    const height = 64;
+    const out = await removeBackground(discOnBackground(width, height), model);
+
+    const centreX = width / 2;
+    const centreY = height / 2;
+    const radius = Math.min(width, height) * 0.3;
+
+    let insideTotal = 0;
+    let insideCount = 0;
+    let outsideTotal = 0;
+    let outsideCount = 0;
+
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const alpha = out.data[(y * width + x) * 4 + 3];
+        const distance = (x - centreX) ** 2 + (y - centreY) ** 2;
+        if (distance < (radius * 0.6) ** 2) {
+          insideTotal += alpha;
+          insideCount += 1;
+        } else if (distance > (radius * 1.8) ** 2) {
+          outsideTotal += alpha;
+          outsideCount += 1;
+        }
+      }
+    }
+
+    const inside = insideTotal / insideCount;
+    const outside = outsideTotal / outsideCount;
+
+    expect(insideCount).toBeGreaterThan(20);
+    expect(outsideCount).toBeGreaterThan(20);
+    // The measured separation is near the full range on a picture this plain.
+    // Half of it is a floor that a working model clears easily and a broken
+    // one cannot reach at all.
+    expect(inside - outside).toBeGreaterThan(128);
   });
 
   it("reports progress on the way through", async () => {

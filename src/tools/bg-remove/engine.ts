@@ -28,7 +28,7 @@ const STD = [0.229, 0.224, 0.225];
 /**
  * The session, kept between runs.
  *
- * Building a session parses 4.4 MB of model and compiles the graph. Doing that
+ * Building a session parses 2.3 MB of model and compiles the graph. Doing that
  * again for a second photograph is pure waste, so the worker that owns this
  * module stays alive and the session stays with it. `reusesWorker` on the
  * registry entry is what keeps that worker.

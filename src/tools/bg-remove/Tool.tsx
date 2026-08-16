@@ -11,7 +11,7 @@ const meta = findTool("remove-background");
 // The model is served from this site, and not from somebody else's. The site
 // must keep working if a third party goes away, and the cache headers must be
 // ours. Section 6 of docs/plan.md records that rule.
-const MODEL_URL = `${import.meta.env.BASE_URL}models/u2netp.onnx`;
+const MODEL_URL = `${import.meta.env.BASE_URL}models/u2netp-fp16.onnx`;
 
 export default function Tool() {
   const { state, run, reset, resultRef } = useToolRun("remove-background");
@@ -63,7 +63,7 @@ export default function Tool() {
       <p className="mt-4 rounded-lg bg-slate-100 p-3 text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-300">
         {ready
           ? "The model is loaded and stays loaded, so each photograph takes a few seconds rather than starting over."
-          : "The model is downloading in the background while you choose a photograph."}{" "}
+          : "The model is downloading, about 2 MB, while you choose a photograph."}{" "}
         It runs on your device, so the photograph is never sent anywhere.
       </p>
 
