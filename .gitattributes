@@ -1,0 +1,40 @@
+# Line endings in the files that the tests read.
+#
+# The engine tests read a fixture file and compare the bytes that come back.
+# A Windows checkout converts a text file to CRLF by default. That conversion
+# changes the bytes, so the test fails in a way that looks like a defect in a
+# converter rather than a setting in the checkout.
+#
+# Pin the text files to LF on every platform. This is not a preference about
+# editors. It is the condition under which the tests mean anything on Windows.
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.mdx text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.svg text eol=lf
+*.astro text eol=lf
+
+# Binary, and never converted.
+#
+# These are the fixture formats and the shipped binaries. A line ending
+# conversion corrupts every one of them silently, and a corrupt fixture makes
+# a passing test meaningless rather than making it fail.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.heic binary
+*.gif binary
+*.pdf binary
+*.wasm binary
+*.onnx binary
+*.ico binary
+*.woff2 binary
