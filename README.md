@@ -7,22 +7,24 @@
 _No upload, no account, no server_
 
 <p align="center">
-  <img src="https://img.shields.io/badge/status-planning-D97706?style=for-the-badge" alt="The project is in the planning stage and has no application code yet"/>
-  <img src="https://img.shields.io/badge/runs-in_your_browser-007ec6?style=for-the-badge" alt="Every tool runs on your own device, in the browser"/>
+  <img src="https://img.shields.io/badge/tools-5_working-427819?style=for-the-badge" alt="Five tools are built and working"/>
+  <img src="https://img.shields.io/badge/tests-55_passing-427819?style=for-the-badge" alt="55 tests passing"/>
+  <img src="https://img.shields.io/badge/home_page_JavaScript-0_bytes-007ec6?style=for-the-badge" alt="The home page ships no JavaScript at all"/>
   <img src="https://img.shields.io/badge/server_cost-none-427819?style=for-the-badge" alt="The design uses no server, so it costs nothing to run"/>
 </p>
 
 <p align="center">
+  <a href="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/ci.yml"><img src="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
+  <a href="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/deploy.yml"><img src="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/deploy.yml/badge.svg" alt="Deploy to GitHub Pages"/></a>
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License"/>
-  <img src="https://img.shields.io/badge/tools_built-0_of_5-lightgrey?style=flat-square" alt="None of the five planned tools is built yet"/>
 </p>
 
 <p align="center">
-  <a href="#overview"><b>Overview</b></a> |
-  <a href="#planned-tools"><b>Planned Tools</b></a> |
+  <a href="https://stiven-gjekaj.github.io/bitsmith/"><b>Use it in your browser</b></a> |
+  <a href="#the-tools"><b>Tools</b></a> |
+  <a href="#quick-start"><b>Quick Start</b></a> |
   <a href="#how-it-works"><b>How It Works</b></a> |
-  <a href="#status"><b>Status</b></a> |
-  <a href="docs/plan.md"><b>The Plan</b></a>
+  <a href="#project-structure"><b>Structure</b></a>
 </p>
 
 </div>
@@ -43,39 +45,44 @@ It also means a stranger holds your file for a while.
 Bitsmith moves the work to the browser instead, which removes the bill, the
 account, and the stranger at the same time.
 
-**This repository holds the plan. It does not hold the product yet.**
-No application code is written.
-Every decision that comes before the first line lives in
-[docs/plan.md](docs/plan.md): the technology, the host, the build order, the
-licence traps, and the money.
+The site is static files on GitHub Pages.
+The five tools together cost nothing to run and nothing to serve.
 
 ---
 
-## Planned tools
+## The tools
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-### Version 1
+### What they do
 
-- A QR code generator
-- An image converter for PNG, JPEG, WebP, and AVIF
-- An image cropper and resizer
-- A PDF tool that merges, splits, and reorders pages
-- A background remover for photographs
+- **[QR code generator](https://stiven-gjekaj.github.io/bitsmith/qr-code-generator/)**
+  turns a link or a note into an SVG or a PNG.
+- **[Image converter](https://stiven-gjekaj.github.io/bitsmith/image-converter/)**
+  moves a picture between PNG, JPEG, WebP, and AVIF, at a quality you choose.
+- **[Crop and resize](https://stiven-gjekaj.github.io/bitsmith/crop-image/)**
+  cuts a picture down, then changes its size.
+- **[Merge and split PDF](https://stiven-gjekaj.github.io/bitsmith/merge-pdf/)**
+  joins files, or keeps the pages you name.
+- **[Background remover](https://stiven-gjekaj.github.io/bitsmith/remove-background/)**
+  cuts the background out of a photograph.
 
 </td>
 <td width="50%" valign="top">
 
-### Later
+### How they behave
 
-- Video and audio conversion, with `ffmpeg.wasm`
-- Office document conversion, which needs a server
-- More conversion pairs as they earn their place
-
-Each later tool changes what the project needs.
-Section 18 of the plan gives the cost of each one.
+- Every tool runs on your device, and the page says so.
+- The heavy work runs in a Web Worker, so the page never freezes.
+- WebAssembly codecs do the decoding and the encoding.
+- Each tool downloads only its own code. Opening the QR page fetches no PDF
+  library and no model.
+- Every tool refuses a file that is too large, and says why, rather than
+  letting the tab run out of memory.
+- A drop area is not the only control. Each one carries a real file input, so
+  a keyboard and a phone both work.
 
 </td>
 </tr>
@@ -83,27 +90,59 @@ Section 18 of the plan gives the cost of each one.
 
 ---
 
+## Quick Start
+
+Use the site at
+**[stiven-gjekaj.github.io/bitsmith](https://stiven-gjekaj.github.io/bitsmith/)**.
+There is nothing to install.
+
+To run it yourself, you need Node 22 and pnpm:
+
+```
+git clone https://github.com/Stiven-Gjekaj/bitsmith
+cd bitsmith
+pnpm install
+pnpm dev
+```
+
+Build the site the way the deployment does:
+
+```
+pnpm build
+```
+
+Run everything that CI runs, in one command:
+
+```
+pnpm verify
+```
+
+---
+
 ## How it works
 
 **The browser does all of the work. No file goes to a server.**
 
-This one rule decides almost everything else in the project.
+This one rule decides almost everything else.
 
 | It gives | Because |
 | -------- | ------- |
-| A near zero running cost | There is no compute, no storage, and no upload bandwidth to pay for |
+| A running cost of nothing | There is no compute, no storage, and no upload bandwidth to pay for |
 | A privacy claim that holds | Your file never leaves the device, so nobody can lose it or read it |
 | No legal load | A site with no user files has almost no data protection duty |
-| Free hosting that scales | Static files on a cache network serve one visitor or a million the same way |
+| Work that scales for free | Static files on a cache network serve one visitor or a million the same way |
 
-Every tool falls into one of three tiers.
-Version 1 builds tier 1 only.
+### The path a file takes
 
-| Tier | Where the work happens | What it needs |
-| ---- | ---------------------- | ------------- |
-| **1** | The device | Nothing special |
-| **2** | The device | Cross-origin isolation, and no advertisements on that page |
-| **3** | A server | A backend, and new legal duties |
+```
+your file
+  -> the drop area checks its type and size
+  -> a Web Worker starts, and imports only that tool's engine
+  -> a WebAssembly codec decodes it to raw pixels
+  -> the engine does the work and reports progress
+  -> a codec encodes the result
+  -> a download link appears, and the browser frees the bytes afterwards
+```
 
 ### The stack
 
@@ -113,109 +152,145 @@ Version 1 builds tier 1 only.
 | Interactive parts | React islands, loaded only on a tool page |
 | Language | TypeScript, strict mode |
 | Styles | Tailwind CSS, and the system font stack |
-| Heavy work | WebAssembly codecs, inside a Web Worker |
-| Host | Cloudflare Pages, on the free plan |
-| Tests | Vitest for the engines, Playwright for the browser |
+| Image codecs | The `@jsquash` modules from Squoosh, one per format |
+| PDF | `pdf-lib` |
+| Background removal | `u2netp` through `onnxruntime-web` |
+| Tests | Vitest for the engines, run in Node with no browser |
+| Host | GitHub Pages, deployed by a workflow |
 
----
-
-## Status
-
-Nothing is built.
-The table below is the build order, and each step adds exactly one new hard
-thing.
-
-| Step | Work | The new hard thing | State |
-| ---- | ---- | ------------------ | ----- |
-| 0 | The shell, the page template, the tool registry | Nothing. It proves the pipeline. | Not started |
-| 1 | QR code generator | The first complete tool, with no WebAssembly | Not started |
-| 2 | Image converter | The first WebAssembly codec and the first worker | Not started |
-| 3 | Image cropper and resizer | Nothing new. It proves the shell is general. | Not started |
-| 4 | PDF merge, split, and reorder | A different file type in the same registry | Not started |
-| 5 | Background remover | A large machine learning model in the browser | Not started |
-
-The shell comes before any tool.
-It is cheap to build once and expensive to retrofit ten times.
+The home page sends **no JavaScript at all**.
+A tool page sends the shell and that one tool.
 
 ---
 
 ## Project structure
 
-The tree below is the plan, and not the current state of this repository.
-Only `docs/`, `AGENTS.md`, `LICENSE`, and this file exist today.
+Two ideas carry the design.
+
+**The tool registry.**
+[`src/tools/registry.ts`](src/tools/registry.ts) declares every tool once.
+From that one entry come the route, the card on the home page, the page title,
+the sitemap, the structured data, and the related links at the foot of each
+page.
+Adding a tool means one entry, one engine, one component, and nothing else.
+
+**The split between the engine and the interface.**
+An engine takes bytes, reports progress, and returns bytes.
+It touches no browser API and no React.
+That is the only reason a test can run it in Node, and it is also why a tool
+that needs a server later can arrive without changing the shell.
+
+| Area | Files | Lines | Responsibility |
+| ---- | ----- | ----- | -------------- |
+| **Library** | `src/lib/` | 338 | Codecs, the worker pipeline, the engine contract, link building |
+| **Shell** | `src/components/` | 570 | Drop area, progress, results, download, run state |
+| **Tools** | `src/tools/` | 1171 | The registry, five engines, five interfaces |
+| **Pages** | `src/pages/`, `src/layouts/` | 249 | Routes, page shell, metadata |
+| **Total** | **24 files** | **2328** | Not counting 680 lines of tests |
 
 ```
 src/
-  pages/         one route for each tool
-  components/
-    shell/       dropzone, progress, result, download
-  tools/
-    registry.ts  the manifest that generates routes, sitemap, and links
-    qr-generate/
-      engine.ts  pure functions, no browser API, unit tested
-      Tool.tsx   the user interface
   lib/
-    pipeline/    file in, worker, file out
-    workers/
-  content/
-    tools/       the page text for each tool, in MDX
+    image/codecs.ts      decode and encode, and sniffing a format from bytes
+    pipeline/            the engine contract, and running one in a worker
+    workers/             one worker that loads any engine on demand
+  components/shell/      drop area, progress, results, shared form fields
+  tools/
+    registry.ts          the manifest that generates everything else
+    qr-generate/         engine.ts, engine.test.ts, Tool.tsx
+    image-convert/
+    image-crop/
+    pdf-pages/
+    bg-remove/
+  pages/                 the home page, and one route for every tool
+public/
+  models/u2netp.onnx     4.5 MB, served from this site and not a third party
 tests/
-  fixtures/      sample files for the engine tests
-  e2e/
-docs/            the plan and the later decision records
+  fixtures/              committed pictures that the engine tests read
+  setup/codecs.ts        hands the codecs their WebAssembly in Node
+scripts/
+  check-links.sh         every relative link in the documentation
+  make-fixtures.mjs      run by hand when a new fixture is needed
 ```
-
-Two ideas do most of the work.
-The **tool registry** declares every tool once, then generates the route, the
-home page card, the sitemap, the structured data, and the related links.
-The split between **`engine.ts` and `Tool.tsx`** keeps the conversion logic pure,
-so a test can run it in Node against a fixture file with no browser at all.
 
 ---
 
-## Documentation
+## Testing
 
-<table>
-<tr>
-<td align="center" width="25%" valign="top">
-<h3>Plan</h3>
-<p>Every decision made<br/>before the code</p>
-<a href="docs/plan.md"><b>The Plan</b></a>
-</td>
-<td align="center" width="25%" valign="top">
-<h3>Rules</h3>
-<p>How an agent works<br/>in this repository</p>
-<a href="AGENTS.md"><b>Agent Rules</b></a>
-</td>
-<td align="center" width="25%" valign="top">
-<h3>Licence</h3>
-<p>What you may do<br/>with this code</p>
-<a href="LICENSE"><b>MIT</b></a>
-</td>
-<td align="center" width="25%" valign="top"></td>
-</tr>
-</table>
+```
+pnpm vitest run
+```
+
+55 tests across 6 files, and none of them needs a browser.
+The engines are pure, so Vitest runs them in Node against the committed
+fixtures in `tests/fixtures/`.
+
+Three rules shape these tests, and each one comes from a way a test can lie.
+
+**A test states its input before it trusts it.**
+The converter test checks that the fixture really starts with the PNG
+signature before it converts it to a JPEG.
+A test that starts at JPEG and ends at JPEG proves nothing, and a reader
+cannot see that from the assertion.
+
+**A test asserts a property, not a byte.**
+It checks that the output decodes, and that the width is the number that was
+asked for.
+An encoder changes its output between versions, so a byte comparison fails for
+a reason that has nothing to do with this project.
+
+**A test has to be able to fail.**
+The AVIF quality test exists because an older encoder took that option under
+another name.
+Passing the wrong name is ignored in silence: the file is valid, the size is
+right, and the slider does nothing.
+Only a comparison between two qualities can see it.
+That test was checked by putting the fault back and watching it fail.
+
+---
+
+## Deployment
+
+A push to `main` builds the site and publishes it to GitHub Pages.
+The workflow is [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+
+Two checks run before it publishes, because both failures are invisible
+otherwise:
+
+- The built pages must contain the `/bitsmith/` asset path. GitHub Pages
+  serves a project site under a path. If that base is wrong, every page still
+  builds and every link on the live site is broken.
+- `dist/.nojekyll` must exist. GitHub Pages runs Jekyll by default, and Jekyll
+  drops any directory whose name starts with an underscore. Astro puts
+  everything in `_astro/`.
 
 ---
 
 ## Contributing
 
-The project is in the planning stage, so the most useful contribution now is an
-argument against a decision in [docs/plan.md](docs/plan.md).
-Open an issue and say which section is wrong, and why.
+See [CONTRIBUTING.md](CONTRIBUTING.md), follow the
+[Code of Conduct](CODE_OF_CONDUCT.md), and read [SUPPORT.md](SUPPORT.md) if you
+need help.
+[AGENTS.md](AGENTS.md) sets the rules for commits and for writing.
+The [changelog](CHANGELOG.md) records what changed.
 
-Read [AGENTS.md](AGENTS.md) before you send a change.
-It sets the rules for commits and for writing.
-Two of them matter most: each commit holds one change only, and all text uses
-Simplified Technical English.
+Every decision made before the first line of code is in
+[docs/plan.md](docs/plan.md), with the reason for each one.
 
 ---
 
 ## License
 
 Released under the MIT License.
-See [LICENSE](LICENSE) for the full text.
+See [LICENSE](LICENSE) for the full text, and [TERMS.md](TERMS.md) for the
+project terms.
+
+The background removal model is `u2netp`, from the U-2-Net work, under the
+Apache 2.0 licence.
+Confirm that licence yourself before you use this project commercially.
+Section 12 of [the plan](docs/plan.md) explains why a model licence is a trap
+worth checking.
 
 <div align="center">
-<sub>The work happens on your device. Read <a href="docs/plan.md">the plan</a> to see how.</sub>
+<sub>The work happens on your device. <a href="https://stiven-gjekaj.github.io/bitsmith/">Try it</a>.</sub>
 </div>
