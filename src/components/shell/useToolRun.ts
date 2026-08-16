@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { runTool } from "../../lib/pipeline/runTool";
 import { type EngineResult, toEngineFile } from "../../lib/pipeline/types";
+import { findTool } from "../../tools/registry";
 
 export interface RunState {
   busy: boolean;
@@ -48,6 +49,7 @@ export function useToolRun(slug: string) {
               message: message ?? previous.message,
             }));
           },
+          findTool(slug)?.reusesWorker ?? false,
         );
 
         setState({

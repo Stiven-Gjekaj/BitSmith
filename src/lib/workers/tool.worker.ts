@@ -11,19 +11,32 @@
  */
 import type { Engine, EngineFile, EngineResult } from "../pipeline/types";
 
-export interface RunRequest {
-  id: number;
-  slug: string;
-  files: EngineFile[];
-  options: Record<string, unknown>;
-}
+export type WorkerRequest =
+  | {
+      id: number;
+      kind: "run";
+      slug: string;
+      files: EngineFile[];
+      options: Record<string, unknown>;
+    }
+  | {
+      id: number;
+      kind: "prepare";
+      slug: string;
+      options: Record<string, unknown>;
+    };
 
-export type RunResponse =
+export type WorkerResponse =
   | { id: number; kind: "progress"; fraction: number; message?: string }
   | { id: number; kind: "done"; results: EngineResult[] }
+  | { id: number; kind: "ready" }
   | { id: number; kind: "error"; message: string };
 
-type EngineModule = { run: Engine<never> };
+interface EngineModule {
+  run: Engine<never>;
+  /** Optional. A tool with a large model loads it before it is needed. */
+  prepare?: (options: never) => Promise<void>;
+}
 
 const engines: Record<string, () => Promise<EngineModule>> = {
   "qr-code-generator": () => import("../../tools/qr-generate/engine"),
@@ -33,25 +46,37 @@ const engines: Record<string, () => Promise<EngineModule>> = {
   "remove-background": () => import("../../tools/bg-remove/engine"),
 };
 
-const post = (message: RunResponse) => {
+const post = (message: WorkerResponse) => {
   (self as unknown as DedicatedWorkerGlobalScope).postMessage(message);
 };
 
-self.onmessage = async (event: MessageEvent<RunRequest>) => {
-  const { id, slug, files, options } = event.data;
+async function load(slug: string): Promise<EngineModule> {
+  const loader = engines[slug];
+  if (!loader) {
+    throw new Error(`No engine is registered for "${slug}".`);
+  }
+  return loader();
+}
+
+self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
+  const request = event.data;
+  const { id, slug } = request;
 
   try {
-    const load = engines[slug];
-    if (!load) {
-      throw new Error(`No engine is registered for "${slug}".`);
+    const module = await load(slug);
+
+    if (request.kind === "prepare") {
+      // Nothing to prepare is not a failure. Most tools have no model.
+      await module.prepare?.(request.options as never);
+      post({ id, kind: "ready" });
+      return;
     }
 
     post({ id, kind: "progress", fraction: 0.02, message: "Starting" });
 
-    const module = await load();
     const results = await module.run(
-      files,
-      options as never,
+      request.files,
+      request.options as never,
       (fraction, message) => {
         post({ id, kind: "progress", fraction, message });
       },

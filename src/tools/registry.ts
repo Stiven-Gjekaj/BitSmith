@@ -35,6 +35,15 @@ export interface ToolMeta {
   runsOn: RunsOn;
   /** True when the tool needs cross-origin isolation. No tool needs it yet. */
   isolated: boolean;
+  /**
+   * True when the worker is kept alive between runs.
+   *
+   * The default throws the worker away after each run, so no codec can carry
+   * state from one file into the next. A tool with a large model cannot pay
+   * that: the inference session dies with the worker, and building it again
+   * parses megabytes. Only set this where the model makes it worth the risk.
+   */
+  reusesWorker?: boolean;
   /** Words a visitor might search for. */
   keywords: string[];
 }
@@ -119,6 +128,7 @@ export const tools: ToolMeta[] = [
     maxBytes: 15 * MB,
     runsOn: "device",
     isolated: false,
+    reusesWorker: true,
     keywords: [
       "remove background",
       "transparent background",
