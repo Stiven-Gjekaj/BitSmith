@@ -68,8 +68,12 @@ jobs:
       - name: Lint and check formatting
         run: pnpm biome ci .
 
+      # Biome reads only the frontmatter of an .astro file, so it cannot lint
+      # the template. `astro check` understands the whole file, and it type
+      # checks the TypeScript as well. It found a codec option that this
+      # project was passing under a name the encoder ignores in silence.
       - name: Type check
-        run: pnpm tsc --noEmit
+        run: pnpm astro check
 
       # These run the pure engines in Node against the fixture files in
       # tests/fixtures/. They need no browser, which is the whole reason the
