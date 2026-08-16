@@ -17,7 +17,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 const favicon =
   "data:image/svg+xml," +
   encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" rx="22" fill="#04060c"/><rect x="28" y="52" width="40" height="24" rx="5" fill="none" stroke="#8b99b1" stroke-width="4.5"/><path d="M22 40 48 20l26 20" fill="none" stroke="#38e8ff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="48" cy="64" r="5" fill="#7c6cff"/></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" rx="22" fill="#04060c"/><g transform="translate(12 13) scale(3)" fill="none" stroke="#38e8ff" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10H6a4 4 0 0 1-4-4 1 1 0 0 1 1-1h4"/><path d="M7 5a1 1 0 0 1 1-1h13a1 1 0 0 1 1 1 7 7 0 0 1-7 7H8a1 1 0 0 1-1-1z"/><path d="M9 12v5"/><path d="M15 12v5"/><path d="M5 20a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3 1 1 0 0 1-1 1H6a1 1 0 0 1-1-1"/></g></svg>`,
   );
 ---
 
@@ -74,10 +74,7 @@ const favicon =
       <p class="foot-links">
         <a href={href()}>Home</a>
         <span aria-hidden="true">/</span>
-        <a
-          href="https://github.com/Stiven-Gjekaj/bitsmith/blob/main/docs/plan.md"
-          >The plan</a
-        >
+        <a href="https://github.com/Stiven-Gjekaj/bitsmith">Source</a>
         <span aria-hidden="true">/</span>
         <a href="https://github.com/Stiven-Gjekaj/bitsmith/blob/main/LICENSE"
           >MIT</a

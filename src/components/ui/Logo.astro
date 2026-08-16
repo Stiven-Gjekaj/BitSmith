@@ -5,49 +5,46 @@ interface Props {
 const { size = 26 } = Astro.props;
 ---
 
-{/* A bit under a hammer. Two marks: the square is the bit, and the stroke
-    above it is the blow that shapes it. Drawn rather than downloaded, so it
-    costs no request and it inherits the accent colour. */}
+{/*
+  The anvil is the "anvil" icon from Lucide (https://lucide.dev), under the ISC
+  licence, copyright Lucide Icons and Contributors. The licence text is in
+  LICENSES/lucide.txt. It is drawn rather than fetched, so it costs no request
+  and it takes the accent colour of the page it sits on.
+*/}
 <svg
   width={size}
   height={size}
-  viewBox="0 0 32 32"
+  viewBox="0 0 24 24"
   fill="none"
+  stroke="url(#markSpark)"
+  stroke-width="1.9"
+  stroke-linecap="round"
+  stroke-linejoin="round"
   role="img"
   aria-label="Bitsmith"
   class="logo"
 >
-  <rect
-    x="9.3"
-    y="17.3"
-    width="13.4"
-    height="8"
-    rx="1.7"
-    stroke="currentColor"
-    stroke-width="1.9"
-  ></rect>
-  <path
-    d="M7.3 13.3 L16 6.7 L24.7 13.3"
-    stroke="url(#spark)"
-    stroke-width="2.2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  ></path>
-  <circle cx="16" cy="21.3" r="1.7" fill="url(#spark)"></circle>
   <defs>
-    <linearGradient id="spark" x1="7" y1="6" x2="25" y2="22">
+    <linearGradient id="markSpark" x1="2" y1="4" x2="22" y2="21">
       <stop offset="0" stop-color="var(--glow)"></stop>
       <stop offset="1" stop-color="var(--pulse)"></stop>
     </linearGradient>
   </defs>
+  <path d="M7 10H6a4 4 0 0 1-4-4 1 1 0 0 1 1-1h4"></path>
+  <path d="M7 5a1 1 0 0 1 1-1h13a1 1 0 0 1 1 1 7 7 0 0 1-7 7H8a1 1 0 0 1-1-1z"
+  ></path>
+  <path d="M9 12v5"></path>
+  <path d="M15 12v5"></path>
+  <path d="M5 20a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3 1 1 0 0 1-1 1H6a1 1 0 0 1-1-1"
+  ></path>
 </svg>
 
 <style>
   .logo {
-    color: var(--mist);
-    transition: color 0.3s ease;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
   }
   a:hover .logo {
-    color: var(--ink);
+    opacity: 1;
   }
 </style>
