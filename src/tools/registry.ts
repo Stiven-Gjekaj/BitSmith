@@ -68,12 +68,19 @@ export const tools: ToolMeta[] = [
   {
     slug: "image-converter",
     title: "Image Converter",
-    tagline: "Change a picture between PNG, JPEG, WebP, and AVIF.",
+    tagline: "Change a picture between PNG, JPEG, WebP, AVIF, and HEIC.",
     description:
       "Convert an image to PNG, JPEG, WebP, or AVIF, and choose the quality. " +
-      "The picture never leaves your device.",
+      "Reads the HEIC that an iPhone writes. The picture never leaves your " +
+      "device.",
     inputKind: "files",
-    accept: "image/png,image/jpeg,image/webp,image/avif",
+    // The .heic and .heif extensions are listed beside the types on purpose.
+    // Many systems report an empty or wrong type for a HEIC, and a picker
+    // given types alone greys the file out, so the visitor cannot choose the
+    // file this tool exists to read.
+    accept:
+      "image/png,image/jpeg,image/webp,image/avif,image/heic,image/heif," +
+      ".heic,.heif",
     multiple: true,
     maxBytes: 30 * MB,
     runsOn: "device",
@@ -84,6 +91,9 @@ export const tools: ToolMeta[] = [
       "convert to webp",
       "convert to avif",
       "image converter",
+      "heic to jpg",
+      "heic to png",
+      "iphone photo to jpg",
     ],
   },
   {

@@ -1,4 +1,5 @@
 import { deflateSync } from "node:zlib";
+import { readFileSync } from "node:fs";
 import { expect, type Page } from "@playwright/test";
 
 /**
@@ -146,6 +147,25 @@ export async function toolReady(
 }
 
 /** Hands a picture of an exact size to the file input. */
+/**
+ * Hands the tool the committed HEIC fixture.
+ *
+ * Every other helper here builds its file in Node, which is deliberate: a
+ * fixture that a test writes cannot drift from what the test expects. This
+ * one reads from disk instead, and it has to. Nothing in Node can write a
+ * HEIC, because this project decodes HEIC and never encodes it, so there is
+ * no encoder to build one with. scripts/make-fixtures.mjs records the macOS
+ * command that made the committed file.
+ */
+export async function giveHeic(page: Page, name: string): Promise<void> {
+  await toolReady(page);
+  await page.setInputFiles('input[type="file"]', {
+    name,
+    mimeType: "image/heic",
+    buffer: readFileSync("tests/fixtures/gradient.heic"),
+  });
+}
+
 export async function giveImage(
   page: Page,
   name: string,

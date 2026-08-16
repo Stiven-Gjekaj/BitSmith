@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   chooseOption,
+  giveHeic,
   giveImage,
   giveImages,
   resultBytes,
@@ -84,4 +85,24 @@ test("shows progress and then the finished file", async ({ page }) => {
     timeout: 60_000,
   });
   await expect(page.getByText("Your file")).toBeVisible();
+});
+
+/**
+ * The one test that proves the HEIC decoder reaches a real browser.
+ *
+ * libheif is imported from inside decode(), which means it is a separate file
+ * that the built site has to be able to find under /bitsmith at the moment a
+ * HEIC turns up. No Node test can show that: vitest resolves the import from
+ * node_modules, and the path it takes there says nothing about the path a
+ * browser takes.
+ */
+test("reads the HEIC an iPhone writes", async ({ page }) => {
+  await giveHeic(page, "IMG_4021.heic");
+  await expect(page.getByText("IMG_4021.heic")).toBeVisible();
+
+  await chooseOption(page, "Convert to", /JPEG/);
+  await runAndWait(page, /Convert/);
+
+  expect(await resultName(page)).toBe("IMG_4021.jpg");
+  expect(sniff(await resultBytes(page))).toBe("jpeg");
 });
