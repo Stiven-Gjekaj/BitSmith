@@ -37,6 +37,42 @@ let session: ort.InferenceSession | null = null;
 let sessionUrl: string | null = null;
 let starting: Promise<ort.InferenceSession> | null = null;
 
+/**
+ * Builds the session, and gives up on threads rather than on the visitor.
+ *
+ * A threaded build that cannot start its workers does not fail. It waits, and
+ * the page waits with it, and nothing ever says why. That happened here: the
+ * bundler renamed the thread script, onnxruntime looked for the old name, and
+ * the tool hung with the model apparently still downloading.
+ *
+ * `wasmPaths` above is the fix. This is the guard, so that a future change to
+ * the build cannot bring the hang back. One core is slower, and slower is a
+ * great deal better than stuck.
+ */
+async function withOneThreadIfSlow(
+  bytes: Uint8Array,
+  cores: number,
+): Promise<ort.InferenceSession> {
+  const options = {
+    executionProviders: ["wasm" as const],
+    graphOptimizationLevel: "all" as const,
+  };
+
+  if (cores > 1) {
+    ort.env.wasm.numThreads = cores;
+    const threaded = await Promise.race([
+      ort.InferenceSession.create(bytes, options).catch(() => null),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 10_000)),
+    ]);
+    if (threaded) {
+      return threaded;
+    }
+  }
+
+  ort.env.wasm.numThreads = 1;
+  return ort.InferenceSession.create(bytes, options);
+}
+
 async function build(modelUrl: string): Promise<ort.InferenceSession> {
   // Threads need SharedArrayBuffer, and a browser only offers that to a page
   // that is cross-origin isolated. The service worker in
@@ -46,11 +82,13 @@ async function build(modelUrl: string): Promise<ort.InferenceSession> {
   //
   // The measured difference is the whole point of that worker: one core runs
   // this model in about five seconds.
-  const cores = self.crossOriginIsolated
-    ? Math.min(4, navigator.hardwareConcurrency || 1)
-    : 1;
-  ort.env.wasm.numThreads = cores;
   ort.env.wasm.simd = true;
+
+  // onnxruntime works out the address of its thread script from this path.
+  // The bundled copies carry a hash in the name, so it would look for a file
+  // that does not exist. These are plain copies, put there by
+  // scripts/copy-ort.mjs.
+  ort.env.wasm.wasmPaths = `${import.meta.env.BASE_URL}ort/`;
 
   const response = await fetch(modelUrl);
   if (!response.ok) {
@@ -58,11 +96,13 @@ async function build(modelUrl: string): Promise<ort.InferenceSession> {
       "The background model did not load. Check your connection and try again.",
     );
   }
+  const bytes = new Uint8Array(await response.arrayBuffer());
 
-  const built = await ort.InferenceSession.create(
-    new Uint8Array(await response.arrayBuffer()),
-    { executionProviders: ["wasm"], graphOptimizationLevel: "all" },
-  );
+  const cores = self.crossOriginIsolated
+    ? Math.min(4, navigator.hardwareConcurrency || 1)
+    : 1;
+
+  const built = await withOneThreadIfSlow(bytes, cores);
 
   session = built;
   sessionUrl = modelUrl;

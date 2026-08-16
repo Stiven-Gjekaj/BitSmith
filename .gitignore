@@ -82,3 +82,6 @@ Desktop.ini
 # Keep this exception narrow. A larger model belongs in object storage.
 public/models/*
 !public/models/u2netp.onnx
+
+# Copied from node_modules by scripts/copy-ort.mjs on every build.
+public/ort/

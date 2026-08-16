@@ -12,7 +12,9 @@
     "test": "vitest run",
     "lint": "biome ci .",
     "format": "biome format --write .",
-    "verify": "pnpm biome ci . && pnpm astro check && pnpm vitest run && pnpm build"
+    "verify": "pnpm biome ci . && pnpm astro check && pnpm vitest run && pnpm build",
+    "prebuild": "node scripts/copy-ort.mjs",
+    "predev": "node scripts/copy-ort.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",
