@@ -6,7 +6,15 @@ import { lazy, Suspense } from "react";
  * Each entry is a separate chunk, so a visitor who opens the QR page never
  * downloads the PDF library or the background removal code.
  */
-const uis: Record<string, React.LazyExoticComponent<() => React.ReactNode>> = {
+/** What a page may set on the tool before a visitor touches it. */
+export interface ToolPreset {
+  [key: string]: unknown;
+}
+
+const uis: Record<
+  string,
+  React.LazyExoticComponent<(props: { preset?: ToolPreset }) => React.ReactNode>
+> = {
   "qr-code-generator": lazy(() => import("../../tools/qr-generate/Tool")),
   "image-converter": lazy(() => import("../../tools/image-convert/Tool")),
   "crop-image": lazy(() => import("../../tools/image-crop/Tool")),
@@ -14,7 +22,14 @@ const uis: Record<string, React.LazyExoticComponent<() => React.ReactNode>> = {
   "remove-background": lazy(() => import("../../tools/bg-remove/Tool")),
 };
 
-export default function ToolRunner({ slug }: { slug: string }) {
+export default function ToolRunner({
+  slug,
+  preset,
+}: {
+  slug: string;
+  /** A conversion page opens the converter already pointed at its format. */
+  preset?: ToolPreset;
+}) {
   const Ui = uis[slug];
 
   if (!Ui) {
@@ -23,7 +38,7 @@ export default function ToolRunner({ slug }: { slug: string }) {
 
   return (
     <Suspense fallback={<p className="text-slate-500">Loading the tool.</p>}>
-      <Ui />
+      <Ui preset={preset} />
     </Suspense>
   );
 }

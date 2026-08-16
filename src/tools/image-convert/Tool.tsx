@@ -9,16 +9,30 @@ import { DEFAULTS } from "./engine";
 
 const meta = findTool("image-converter");
 
-export default function Tool() {
+interface Props {
+  /**
+   * Set by a conversion page, so `/png-to-jpg` opens pointed at JPG and
+   * accepting a PNG.
+   *
+   * The controls stay visible and usable. A page that locked them would be a
+   * page built for a search engine rather than for the person who arrived, and
+   * a visitor who changes their mind should not have to find another address.
+   */
+  preset?: { format?: ImageFormat; accept?: string };
+}
+
+export default function Tool({ preset }: Props) {
   const { state, run, reset, resultRef } = useToolRun("image-converter");
   const [files, setFiles] = useState<File[]>([]);
-  const [format, setFormat] = useState<ImageFormat>(DEFAULTS.format);
+  const [format, setFormat] = useState<ImageFormat>(
+    preset?.format ?? DEFAULTS.format,
+  );
   const [quality, setQuality] = useState(DEFAULTS.quality);
 
   return (
     <div>
       <Dropzone
-        accept={meta?.accept}
+        accept={preset?.accept ?? meta?.accept}
         multiple
         maxBytes={meta?.maxBytes}
         files={files}
