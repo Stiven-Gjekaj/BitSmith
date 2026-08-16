@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import * as ort from "onnxruntime-web/wasm";
+import { beforeAll, describe, expect, it } from "vitest";
 import type { RawImage } from "../../lib/image/codecs";
 import { removeBackground } from "./engine";
 
@@ -35,9 +36,17 @@ function discOnBackground(width: number, height: number): RawImage {
 const hasModel = existsSync(MODEL);
 
 describe.skipIf(!hasModel)("the background remover", () => {
-  const model = hasModel
-    ? new Uint8Array(readFileSync(MODEL))
-    : new Uint8Array();
+  // The engine takes a session rather than model bytes, so the session can be
+  // built once and kept. The test builds one the same way and passes it in.
+  let model: ort.InferenceSession;
+
+  beforeAll(async () => {
+    ort.env.wasm.numThreads = 1;
+    model = await ort.InferenceSession.create(
+      new Uint8Array(readFileSync(MODEL)),
+      { executionProviders: ["wasm"], graphOptimizationLevel: "all" },
+    );
+  });
 
   it("keeps the width and the height of the picture", async () => {
     const image = discOnBackground(96, 64);
