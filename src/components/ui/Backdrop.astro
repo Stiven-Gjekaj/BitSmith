@@ -1,109 +1,237 @@
 ---
 /**
- * The background.
+ * The background: a field of points in three dimensions, drawn on the
+ * graphics card.
  *
- * Three layers, and none of them takes a pointer event:
- *   1. Two slow gradient orbs that drift.
- *   2. A fine grid that fades out towards the edges.
- *   3. A spotlight that follows the pointer.
+ * Written here rather than embedded from a 3D service. An embed would fetch a
+ * runtime and a scene from somebody else's servers on every page load, and
+ * every tool page on this site tells the visitor that nothing here contacts
+ * another company. That sentence is the product, so the background is ours.
  *
- * The first two are CSS. The third needs the pointer position, so a small
- * script writes it into two custom properties and the styles read them. That
- * script does no layout work and no paint work of its own.
+ * The whole thing is about a hundred lines and two small shaders. It costs one
+ * canvas and no request.
  */
 ---
 
-<div class="backdrop" aria-hidden="true">
-  <div class="orb orb-a"></div>
-  <div class="orb orb-b"></div>
-  <div class="grid"></div>
-  <div class="spotlight"></div>
-</div>
+<canvas id="backdrop" aria-hidden="true"></canvas>
+<div id="backdrop-wash" aria-hidden="true"></div>
 
 <style>
-  .backdrop {
+  #backdrop,
+  #backdrop-wash {
     position: fixed;
     inset: 0;
     z-index: -1;
-    overflow: hidden;
     pointer-events: none;
-    background: var(--void);
   }
 
-  .orb {
-    position: absolute;
-    width: 46rem;
-    height: 46rem;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.5;
-    will-change: transform;
+  #backdrop {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: var(--background);
   }
 
-  .orb-a {
-    top: -18rem;
-    left: -12rem;
-    background: radial-gradient(circle, var(--glow) 0%, transparent 65%);
-    animation: drift 26s ease-in-out infinite;
-  }
-
-  .orb-b {
-    right: -16rem;
-    bottom: -20rem;
-    background: radial-gradient(circle, var(--pulse) 0%, transparent 65%);
-    animation: drift 34s ease-in-out infinite reverse;
-  }
-
-  /* The grid gives the page a sense of a surface. It is masked so that it
-     never reaches an edge, which keeps it from reading as a table. */
-  .grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--line) 1px, transparent 1px);
-    background-size: 64px 64px;
-    opacity: 0.35;
-    mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 20%, transparent 78%);
-  }
-
-  /* Follows the pointer. The two properties come from the script below, and
-     they start in the middle so the page looks right before a pointer moves.
-     A touch screen never fires the event, and the default is what it keeps. */
-  .spotlight {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      36rem 36rem at var(--px, 50%) var(--py, 30%),
-      var(--glow-soft) 0%,
-      transparent 60%
-    );
-    transition: opacity 0.5s ease;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .orb {
-      animation: none;
-    }
+  /* Softens the field into the page, so the points read as depth rather than
+     as decoration sitting on top. */
+  #backdrop-wash {
+    background:
+      radial-gradient(
+        60rem 40rem at 50% -10%,
+        var(--glow-soft) 0%,
+        transparent 70%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        var(--background) 85%
+      );
   }
 </style>
 
 <script>
-  // Writing to a custom property lets the compositor do the work. Setting a
-  // background position directly would repaint the whole layer on every move.
-  let frame = 0;
+  const canvas = document.getElementById("backdrop") as HTMLCanvasElement | null;
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  addEventListener(
-    "pointermove",
-    (event: PointerEvent) => {
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        const root = document.documentElement;
-        root.style.setProperty("--px", `${event.clientX}px`);
-        root.style.setProperty("--py", `${event.clientY}px`);
-      });
-    },
-    { passive: true },
-  );
+  // A visitor who asks for less movement gets a plain ground, and the card is
+  // never touched at all.
+  if (canvas && !still) {
+    const gl = canvas.getContext("webgl", {
+      antialias: true,
+      alpha: true,
+      powerPreference: "low-power",
+    });
+
+    if (gl) {
+      const VERTEX = `
+        attribute vec3 position;
+        attribute float seed;
+        uniform float time;
+        uniform vec2 pointer;
+        uniform float aspect;
+        varying float depth;
+
+        void main() {
+          // Drift along z and wrap, so the field never runs out.
+          float z = fract(position.z + time * 0.02);
+
+          // Parallax: the pointer turns the field slightly, and the nearer a
+          // point is the further it moves. That is what reads as depth.
+          vec2 turn = pointer * (1.0 - z) * 0.25;
+          vec2 xy = position.xy + turn;
+
+          // Perspective. A point at z = 0 is nearest.
+          float scale = 1.0 / (0.35 + z * 1.9);
+          vec2 screen = xy * scale;
+          screen.x /= aspect;
+
+          depth = 1.0 - z;
+          gl_Position = vec4(screen, 0.0, 1.0);
+          gl_PointSize = mix(1.0, 3.4, depth) * (1.0 + 0.4 * sin(time + seed * 6.2831));
+        }
+      `;
+
+      const FRAGMENT = `
+        precision mediump float;
+        uniform vec3 near;
+        uniform vec3 far;
+        varying float depth;
+
+        void main() {
+          // Round the square point into a dot with a soft edge.
+          vec2 d = gl_PointCoord - vec2(0.5);
+          float r = dot(d, d);
+          if (r > 0.25) discard;
+
+          float edge = smoothstep(0.25, 0.04, r);
+          vec3 colour = mix(far, near, depth);
+          gl_FragColor = vec4(colour, edge * (0.14 + depth * 0.5));
+        }
+      `;
+
+      const compile = (kind: number, source: string) => {
+        const shader = gl.createShader(kind);
+        if (!shader) return null;
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          console.warn("backdrop shader:", gl.getShaderInfoLog(shader));
+          return null;
+        }
+        return shader;
+      };
+
+      const vertex = compile(gl.VERTEX_SHADER, VERTEX);
+      const fragment = compile(gl.FRAGMENT_SHADER, FRAGMENT);
+      const program = gl.createProgram();
+
+      if (vertex && fragment && program) {
+        const ctx = gl;
+        gl.attachShader(program, vertex);
+        gl.attachShader(program, fragment);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        // Fewer points on a phone. The same field would cost the same battery
+        // on a much smaller screen.
+        const COUNT = innerWidth < 700 ? 320 : 900;
+        const data = new Float32Array(COUNT * 4);
+        for (let i = 0; i < COUNT; i += 1) {
+          data[i * 4] = (Math.random() - 0.5) * 3.2;
+          data[i * 4 + 1] = (Math.random() - 0.5) * 3.2;
+          data[i * 4 + 2] = Math.random();
+          data[i * 4 + 3] = Math.random();
+        }
+
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+        const position = gl.getAttribLocation(program, "position");
+        const seed = gl.getAttribLocation(program, "seed");
+        gl.enableVertexAttribArray(position);
+        gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 16, 0);
+        gl.enableVertexAttribArray(seed);
+        gl.vertexAttribPointer(seed, 1, gl.FLOAT, false, 16, 12);
+
+        const uTime = gl.getUniformLocation(program, "time");
+        const uPointer = gl.getUniformLocation(program, "pointer");
+        const uAspect = gl.getUniformLocation(program, "aspect");
+        const uNear = gl.getUniformLocation(program, "near");
+        const uFar = gl.getUniformLocation(program, "far");
+
+        // The two accent colours, read from the stylesheet so the field
+        // follows the palette rather than repeating it.
+        const readColour = (name: string): [number, number, number] => {
+          const value = getComputedStyle(document.documentElement)
+            .getPropertyValue(name)
+            .trim();
+          const hex = value.replace("#", "");
+          if (hex.length !== 6) return [0.2, 0.9, 1];
+          return [
+            Number.parseInt(hex.slice(0, 2), 16) / 255,
+            Number.parseInt(hex.slice(2, 4), 16) / 255,
+            Number.parseInt(hex.slice(4, 6), 16) / 255,
+          ];
+        };
+
+        gl.uniform3fv(uNear, readColour("--primary"));
+        gl.uniform3fv(uFar, readColour("--accent"));
+
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
+        const resize = () => {
+          // Cap the pixel ratio. A phone with a very dense screen would
+          // otherwise draw four times the pixels for no visible gain.
+          const ratio = Math.min(devicePixelRatio || 1, 2);
+          canvas.width = Math.floor(innerWidth * ratio);
+          canvas.height = Math.floor(innerHeight * ratio);
+          ctx.viewport(0, 0, canvas.width, canvas.height);
+          ctx.uniform1f(uAspect, canvas.width / canvas.height);
+        };
+        resize();
+        addEventListener("resize", resize, { passive: true });
+
+        let pointerX = 0;
+        let pointerY = 0;
+        addEventListener(
+          "pointermove",
+          (event: PointerEvent) => {
+            pointerX = (event.clientX / innerWidth - 0.5) * 2;
+            pointerY = -(event.clientY / innerHeight - 0.5) * 2;
+          },
+          { passive: true },
+        );
+
+        let easedX = 0;
+        let easedY = 0;
+        let running = true;
+
+        // Stop drawing when the tab is not in front. A background tab
+        // animating a canvas is a battery burnt for nobody.
+        document.addEventListener("visibilitychange", () => {
+          running = !document.hidden;
+          if (running) requestAnimationFrame(frame);
+        });
+
+        const start = performance.now();
+        function frame() {
+          if (!running) return;
+          const time = (performance.now() - start) / 1000;
+
+          easedX += (pointerX - easedX) * 0.04;
+          easedY += (pointerY - easedY) * 0.04;
+
+          ctx.clear(ctx.COLOR_BUFFER_BIT);
+          ctx.uniform1f(uTime, time);
+          ctx.uniform2f(uPointer, easedX, easedY);
+          ctx.drawArrays(ctx.POINTS, 0, COUNT);
+
+          requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+    }
+  }
 </script>
