@@ -1,4 +1,5 @@
 ---
+import ToolIcon from "../components/ui/ToolIcon.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { href } from "../lib/url";
 import { tools } from "../tools/registry";
@@ -7,58 +8,219 @@ const title = "Bitsmith: small file tools that run in your browser";
 const description =
   "Free tools for pictures, PDF files, and QR codes. Everything runs on " +
   "your own device. No upload, no account, no server.";
+
+const facts = [
+  ["No upload", "The file is read by your browser and never sent anywhere."],
+  ["No account", "Nothing to sign up for, and nothing to sign in to."],
+  ["Works offline", "Once a page has loaded, the work needs no connection."],
+];
 ---
 
 <BaseLayout title={title} description={description}>
-  <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-    Small file tools that run in your browser
-  </h1>
+  <section class="hero">
+    <p class="tag rise" style="animation-delay:60ms">
+      Five tools / zero uploads
+    </p>
 
-  <p class="mt-4 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
-    Drop a file, get it back changed. Your file never leaves your device,
-    because there is no server to send it to.
-  </p>
+    <h1 class="rise" style="animation-delay:140ms">
+      <span class="tracked">Small file tools</span><br />
+      that run in your browser
+    </h1>
 
-  <ul class="mt-10 grid gap-4 sm:grid-cols-2">
+    <p class="lede rise" style="animation-delay:220ms">
+      Drop a file, get it back changed. Your file never leaves your device,
+      because there is no server to send it to.
+    </p>
+
+    <a class="cta rise sweep" href={href(tools[0].slug)} style="animation-delay:300ms">
+      Start with a QR code
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6"></path>
+      </svg>
+    </a>
+  </section>
+
+  <section class="tools" aria-label="The tools">
     {
-      tools.map((tool) => (
-        <li>
-          <a
-            href={href(tool.slug)}
-            class="block h-full rounded-xl border border-slate-200 p-5 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-800 dark:hover:border-slate-600 dark:hover:bg-slate-900"
-          >
-            <h2 class="font-semibold">{tool.title}</h2>
-            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              {tool.tagline}
-            </p>
-          </a>
-        </li>
+      tools.map((tool, index) => (
+        <a
+          class="panel sweep card rise"
+          href={href(tool.slug)}
+          style={`animation-delay:${380 + index * 80}ms`}
+        >
+          <span class="card-icon">
+            <ToolIcon slug={tool.slug} />
+          </span>
+          <span class="card-body">
+            <span class="card-title">{tool.title}</span>
+            <span class="card-line">{tool.tagline}</span>
+          </span>
+          <span class="card-go" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </span>
+        </a>
       ))
     }
-  </ul>
+  </section>
 
-  <section class="mt-16">
-    <h2 class="text-2xl font-bold">Why the browser does the work</h2>
-    <div class="mt-4 grid gap-6 sm:grid-cols-3">
-      <div>
-        <h3 class="font-semibold">Your file stays put</h3>
-        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          Nothing is uploaded. Nobody here receives your file, holds it, or
-          reads it.
-        </p>
-      </div>
-      <div>
-        <h3 class="font-semibold">No account</h3>
-        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          There is nothing to sign up for and nothing to log in to.
-        </p>
-      </div>
-      <div>
-        <h3 class="font-semibold">It works offline</h3>
-        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          Once a page has loaded, the work needs no connection at all.
-        </p>
-      </div>
+  <section class="facts rise" style="animation-delay:820ms">
+    <h2 class="tag">Why the browser does the work</h2>
+    <div class="fact-grid">
+      {
+        facts.map(([name, line]) => (
+          <div class="fact">
+            <h3>{name}</h3>
+            <p>{line}</p>
+          </div>
+        ))
+      }
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .hero {
+    padding-block: 3.5rem 4.5rem;
+    max-width: 46rem;
+  }
+
+  h1 {
+    margin-top: 1rem;
+    font-size: clamp(2.25rem, 6vw, 3.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    font-weight: 680;
+  }
+
+  .lede {
+    margin-top: 1.25rem;
+    font-size: 1.075rem;
+    line-height: 1.65;
+    color: var(--mist);
+    max-width: 34rem;
+  }
+
+  .cta {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 2rem;
+    padding: 0.8rem 1.4rem;
+    border-radius: 10px;
+    border: 1px solid var(--line-bright);
+    background: color-mix(in oklab, var(--surface-high) 80%, transparent);
+    color: var(--ink);
+    font-weight: 560;
+    text-decoration: none;
+    transition:
+      border-color 0.3s ease,
+      transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .cta:hover {
+    border-color: var(--glow);
+    transform: translateY(-2px);
+  }
+  .cta svg {
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .cta:hover svg {
+    transform: translateX(4px);
+  }
+
+  .tools {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.15rem 1.25rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card-icon {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    flex: none;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    color: var(--glow);
+    background: color-mix(in oklab, var(--glow) 7%, transparent);
+    transition:
+      border-color 0.3s ease,
+      background 0.3s ease;
+  }
+  .card:hover .card-icon {
+    border-color: var(--glow);
+    background: color-mix(in oklab, var(--glow) 14%, transparent);
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+  .card-title {
+    font-weight: 580;
+    letter-spacing: -0.012em;
+  }
+  .card-line {
+    font-size: 0.9rem;
+    color: var(--mist);
+  }
+
+  .card-go {
+    margin-left: auto;
+    color: var(--mist);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
+  }
+  .card:hover .card-go {
+    opacity: 1;
+    transform: none;
+    color: var(--glow);
+  }
+
+  .facts {
+    margin-top: 5rem;
+    padding-top: 2.25rem;
+    border-top: 1px solid var(--line);
+  }
+  .fact-grid {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 1.75rem;
+  }
+  .fact h3 {
+    font-weight: 570;
+    letter-spacing: -0.01em;
+  }
+  .fact p {
+    margin-top: 0.35rem;
+    color: var(--mist);
+    font-size: 0.94rem;
+    line-height: 1.6;
+  }
+
+  @media (min-width: 40rem) {
+    .tools {
+      grid-template-columns: 1fr 1fr;
+    }
+    .fact-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

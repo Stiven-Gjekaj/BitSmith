@@ -1,5 +1,6 @@
 ---
 import ToolRunner from "../components/shell/ToolRunner";
+import ToolIcon from "../components/ui/ToolIcon.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { href } from "../lib/url";
 import { otherTools, type ToolMeta, tools } from "../tools/registry";
@@ -36,58 +37,208 @@ const jsonLd = {
   description={tool.description}
   jsonLd={jsonLd}
 >
-  <nav class="mb-6 text-sm">
-    <a href={href()} class="text-slate-600 underline dark:text-slate-400"
-      >Home</a
-    >
-  </nav>
+  <a class="back" href={href()}>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 18l-6-6 6-6"></path>
+    </svg>
+    All tools
+  </a>
 
-  <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{tool.title}</h1>
-  <p class="mt-3 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
-    {tool.tagline}
+  <header class="head-block rise">
+    <span class="head-icon"><ToolIcon slug={tool.slug} size={26} /></span>
+    <div>
+      <h1>{tool.title}</h1>
+      <p class="lede">{tool.tagline}</p>
+    </div>
+  </header>
+
+  <p class={`badge rise ${tool.runsOn === "device" ? "on-device" : "on-server"}`} style="animation-delay:120ms">
+    <span class="dot" aria-hidden="true"></span>
+    {
+      tool.runsOn === "device"
+        ? "This file stays on your device"
+        : "This tool sends your file to a server"
+    }
   </p>
 
-  {
-    tool.runsOn === "device" ? (
-      <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
-        This file stays on your device
-      </p>
-    ) : (
-      <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">
-        This tool sends your file to a server
-      </p>
-    )
-  }
-
-  <div class="mt-8">
+  <div class="panel work rise" style="animation-delay:200ms">
     <ToolRunner client:load slug={tool.slug} />
   </div>
 
-  <section class="mt-14 border-t border-slate-200 pt-8 dark:border-slate-800">
-    <h2 class="text-xl font-bold">About this tool</h2>
-    <p class="mt-3 max-w-2xl text-slate-600 dark:text-slate-400">
-      {tool.description}
-    </p>
+  <section class="about rise" style="animation-delay:300ms">
+    <h2 class="tag">About this tool</h2>
+    <p>{tool.description}</p>
   </section>
 
-  <section class="mt-10">
-    <h2 class="text-xl font-bold">Other tools</h2>
-    <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+  <section class="more rise" style="animation-delay:380ms">
+    <h2 class="tag">Other tools</h2>
+    <div class="more-grid">
       {
         related.map((other) => (
-          <li>
-            <a
-              href={href(other.slug)}
-              class="block rounded-lg border border-slate-200 p-4 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900"
-            >
-              <span class="font-medium">{other.title}</span>
-              <span class="mt-1 block text-sm text-slate-600 dark:text-slate-400">
-                {other.tagline}
-              </span>
-            </a>
-          </li>
+          <a class="panel sweep more-card" href={href(other.slug)}>
+            <span class="more-icon">
+              <ToolIcon slug={other.slug} size={18} />
+            </span>
+            <span>
+              <span class="more-title">{other.title}</span>
+              <span class="more-line">{other.tagline}</span>
+            </span>
+          </a>
         ))
       }
-    </ul>
+    </div>
   </section>
 </BaseLayout>
+
+<style>
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--mist);
+    text-decoration: none;
+    transition: color 0.25s ease;
+  }
+  .back:hover {
+    color: var(--glow);
+  }
+  .back svg {
+    transition: transform 0.25s ease;
+  }
+  .back:hover svg {
+    transform: translateX(-3px);
+  }
+
+  .head-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 1.6rem;
+  }
+
+  .head-icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    flex: none;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    color: var(--glow);
+    background: color-mix(in oklab, var(--glow) 8%, transparent);
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    font-weight: 660;
+  }
+
+  .lede {
+    margin-top: 0.45rem;
+    color: var(--mist);
+    font-size: 1.02rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    border: 1px solid var(--line);
+  }
+  .badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: breathe 2.6s ease-in-out infinite;
+  }
+  .on-device {
+    color: var(--good);
+    background: color-mix(in oklab, var(--good) 9%, transparent);
+    border-color: color-mix(in oklab, var(--good) 26%, transparent);
+  }
+  .on-device .dot {
+    background: var(--good);
+  }
+  .on-server {
+    color: var(--warn);
+    background: color-mix(in oklab, var(--warn) 9%, transparent);
+    border-color: color-mix(in oklab, var(--warn) 26%, transparent);
+  }
+  .on-server .dot {
+    background: var(--warn);
+  }
+
+  .work {
+    margin-top: 1.75rem;
+    padding: 1.5rem;
+  }
+  .work:hover {
+    transform: none;
+  }
+
+  .about {
+    margin-top: 3.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+  .about p {
+    margin-top: 0.8rem;
+    color: var(--mist);
+    line-height: 1.7;
+    max-width: 40rem;
+  }
+
+  .more {
+    margin-top: 3rem;
+  }
+  .more-grid {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .more-card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.95rem 1.1rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .more-icon {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex: none;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    color: var(--mist);
+  }
+  .more-card:hover .more-icon {
+    color: var(--glow);
+    border-color: color-mix(in oklab, var(--glow) 40%, transparent);
+  }
+  .more-title {
+    display: block;
+    font-weight: 550;
+    font-size: 0.95rem;
+  }
+  .more-line {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--mist);
+  }
+
+  @media (min-width: 40rem) {
+    .more-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

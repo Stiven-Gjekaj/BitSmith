@@ -1,6 +1,8 @@
 ---
-import "../styles/global.css";
+import Backdrop from "../components/ui/Backdrop.astro";
+import Logo from "../components/ui/Logo.astro";
 import { href } from "../lib/url";
+import "../styles/global.css";
 
 interface Props {
   title: string;
@@ -11,16 +13,24 @@ interface Props {
 
 const { title, description, jsonLd } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+
+const favicon =
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#04060c"/><rect x="9" y="17" width="14" height="9" rx="2" fill="none" stroke="#8b99b1" stroke-width="2"/><path d="M7 12.5 16 6l9 6.5" fill="none" stroke="#38e8ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  );
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="icon" href={favicon} />
+    <meta name="theme-color" content="#04060c" />
 
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -30,63 +40,155 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 
     {
       jsonLd ? (
-        <script
-          type="application/ld+json"
-          set:html={JSON.stringify(jsonLd)}
-        />
+        <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
       ) : null
     }
   </head>
 
-  <body
-    class="min-h-screen bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100"
-  >
-    <a
-      href="#main"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-slate-900 focus:px-4 focus:py-2 focus:text-white"
-    >
-      Skip to the content
-    </a>
+  <body>
+    <Backdrop />
 
-    <header class="border-b border-slate-200 dark:border-slate-800">
-      <div
-        class="mx-auto flex max-w-4xl items-center justify-between px-4 py-4"
-      >
-        <a href={href()} class="text-lg font-bold tracking-tight">Bitsmith</a>
-        <nav class="text-sm">
-          <a
-            href="https://github.com/Stiven-Gjekaj/bitsmith"
-            class="text-slate-600 underline hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-            >Source</a
-          >
-        </nav>
-      </div>
+    <a href="#main" class="skip">Skip to the content</a>
+
+    <header class="shell head">
+      <a href={href()} class="brand">
+        <Logo />
+        <span>Bitsmith</span>
+      </a>
+      <nav class="nav">
+        <a href={href()}>Tools</a>
+        <a href="https://github.com/Stiven-Gjekaj/bitsmith">Source</a>
+      </nav>
     </header>
 
-    <main id="main" class="mx-auto max-w-4xl px-4 py-10">
+    <main id="main" class="shell">
       <slot />
     </main>
 
-    <footer
-      class="mt-16 border-t border-slate-200 py-8 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400"
-    >
-      <div class="mx-auto max-w-4xl px-4">
-        <p>
-          Every tool here runs on your own device. No file is uploaded, because
-          there is no server to upload it to.
-        </p>
-        <p class="mt-2">
-          <a href={href()} class="underline">Home</a> ·
-          <a
-            href="https://github.com/Stiven-Gjekaj/bitsmith/blob/main/docs/plan.md"
-            class="underline">The plan</a
-          > ·
-          <a
-            href="https://github.com/Stiven-Gjekaj/bitsmith/blob/main/LICENSE"
-            class="underline">MIT</a
-          >
-        </p>
-      </div>
+    <footer class="shell foot">
+      <p class="tag">Bitsmith</p>
+      <p class="foot-line">
+        Every tool runs on your own device. No file is uploaded, because there
+        is no server to upload it to.
+      </p>
+      <p class="foot-links">
+        <a href={href()}>Home</a>
+        <span aria-hidden="true">/</span>
+        <a
+          href="https://github.com/Stiven-Gjekaj/bitsmith/blob/main/docs/plan.md"
+          >The plan</a
+        >
+        <span aria-hidden="true">/</span>
+        <a href="https://github.com/Stiven-Gjekaj/bitsmith/blob/main/LICENSE"
+          >MIT</a
+        >
+      </p>
     </footer>
+
   </body>
 </html>
+
+<style is:global>
+  .shell {
+    width: 100%;
+    max-width: 62rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  .skip {
+    position: absolute;
+    left: -9999px;
+  }
+  .skip:focus {
+    left: 1rem;
+    top: 1rem;
+    z-index: 50;
+    background: var(--glow);
+    color: var(--void);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: 1.15rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .nav {
+    display: flex;
+    gap: 1.35rem;
+    font-size: 0.9rem;
+  }
+  .nav a {
+    color: var(--mist);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.25s ease;
+  }
+  .nav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 1px;
+    background: var(--glow);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .nav a:hover {
+    color: var(--ink);
+  }
+  .nav a:hover::after {
+    transform: scaleX(1);
+  }
+
+  main {
+    padding-block: 2.5rem 5rem;
+    min-height: 60vh;
+  }
+
+  .foot {
+    border-top: 1px solid var(--line);
+    padding-block: 2.25rem 3rem;
+    color: var(--mist);
+    font-size: 0.9rem;
+  }
+  .foot-line {
+    margin-top: 0.5rem;
+    max-width: 42rem;
+  }
+  .foot-links {
+    margin-top: 0.9rem;
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+  }
+  .foot-links a {
+    color: var(--mist);
+    text-decoration: none;
+    transition: color 0.25s ease;
+  }
+  .foot-links a:hover {
+    color: var(--glow);
+  }
+  .foot-links span {
+    opacity: 0.4;
+  }
+
+</style>
