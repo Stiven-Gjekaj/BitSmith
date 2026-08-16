@@ -1,5 +1,10 @@
+import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { EngineResult } from "../../lib/pipeline/types";
+import { Alert, AlertDescription } from "../ui/alert";
+import { Button } from "../ui/button";
+import { Card } from "../ui/card";
+import { Progress } from "../ui/progress";
 import type { RunState } from "./useToolRun";
 
 interface Props {
@@ -41,59 +46,41 @@ function ResultRow({ result }: { result: EngineResult }) {
   const isImage = result.type.startsWith("image/");
 
   return (
-    <li className="result">
-      {isImage && url ? (
-        <img src={url} alt={result.name} className="result-image" />
-      ) : null}
-
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          flexWrap: "wrap",
-        }}
-      >
-        <div style={{ minWidth: 0 }}>
-          <p className="file-name" style={{ fontWeight: 560 }}>
-            {result.name}
-          </p>
-          <p className="tag" style={{ marginTop: 2 }}>
-            {readable(result.bytes.byteLength)}
-          </p>
-        </div>
-
-        {url ? (
-          <a
-            href={url}
-            download={result.name}
-            className="btn"
-            style={{ marginLeft: "auto", textDecoration: "none" }}
-          >
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M12 5v12M7 12l5 5 5-5M5 20h14" />
-            </svg>
-            Download
-          </a>
+    <li>
+      <Card className="p-4">
+        {isImage && url ? (
+          // The chequer behind the picture is what shows a clear background as
+          // clear. On a flat ground a transparent result looks like a mistake.
+          <img
+            src={url}
+            alt={result.name}
+            className="mb-3 max-h-64 w-auto rounded-md [background-image:linear-gradient(45deg,var(--border)_25%,transparent_25%),linear-gradient(-45deg,var(--border)_25%,transparent_25%),linear-gradient(45deg,transparent_75%,var(--border)_75%),linear-gradient(-45deg,transparent_75%,var(--border)_75%)] [background-position:0_0,0_8px,8px_-8px,-8px_0] [background-size:16px_16px]"
+          />
         ) : null}
-      </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="min-w-0">
+            <p className="truncate font-medium">{result.name}</p>
+            <p className="tag mt-0.5">{readable(result.bytes.byteLength)}</p>
+          </div>
+
+          {url ? (
+            <Button asChild className="ml-auto">
+              <a href={url} download={result.name}>
+                <Download aria-hidden="true" />
+                Download
+              </a>
+            </Button>
+          ) : null}
+        </div>
+      </Card>
     </li>
   );
 }
 
 export function RunPanel({ state, resultRef, onReset }: Props) {
   return (
-    <div style={{ marginTop: 22 }}>
+    <div className="mt-6">
       {/* The live region announces progress to a screen reader. Without it the
           page looks frozen to anybody who cannot see the bar move. */}
       <div aria-live="polite" className="sr-only">
@@ -103,47 +90,31 @@ export function RunPanel({ state, resultRef, onReset }: Props) {
 
       {state.busy ? (
         <div>
-          <div className="bar">
-            <div
-              className="bar-fill"
-              style={{
-                width: `${Math.max(4, Math.round(state.fraction * 100))}%`,
-              }}
-            />
-          </div>
-          <p className="tag" style={{ marginTop: 10 }}>
-            {state.message}
-          </p>
+          <Progress value={Math.max(4, Math.round(state.fraction * 100))} />
+          <p className="tag mt-2.5">{state.message}</p>
         </div>
       ) : null}
 
       {state.error ? (
-        <p role="alert" className="alert alert-bad">
-          {state.error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
       ) : null}
 
       {state.results ? (
-        <div ref={resultRef} tabIndex={-1} style={{ outline: "none" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: 12,
-            }}
-          >
+        <div ref={resultRef} tabIndex={-1} className="outline-none">
+          <div className="mb-3 flex items-center justify-between">
             <h2 className="tag">
               {state.results.length === 1
                 ? "Your file"
                 : `Your ${state.results.length} files`}
             </h2>
-            <button type="button" className="btn-quiet" onClick={onReset}>
+            <Button variant="link" size="sm" onClick={onReset}>
               Start again
-            </button>
+            </Button>
           </div>
 
-          <ul style={{ display: "grid", gap: 14 }}>
+          <ul className="grid gap-3.5">
             {state.results.map((result) => (
               <ResultRow key={result.name} result={result} />
             ))}

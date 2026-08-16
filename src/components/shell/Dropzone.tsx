@@ -1,4 +1,8 @@
+import { FileUp, X } from "lucide-react";
 import { useCallback, useId, useState } from "react";
+import { cn } from "../../lib/utils";
+import { Alert, AlertDescription } from "../ui/alert";
+import { Button } from "../ui/button";
 
 interface Props {
   accept?: string;
@@ -93,7 +97,6 @@ export function Dropzone({
           drop target on top of them. */}
       <div
         data-over={over}
-        className="drop"
         onDragOver={(event) => {
           event.preventDefault();
           setOver(true);
@@ -104,58 +107,64 @@ export function Dropzone({
           setOver(false);
           take(event.dataTransfer.files);
         }}
+        className={cn(
+          "rounded-lg border border-dashed px-6 py-9 text-center transition-colors",
+          over
+            ? "border-primary bg-primary/10"
+            : "border-border bg-background/40 hover:border-ring/60",
+        )}
       >
-        <p className="drop-note">Drop {multiple ? "files" : "a file"} here</p>
+        <p className="text-sm text-muted-foreground">
+          Drop {multiple ? "files" : "a file"} here
+        </p>
 
-        <label htmlFor={inputId} className="drop-pick">
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.9"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 17V5M7 10l5-5 5 5M5 19h14" />
-          </svg>
-          Choose {multiple ? "files" : "a file"}
-          <input
-            id={inputId}
-            type="file"
-            accept={accept}
-            multiple={multiple}
-            className="sr-only"
-            onChange={(event) => take(event.target.files)}
-          />
-        </label>
+        <Button asChild variant="outline" className="mt-3 cursor-pointer">
+          <label htmlFor={inputId}>
+            <FileUp aria-hidden="true" />
+            Choose {multiple ? "files" : "a file"}
+            <input
+              id={inputId}
+              type="file"
+              accept={accept}
+              multiple={multiple}
+              className="sr-only"
+              onChange={(event) => take(event.target.files)}
+            />
+          </label>
+        </Button>
 
         {maxBytes ? (
-          <p className="drop-limit">Up to {readable(maxBytes)}</p>
+          <p className="mt-3 font-mono text-[0.7rem] tracking-widest text-muted-foreground uppercase">
+            Up to {readable(maxBytes)}
+          </p>
         ) : null}
       </div>
 
       {refused ? (
-        <p role="alert" className="alert alert-warn" style={{ marginTop: 12 }}>
-          {refused}
-        </p>
+        <Alert variant="warning" className="mt-3">
+          <AlertDescription>{refused}</AlertDescription>
+        </Alert>
       ) : null}
 
       {files.length > 0 ? (
-        <ul style={{ marginTop: 14, display: "grid", gap: 8 }}>
+        <ul className="mt-4 grid gap-2">
           {files.map((file, index) => (
-            <li key={keyFor(file)} className="file-row">
-              <span className="file-name">{file.name}</span>
-              <span className="file-size">{readable(file.size)}</span>
-              <button
-                type="button"
-                className="btn-quiet"
+            <li
+              key={keyFor(file)}
+              className="flex items-center gap-3 rounded-md border border-border bg-card/70 px-3 py-2 text-sm"
+            >
+              <span className="truncate">{file.name}</span>
+              <span className="ml-auto shrink-0 font-mono text-xs text-muted-foreground">
+                {readable(file.size)}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={`Remove ${file.name}`}
                 onClick={() => onChange(files.filter((_, i) => i !== index))}
               >
-                Remove
-              </button>
+                <X aria-hidden="true" />
+              </Button>
             </li>
           ))}
         </ul>

@@ -1,7 +1,25 @@
 import type { ReactNode } from "react";
 import { useId } from "react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import {
+  SelectContent,
+  SelectItem,
+  Select as SelectRoot,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
 
-/** Shared form pieces, so every tool page looks and behaves the same. */
+/**
+ * The form pieces every tool shares.
+ *
+ * These are thin wrappers over the components in ui/, which are ShadCN's.
+ * Keeping this layer means a tool asks for "a select with these options"
+ * rather than assembling a trigger, a portal, and a list itself, and it means
+ * the five tools did not have to change when the controls underneath them did.
+ */
 
 export function Field({
   label,
@@ -14,11 +32,11 @@ export function Field({
 }) {
   const id = useId();
   return (
-    <div>
-      <label htmlFor={id} className="label">
-        {label}
-      </label>
-      {hint ? <p className="hint">{hint}</p> : null}
+    <div className="grid gap-1.5">
+      <Label htmlFor={id}>{label}</Label>
+      {hint ? (
+        <p className="text-xs leading-snug text-muted-foreground">{hint}</p>
+      ) : null}
       {children(id)}
     </div>
   );
@@ -36,18 +54,18 @@ export function Select({
   options: Array<{ value: string; label: string }>;
 }) {
   return (
-    <select
-      id={id}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      className="control"
-    >
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
+    <SelectRoot value={value} onValueChange={onChange}>
+      <SelectTrigger id={id}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </SelectRoot>
   );
 }
 
@@ -58,6 +76,7 @@ export function NumberInput({
   min,
   max,
   placeholder,
+  disabled,
 }: {
   id: string;
   value: number | "";
@@ -65,21 +84,22 @@ export function NumberInput({
   min?: number;
   max?: number;
   placeholder?: string;
+  disabled?: boolean;
 }) {
   return (
-    <input
+    <Input
       id={id}
       type="number"
       inputMode="numeric"
       min={min}
       max={max}
       placeholder={placeholder}
+      disabled={disabled}
       value={value}
       onChange={(event) => {
         const raw = event.target.value;
         onChange(raw === "" ? "" : Number(raw));
       }}
-      className="control"
     />
   );
 }
@@ -96,13 +116,12 @@ export function TextInput({
   placeholder?: string;
 }) {
   return (
-    <input
+    <Input
       id={id}
       type="text"
       value={value}
       placeholder={placeholder}
       onChange={(event) => onChange(event.target.value)}
-      className="control"
     />
   );
 }
@@ -119,14 +138,12 @@ export function TextArea({
   placeholder?: string;
 }) {
   return (
-    <textarea
+    <Textarea
       id={id}
       rows={3}
       value={value}
       placeholder={placeholder}
       onChange={(event) => onChange(event.target.value)}
-      className="control"
-      style={{ resize: "vertical", fontFamily: "var(--font-mono)" }}
     />
   );
 }
@@ -143,24 +160,17 @@ export function RunButton({
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={busy || disabled}
-      className="btn"
-    >
+    <Button size="lg" onClick={onClick} disabled={busy || disabled}>
       {busy ? (
         <>
           <svg
-            width="15"
-            height="15"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             strokeWidth="2.4"
             strokeLinecap="round"
             aria-hidden="true"
-            style={{ animation: "spin 0.9s linear infinite" }}
+            className="animate-spin"
           >
             <path d="M12 3a9 9 0 1 0 9 9" />
           </svg>
@@ -169,6 +179,6 @@ export function RunButton({
       ) : (
         children
       )}
-    </button>
+    </Button>
   );
 }
