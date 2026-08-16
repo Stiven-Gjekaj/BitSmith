@@ -1,19 +1,21 @@
 import { expect, test } from "@playwright/test";
+import { pairs } from "../../src/tools/image-convert/pairs";
+import { tools } from "../../src/tools/registry";
 
 /**
  * The parts every page shares.
  *
  * These would all have passed before this suite existed, and none of them was
  * ever checked by anything but a person looking at the screen.
+ *
+ * The lists come from the registries rather than from a copy kept here. The
+ * copy was five slugs and the number five written three times, so the first
+ * new tool would have turned this suite red before any of its own code was
+ * wrong. A test that has to be edited to admit a correct change is a test
+ * that trains people to edit tests.
  */
 
-const SLUGS = [
-  "qr-code-generator",
-  "image-converter",
-  "crop-image",
-  "merge-pdf",
-  "remove-background",
-];
+const SLUGS = tools.map((tool) => tool.slug);
 
 test("the home page lists every tool and each card arrives", async ({
   page,
@@ -21,10 +23,10 @@ test("the home page lists every tool and each card arrives", async ({
   await page.goto("./");
 
   const cards = page.locator("section.tools a");
-  await expect(cards).toHaveCount(5);
+  await expect(cards).toHaveCount(SLUGS.length);
 
   // A card that renders is not a card that arrives somewhere. Follow each one.
-  for (let index = 0; index < 5; index += 1) {
+  for (let index = 0; index < SLUGS.length; index += 1) {
     await page.goto("./");
     const card = page.locator("section.tools a").nth(index);
     const title = (await card.locator(".card-title").textContent()) ?? "";
@@ -70,7 +72,7 @@ test("a keyboard can reach the file control", async ({ page }) => {
 test("every page carries its own title and description", async ({ page }) => {
   // Each address ends in a slash. The site is built with trailing slashes, so
   // the form without one is a redirect and not the page itself.
-  for (const slug of ["", "qr-code-generator/", "merge-pdf/"]) {
+  for (const slug of ["", `${SLUGS[0]}/`, `${pairs[0].slug}/`]) {
     await page.goto(`./${slug}`);
     expect(await page.title()).toContain("Bitsmith");
     const description = await page
@@ -86,7 +88,10 @@ test("no page reports a console error", async ({ page }) => {
     if (message.type() === "error") errors.push(message.text());
   });
 
-  for (const slug of ["", "qr-code-generator/", "image-converter/"]) {
+  // Every tool page, and one conversion page. The old list named three of the
+  // six kinds of page, so a console error on the PDF tool or on any of the
+  // twelve conversion pages went unseen.
+  for (const slug of ["", ...SLUGS.map((s) => `${s}/`), `${pairs[0].slug}/`]) {
     await page.goto(`./${slug}`);
     await page.waitForLoadState("networkidle");
   }
