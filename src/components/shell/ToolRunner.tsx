@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 
 /**
  * Loads the interface for one tool.
@@ -43,7 +43,34 @@ export default function ToolRunner({
 
   return (
     <Suspense fallback={<p className="text-slate-500">Loading the tool.</p>}>
+      <Mounted />
       <Ui preset={preset} />
     </Suspense>
   );
+}
+
+/**
+ * Says, in the page itself, that the tool is now under React's control.
+ *
+ * The controls are in the HTML before any of this runs, because Astro renders
+ * them on the server. They look finished and they are not: nothing typed into
+ * them reaches React until the tool has mounted, and the tool is behind a lazy
+ * import, so it arrives some time after the page does.
+ *
+ * A browser test that starts typing in that gap gets a control that holds its
+ * text and a button that never enables, because React's own state is still
+ * empty. That produced a timeout roughly one run in three, on whichever test
+ * happened to be unlucky, and it looked like a different fault every time.
+ *
+ * An effect is the signal because an effect cannot run on the server. When
+ * this attribute is in the document, React has mounted and is listening.
+ */
+function Mounted() {
+  useEffect(() => {
+    document.documentElement.dataset.toolReady = "true";
+    return () => {
+      delete document.documentElement.dataset.toolReady;
+    };
+  }, []);
+  return null;
 }
