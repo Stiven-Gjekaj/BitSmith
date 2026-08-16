@@ -291,6 +291,16 @@ The background removal model is `u2netp`, from the U-2-Net work, under the
 Apache 2.0 licence, converted to half precision by `scripts/make-model.py`.
 The anvil mark comes from [Lucide](https://lucide.dev) under the ISC licence,
 and that text is in [LICENSES/lucide.txt](LICENSES/lucide.txt).
+
+HEIC files are read with [libheif](https://github.com/strukturag/libheif),
+through [libheif-js](https://github.com/catdad-experiments/libheif-js), under
+the LGPL version 3. That text is in
+[LICENSES/libheif.txt](LICENSES/libheif.txt). This licence is heavier than the
+MIT and Apache terms that cover everything else here, and it is carried on
+purpose: libheif is the only way to read a HEIC in a browser, and a HEIC is
+what an iPhone writes by default. It is served as its own file rather than
+folded in with the other code, so it stays a separate and replaceable part,
+which is what the LGPL asks for.
 Confirm both yourself before you use this project commercially. A model
 licence is the trap worth checking, because several strong ones forbid
 commercial use.
