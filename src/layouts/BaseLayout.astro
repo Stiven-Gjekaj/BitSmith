@@ -3,6 +3,7 @@ import Analytics from "../components/ui/Analytics.astro";
 import Backdrop from "../components/ui/Backdrop.astro";
 import Logo from "../components/ui/Logo.astro";
 import { href } from "../lib/url";
+import { site } from "../site.config";
 import "../styles/global.css";
 
 interface Props {
@@ -35,6 +36,15 @@ const favicon =
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={favicon} />
     <meta name="theme-color" content="#04060c" />
+
+    {
+      site.googleSiteVerification ? (
+        <meta
+          name="google-site-verification"
+          content={site.googleSiteVerification}
+        />
+      ) : null
+    }
 
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

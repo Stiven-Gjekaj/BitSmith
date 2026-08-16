@@ -31,4 +31,20 @@ export const site = {
    * and agree with each other about nothing.
    */
   goatCounterCode: "",
+
+  /**
+   * Google Search Console, which is how the site gets into search results at
+   * all. Google will not crawl what it has not been told about, and this is
+   * the proof that the person asking owns the site.
+   *
+   * Two things prove it and both are in place, because Google checks whichever
+   * it feels like and a failed check is a wasted day:
+   *   - the meta tag below, on every page
+   *   - public/google93f05e05a7acd7be.html, served at the property root
+   *
+   * Neither is a secret. Both are visible to anybody who views the page.
+   * Leave them once verification passes: removing one makes Google drop the
+   * property at its next check.
+   */
+  googleSiteVerification: "8Ufd48F5tz-BqAsTAOXgW85aU_pxZESEs-4dA3dC85g",
 } as const;
