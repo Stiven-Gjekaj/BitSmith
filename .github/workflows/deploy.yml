@@ -1,0 +1,78 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Lets you redeploy the current main without pushing a commit.
+  workflow_dispatch:
+
+# The deploy action signs in with a token it mints here. Without `pages` and
+# `id-token` the last step fails at the very end, after a full build.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time. Cancelling a run in progress can leave the site
+# half replaced, so a queued run waits rather than taking over.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install the dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      # A last check that the two values in astro.config.mjs still match this
+      # repository. If `base` is wrong, every page still builds and every link
+      # on the live site is broken, which is a failure that no build error
+      # reports.
+      - name: Check that the base path is in the built pages
+        run: |
+          if ! grep -q '/bitsmith/_astro/' dist/index.html; then
+            echo "::error::dist/index.html has no /bitsmith/ asset path. The base in astro.config.mjs no longer matches the repository name."
+            exit 1
+          fi
+          if [ ! -f dist/.nojekyll ]; then
+            echo "::error::dist/.nojekyll is missing. GitHub Pages would run Jekyll and drop the _astro directory."
+            exit 1
+          fi
+
+      - name: Set up Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
