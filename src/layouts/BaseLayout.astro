@@ -1,0 +1,92 @@
+---
+import "../styles/global.css";
+import { href } from "../lib/url";
+
+interface Props {
+  title: string;
+  description: string;
+  /** Structured data for a search engine. Built from the registry. */
+  jsonLd?: Record<string, unknown>;
+}
+
+const { title, description, jsonLd } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+
+    {
+      jsonLd ? (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(jsonLd)}
+        />
+      ) : null
+    }
+  </head>
+
+  <body
+    class="min-h-screen bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100"
+  >
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-slate-900 focus:px-4 focus:py-2 focus:text-white"
+    >
+      Skip to the content
+    </a>
+
+    <header class="border-b border-slate-200 dark:border-slate-800">
+      <div
+        class="mx-auto flex max-w-4xl items-center justify-between px-4 py-4"
+      >
+        <a href={href()} class="text-lg font-bold tracking-tight">Bitsmith</a>
+        <nav class="text-sm">
+          <a
+            href="https://github.com/Stiven-Gjekaj/bitsmith"
+            class="text-slate-600 underline hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            >Source</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="mx-auto max-w-4xl px-4 py-10">
+      <slot />
+    </main>
+
+    <footer
+      class="mt-16 border-t border-slate-200 py-8 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400"
+    >
+      <div class="mx-auto max-w-4xl px-4">
+        <p>
+          Every tool here runs on your own device. No file is uploaded, because
+          there is no server to upload it to.
+        </p>
+        <p class="mt-2">
+          <a href={href()} class="underline">Home</a> ·
+          <a
+            href="https://github.com/Stiven-Gjekaj/bitsmith/blob/main/docs/plan.md"
+            class="underline">The plan</a
+          > ·
+          <a
+            href="https://github.com/Stiven-Gjekaj/bitsmith/blob/main/LICENSE"
+            class="underline">MIT</a
+          >
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

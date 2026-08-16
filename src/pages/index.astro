@@ -1,0 +1,64 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { href } from "../lib/url";
+import { tools } from "../tools/registry";
+
+const title = "Bitsmith: small file tools that run in your browser";
+const description =
+  "Free tools for pictures, PDF files, and QR codes. Everything runs on " +
+  "your own device. No upload, no account, no server.";
+---
+
+<BaseLayout title={title} description={description}>
+  <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+    Small file tools that run in your browser
+  </h1>
+
+  <p class="mt-4 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
+    Drop a file, get it back changed. Your file never leaves your device,
+    because there is no server to send it to.
+  </p>
+
+  <ul class="mt-10 grid gap-4 sm:grid-cols-2">
+    {
+      tools.map((tool) => (
+        <li>
+          <a
+            href={href(tool.slug)}
+            class="block h-full rounded-xl border border-slate-200 p-5 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-800 dark:hover:border-slate-600 dark:hover:bg-slate-900"
+          >
+            <h2 class="font-semibold">{tool.title}</h2>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              {tool.tagline}
+            </p>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <section class="mt-16">
+    <h2 class="text-2xl font-bold">Why the browser does the work</h2>
+    <div class="mt-4 grid gap-6 sm:grid-cols-3">
+      <div>
+        <h3 class="font-semibold">Your file stays put</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          Nothing is uploaded. Nobody here receives your file, holds it, or
+          reads it.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-semibold">No account</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          There is nothing to sign up for and nothing to log in to.
+        </p>
+      </div>
+      <div>
+        <h3 class="font-semibold">It works offline</h3>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          Once a page has loaded, the work needs no connection at all.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
