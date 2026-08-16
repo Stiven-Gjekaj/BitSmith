@@ -130,7 +130,7 @@ gives the low cost, and that is what lets the site survive with no income.
 
 ## The address
 
-The site runs at `stiven-gjekaj.github.io/bitsmith`. The domain
+The site runs at `stiven-gjekaj.github.io/BitSmith`. The domain
 `bitsmith.tools` is **not registered by you**, and nobody is holding it.
 
 Moving is cheap now and expensive later. At low traffic the loss is near zero.

@@ -17,7 +17,7 @@ import { createReadStream, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
 
-const BASE = "/bitsmith";
+const BASE = "/BitSmith";
 const ROOT = join(process.cwd(), "dist");
 const PORT = Number(process.argv[2] ?? 4173);
 

@@ -18,7 +18,7 @@ There is no site to use yet, so most help today is about the plan.
 ## Ask a question or report a problem
 
 - Search the existing
-  [issues](https://github.com/Stiven-Gjekaj/bitsmith/issues) first, in case
+  [issues](https://github.com/Stiven-Gjekaj/BitSmith/issues) first, in case
   somebody has already asked.
 - If something in the milestones looks wrong, open an issue and name it.
 - If you found a bug, open a bug report. This applies once there is something

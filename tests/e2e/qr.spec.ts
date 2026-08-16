@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("makes an SVG from a link", async ({ page }) => {
-  await page.getByLabel("Text or link").fill("https://bitsmith.tools");
+  await page.getByLabel("Text or link").fill("https://BitSmith.tools");
   await runAndWait(page, /Make the code/);
 
   expect(await resultName(page)).toBe("qr-code.svg");

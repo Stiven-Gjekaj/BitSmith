@@ -64,7 +64,7 @@ Ten tools instead of five, and fourteen conversion pages instead of twelve.
 ### Version 1
 
 Version 1 is built. All five tools work, and the site is live on GitHub Pages
-at https://stiven-gjekaj.github.io/bitsmith/.
+at https://stiven-gjekaj.github.io/BitSmith/.
 
 ### Added
 
@@ -173,7 +173,7 @@ at https://stiven-gjekaj.github.io/bitsmith/.
 ### Decided
 
 - The name is Bitsmith. The launch address is
-  `stiven-gjekaj.github.io/bitsmith`, on GitHub Pages. The domain
+  `stiven-gjekaj.github.io/BitSmith`, on GitHub Pages. The domain
   `bitsmith.tools` is not registered, and section 4 of the plan records that
   risk.
 - The host is GitHub Pages and not Cloudflare Pages. Section 6 of the plan

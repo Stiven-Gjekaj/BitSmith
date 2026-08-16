@@ -91,7 +91,7 @@ test("shows progress and then the finished file", async ({ page }) => {
  * The one test that proves the HEIC decoder reaches a real browser.
  *
  * libheif is imported from inside decode(), which means it is a separate file
- * that the built site has to be able to find under /bitsmith at the moment a
+ * that the built site has to be able to find under /BitSmith at the moment a
  * HEIC turns up. No Node test can show that: vitest resolves the import from
  * node_modules, and the path it takes there says nothing about the path a
  * browser takes.

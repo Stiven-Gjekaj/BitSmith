@@ -28,7 +28,7 @@ This costs you one message and can save you a rewritten pull request.
 
 You need Node 22 and pnpm.
 
-    git clone https://github.com/Stiven-Gjekaj/bitsmith
+    git clone https://github.com/Stiven-Gjekaj/BitSmith
     cd bitsmith
     pnpm install
     pnpm dev

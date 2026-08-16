@@ -11,7 +11,7 @@ import { defineConfig } from "astro/config";
 // Never write a link as "/tools/qr". Write it with the base, or the link
 // breaks in production while it still works in development.
 const SITE = "https://stiven-gjekaj.github.io";
-const BASE = "/bitsmith";
+const BASE = "/BitSmith";
 
 export default defineConfig({
   site: SITE,

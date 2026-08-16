@@ -44,7 +44,7 @@ export default defineConfig({
   reporter: process.env.CI ? [["github"], ["list"]] : [["list"]],
 
   use: {
-    baseURL: "http://127.0.0.1:4173/bitsmith/",
+    baseURL: "http://127.0.0.1:4173/BitSmith/",
     trace: "retain-on-failure",
   },
 
@@ -60,7 +60,7 @@ export default defineConfig({
   // is a dumb file host under a path prefix.
   webServer: {
     command: "node scripts/serve-dist.mjs 4173",
-    url: "http://127.0.0.1:4173/bitsmith/",
+    url: "http://127.0.0.1:4173/BitSmith/",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

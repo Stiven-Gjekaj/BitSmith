@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Stiven-Gjekaj/bitsmith/main/public/logo.svg" alt="Bitsmith" width="112">
+<img src="https://raw.githubusercontent.com/Stiven-Gjekaj/BitSmith/main/public/logo.svg" alt="Bitsmith" width="112">
 
 ### Small file tools that run fully in your browser
 
@@ -13,13 +13,13 @@ _No upload, no account, no server_
 </p>
 
 <p align="center">
-  <a href="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Stiven-Gjekaj/bitsmith/ci.yml?label=ci&style=flat-square" alt="CI"/></a>
-  <a href="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/deploy.yml"><img src="https://img.shields.io/github/actions/workflow/status/Stiven-Gjekaj/bitsmith/deploy.yml?label=deployed&style=flat-square" alt="Deployed"/></a>
+  <a href="https://github.com/Stiven-Gjekaj/BitSmith/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Stiven-Gjekaj/BitSmith/ci.yml?label=ci&style=flat-square" alt="CI"/></a>
+  <a href="https://github.com/Stiven-Gjekaj/BitSmith/actions/workflows/deploy.yml"><img src="https://img.shields.io/github/actions/workflow/status/Stiven-Gjekaj/BitSmith/deploy.yml?label=deployed&style=flat-square" alt="Deployed"/></a>
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License"/>
 </p>
 
 <p align="center">
-  <a href="https://stiven-gjekaj.github.io/bitsmith/"><b>Use it in your browser</b></a> |
+  <a href="https://stiven-gjekaj.github.io/BitSmith/"><b>Use it in your browser</b></a> |
   <a href="#the-tools"><b>Tools</b></a> |
   <a href="#quick-start"><b>Quick Start</b></a> |
   <a href="#how-it-works"><b>How It Works</b></a> |
@@ -57,26 +57,26 @@ The ten tools together cost nothing to run and nothing to serve.
 
 ### What they do
 
-- **[QR code generator](https://stiven-gjekaj.github.io/bitsmith/qr-code-generator/)**
+- **[QR code generator](https://stiven-gjekaj.github.io/BitSmith/qr-code-generator/)**
   turns a link or a note into an SVG or a PNG.
-- **[Image converter](https://stiven-gjekaj.github.io/bitsmith/image-converter/)**
+- **[Image converter](https://stiven-gjekaj.github.io/BitSmith/image-converter/)**
   moves a picture between PNG, JPEG, WebP and AVIF, and reads the HEIC an
   iPhone writes.
-- **[Compress image](https://stiven-gjekaj.github.io/bitsmith/compress-image/)**
+- **[Compress image](https://stiven-gjekaj.github.io/BitSmith/compress-image/)**
   makes a picture fit inside a size an upload form allows.
-- **[Remove photo metadata](https://stiven-gjekaj.github.io/bitsmith/strip-metadata/)**
+- **[Remove photo metadata](https://stiven-gjekaj.github.io/BitSmith/strip-metadata/)**
   takes out the place, the date and the camera, without rebuilding the picture.
-- **[Rotate and mirror](https://stiven-gjekaj.github.io/bitsmith/rotate-image/)**
+- **[Rotate and mirror](https://stiven-gjekaj.github.io/BitSmith/rotate-image/)**
   turns a picture the right way up.
-- **[Crop and resize](https://stiven-gjekaj.github.io/bitsmith/crop-image/)**
+- **[Crop and resize](https://stiven-gjekaj.github.io/BitSmith/crop-image/)**
   cuts a picture down, then changes its size.
-- **[PDF to image](https://stiven-gjekaj.github.io/bitsmith/pdf-to-image/)**
+- **[PDF to image](https://stiven-gjekaj.github.io/BitSmith/pdf-to-image/)**
   gives one numbered picture for each page.
-- **[Image to PDF](https://stiven-gjekaj.github.io/bitsmith/image-to-pdf/)**
+- **[Image to PDF](https://stiven-gjekaj.github.io/BitSmith/image-to-pdf/)**
   puts pictures into one document, a page each.
-- **[Merge and split PDF](https://stiven-gjekaj.github.io/bitsmith/merge-pdf/)**
+- **[Merge and split PDF](https://stiven-gjekaj.github.io/BitSmith/merge-pdf/)**
   joins files, or keeps the pages you name.
-- **[Background remover](https://stiven-gjekaj.github.io/bitsmith/remove-background/)**
+- **[Background remover](https://stiven-gjekaj.github.io/BitSmith/remove-background/)**
   cuts the background out of a photograph.
 
 </td>
@@ -103,13 +103,13 @@ The ten tools together cost nothing to run and nothing to serve.
 ## Quick Start
 
 Use the site at
-**[stiven-gjekaj.github.io/bitsmith](https://stiven-gjekaj.github.io/bitsmith/)**.
+**[stiven-gjekaj.github.io/BitSmith](https://stiven-gjekaj.github.io/BitSmith/)**.
 There is nothing to install.
 
 To run it yourself, you need Node 22 and pnpm:
 
 ```
-git clone https://github.com/Stiven-Gjekaj/bitsmith
+git clone https://github.com/Stiven-Gjekaj/BitSmith
 cd bitsmith
 pnpm install
 pnpm dev
@@ -272,7 +272,7 @@ The workflow is [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
 Two checks run before it publishes, because both failures are invisible
 otherwise:
 
-- The built pages must contain the `/bitsmith/` asset path. GitHub Pages
+- The built pages must contain the `/BitSmith/` asset path. GitHub Pages
   serves a project site under a path. If that base is wrong, every page still
   builds and every link on the live site is broken.
 - `dist/.nojekyll` must exist. GitHub Pages runs Jekyll by default, and Jekyll
@@ -319,5 +319,5 @@ licence is the trap worth checking, because several strong ones forbid
 commercial use.
 
 <div align="center">
-<sub>The work happens on your device. <a href="https://stiven-gjekaj.github.io/bitsmith/">Try it</a>.</sub>
+<sub>The work happens on your device. <a href="https://stiven-gjekaj.github.io/BitSmith/">Try it</a>.</sub>
 </div>
