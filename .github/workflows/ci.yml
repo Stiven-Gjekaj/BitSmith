@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  docs:
+    name: Check the documentation links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v5
+
+      # This job does real work today. The repository is documentation before
+      # it is an application, so a broken relative link is the defect it can
+      # actually have, and this check finds one.
+      - name: Check that every relative link resolves
+        run: bash scripts/check-links.sh
+
+  detect:
+    name: Look for an application to build
+    runs-on: ubuntu-latest
+    outputs:
+      present: ${{ steps.look.outputs.present }}
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v5
+
+      # Step 0 of the build order has not landed, so there is no package.json
+      # and nothing to install. Deciding that once here lets the job below skip
+      # as a whole. A skipped job reports as skipped, and a job that tries to
+      # install from a file that does not exist reports as failed. A red badge
+      # on a repository that works correctly teaches a reader to ignore the
+      # badge, and then it hides the first real failure.
+      - name: Look for package.json
+        id: look
+        run: |
+          if [ -f package.json ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No package.json yet, so the build job is skipped."
+          fi
+
+  build:
+    name: Type check, lint, test, and build
+    needs: detect
+    if: needs.detect.outputs.present == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install the dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint and check formatting
+        run: pnpm biome ci .
+
+      - name: Type check
+        run: pnpm tsc --noEmit
+
+      # These run the pure engines in Node against the fixture files in
+      # tests/fixtures/. They need no browser, which is the whole reason the
+      # engine is kept separate from the component.
+      - name: Unit tests
+        run: pnpm vitest run
+
+      - name: Build the site
+        run: pnpm build
+
+      # The end-to-end tests need a browser download and a built site, so they
+      # get their own job when the shell in step 0 lands.
