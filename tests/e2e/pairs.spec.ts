@@ -1,5 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { giveImage, resultBytes, resultName, runAndWait, sniff } from "./helpers";
+import {
+  chooseOption,
+  giveImage,
+  resultBytes,
+  resultName,
+  runAndWait,
+  sniff,
+} from "./helpers";
 
 /**
  * The conversion pages.
@@ -13,7 +20,9 @@ import { giveImage, resultBytes, resultName, runAndWait, sniff } from "./helpers
 
 test("png to jpg opens already pointed at JPG", async ({ page }) => {
   await page.goto("./png-to-jpg/");
-  await expect(page.getByLabel("Convert to")).toHaveValue("jpeg");
+  // The trigger shows the chosen option, so its text is what proves the page
+  // arrived pointed the right way.
+  await expect(page.getByLabel("Convert to")).toContainText("JPEG");
 
   await giveImage(page, "holiday.png");
   await runAndWait(page, /Convert/);
@@ -24,7 +33,7 @@ test("png to jpg opens already pointed at JPG", async ({ page }) => {
 
 test("webp to png opens already pointed at PNG", async ({ page }) => {
   await page.goto("./webp-to-png/");
-  await expect(page.getByLabel("Convert to")).toHaveValue("png");
+  await expect(page.getByLabel("Convert to")).toContainText("PNG");
 });
 
 test("the controls are not locked", async ({ page }) => {
@@ -32,8 +41,8 @@ test("the controls are not locked", async ({ page }) => {
   // than for the person who arrived. Somebody who lands on png to jpg and
   // decides they want WebP should not have to find another address.
   await page.goto("./png-to-jpg/");
-  await page.getByLabel("Convert to").selectOption("webp");
-  await expect(page.getByLabel("Convert to")).toHaveValue("webp");
+  await chooseOption(page, "Convert to", /WebP/);
+  await expect(page.getByLabel("Convert to")).toContainText("WebP");
 
   await giveImage(page, "holiday.png");
   await runAndWait(page, /Convert/);

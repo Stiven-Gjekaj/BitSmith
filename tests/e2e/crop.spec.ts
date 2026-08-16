@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { giveImage, resultBytes, runAndWait, sniff } from "./helpers";
+import { chooseOption, giveImage, resultBytes, runAndWait, sniff } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("./crop-image/");
@@ -60,7 +60,7 @@ test("saves in the format that is chosen", async ({ page }) => {
   await giveImage(page, "photo.png", 120, 90);
   await expect(page.getByText("This picture is 120 by 90")).toBeVisible();
 
-  await page.getByLabel("Save as").selectOption("webp");
+  await chooseOption(page, "Save as", "WebP");
   await runAndWait(page, /Apply/);
   expect(sniff(await resultBytes(page))).toBe("webp");
 });

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
+  chooseOption,
   giveImage,
   giveImages,
   resultBytes,
@@ -24,13 +25,13 @@ test("turns a PNG into a WebP", async ({ page }) => {
 
 test("writes each format it offers", async ({ page }) => {
   for (const [choice, expected] of [
-    ["jpeg", "jpeg"],
-    ["png", "png"],
-    ["avif", "avif"],
+    [/JPEG/, "jpeg"],
+    [/PNG/, "png"],
+    [/AVIF/, "avif"],
   ] as const) {
     await page.goto("./image-converter/");
     await giveImage(page, "sample.png");
-    await page.getByLabel("Convert to").selectOption(choice);
+    await chooseOption(page, "Convert to", choice);
     await runAndWait(page, /Convert/);
     expect(sniff(await resultBytes(page))).toBe(expected);
   }
@@ -60,13 +61,19 @@ test("a file can be taken back off the list", async ({ page }) => {
 
 test("the quality control is off for a lossless format", async ({ page }) => {
   await giveImage(page, "sample.png");
-  await page.getByLabel("Convert to").selectOption("png");
+  await chooseOption(page, "Convert to", /PNG/);
   // PNG loses nothing, so a quality slider on it would be a control that does
   // not control anything.
-  await expect(page.locator('input[type="range"]')).toBeDisabled();
+  await expect(page.locator("[data-slot=slider]")).toHaveAttribute(
+    "data-disabled",
+    "",
+  );
 
-  await page.getByLabel("Convert to").selectOption("jpeg");
-  await expect(page.locator('input[type="range"]')).toBeEnabled();
+  await chooseOption(page, "Convert to", /JPEG/);
+  await expect(page.locator("[data-slot=slider]")).not.toHaveAttribute(
+    "data-disabled",
+    "",
+  );
 });
 
 test("shows progress and then the finished file", async ({ page }) => {

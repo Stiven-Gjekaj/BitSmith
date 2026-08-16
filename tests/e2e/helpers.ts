@@ -230,6 +230,22 @@ export async function runAndWait(page: Page, label: RegExp): Promise<void> {
   });
 }
 
+/**
+ * Chooses an option from a Radix select.
+ *
+ * The controls are no longer the browser's own, so `selectOption` has nothing
+ * to act on. Radix renders a button that opens a list, which is what a person
+ * sees and therefore what a test should drive: open it, then pick by name.
+ */
+export async function chooseOption(
+  page: Page,
+  label: string,
+  option: string | RegExp,
+): Promise<void> {
+  await page.getByLabel(label).click();
+  await page.getByRole("option", { name: option }).click();
+}
+
 /** Names the format from the first bytes, the way the engine does. */
 export function sniff(bytes: Uint8Array): string | null {
   const ascii = (start: number, length: number) =>

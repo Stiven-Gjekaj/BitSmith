@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { givePdf, givePdfs, resultBytes, runAndWait, sniff } from "./helpers";
+import { chooseOption, givePdf, givePdfs, resultBytes, runAndWait, sniff } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("./merge-pdf/");
@@ -26,9 +26,7 @@ test("joins two files into one", async ({ page }) => {
 
 test("switching to page picking shows the range box", async ({ page }) => {
   await expect(page.getByLabel("Pages to keep")).toHaveCount(0);
-  await page
-    .getByLabel("What do you want to do")
-    .selectOption("select");
+  await chooseOption(page, "What do you want to do", /Keep only some pages/);
   await expect(page.getByLabel("Pages to keep")).toBeVisible();
 });
 

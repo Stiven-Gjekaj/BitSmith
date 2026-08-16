@@ -1,5 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { resultBytes, resultName, runAndWait, sniff, toolReady } from "./helpers";
+import {
+  chooseOption,
+  resultBytes,
+  resultName,
+  runAndWait,
+  sniff,
+  toolReady,
+} from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("./qr-code-generator/");
@@ -18,7 +25,7 @@ test("makes an SVG from a link", async ({ page }) => {
 
 test("makes a real PNG when asked for one", async ({ page }) => {
   await page.getByLabel("Text or link").fill("hello");
-  await page.getByLabel("File type").selectOption("png");
+  await chooseOption(page, "File type", "PNG");
   await runAndWait(page, /Make the code/);
 
   expect(await resultName(page)).toBe("qr-code.png");
