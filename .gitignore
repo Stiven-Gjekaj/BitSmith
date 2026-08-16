@@ -85,3 +85,7 @@ public/models/*
 
 # Copied from node_modules by scripts/copy-ort.mjs on every build.
 public/ort/
+
+# Playwright output
+/test-results/
+/playwright-report/
