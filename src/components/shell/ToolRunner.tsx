@@ -23,6 +23,7 @@ const uis: Record<
   "compress-image": lazy(() => import("../../tools/compress/Tool")),
   "merge-pdf": lazy(() => import("../../tools/pdf-pages/Tool")),
   "image-to-pdf": lazy(() => import("../../tools/pdf-build/Tool")),
+  "pdf-to-image": lazy(() => import("../../tools/pdf-raster/Tool")),
   "remove-background": lazy(() => import("../../tools/bg-remove/Tool")),
 };
 

@@ -179,6 +179,28 @@ export const tools: ToolMeta[] = [
     keywords: ["crop image", "resize image", "make a photo smaller"],
   },
   {
+    slug: "pdf-to-image",
+    title: "PDF to Image",
+    tagline: "Turn the pages of a PDF into pictures.",
+    description:
+      "Every page becomes its own picture, numbered so the order holds. " +
+      "Useful for putting a page into a slide or a message. The document " +
+      "never leaves your device.",
+    inputKind: "files",
+    accept: "application/pdf,.pdf",
+    multiple: false,
+    maxBytes: 60 * MB,
+    runsOn: "device",
+    isolated: false,
+    keywords: [
+      "pdf to jpg",
+      "pdf to png",
+      "pdf to image",
+      "convert pdf pages to pictures",
+      "extract images from pdf",
+    ],
+  },
+  {
     slug: "image-to-pdf",
     title: "Image to PDF",
     tagline: "Put pictures into one PDF, a page each.",

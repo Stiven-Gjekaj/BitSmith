@@ -50,6 +50,7 @@ const engines: Record<string, () => Promise<EngineModule>> = {
   "compress-image": () => import("../../tools/compress/engine"),
   "merge-pdf": () => import("../../tools/pdf-pages/engine"),
   "image-to-pdf": () => import("../../tools/pdf-build/engine"),
+  "pdf-to-image": () => import("../../tools/pdf-raster/engine"),
   "remove-background": () => import("../../tools/bg-remove/engine"),
 };
 

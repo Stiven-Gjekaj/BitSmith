@@ -5,10 +5,15 @@
  * code. It asks for them over the network when a document needs one, from a
  * folder the caller has to name.
  *
- * Getting this wrong fails in the worst way available. A PDF that uses a
- * standard font it did not embed, which is most business documents, renders
- * with the text missing or drawn as boxes. Nothing throws, the page still
- * produces a picture, and the picture is simply wrong.
+ * How much this matters was measured rather than assumed, and the answer is
+ * narrower than expected. With the font folder pointed at a directory that
+ * does not exist, a document naming Helvetica without embedding it still drew
+ * its text: pdfjs carries the fourteen standard fonts itself. The folders
+ * earn their place for the documents beyond that, above all text that is not
+ * Latin, which needs the character maps.
+ *
+ * Where this does fail, it fails silently. Nothing throws, a picture is still
+ * produced, and the text is simply missing from it.
  *
  * This is the same shape of problem that copy-ort.mjs solves for the model
  * runtime, and the same answer: copy the files into public/ at build time so

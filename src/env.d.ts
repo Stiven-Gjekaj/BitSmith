@@ -17,3 +17,9 @@ declare module "libheif-js/wasm-bundle.js" {
   const libheif: unknown;
   export default libheif;
 }
+
+/** Vite answers a `?url` import with the built address of the file. */
+declare module "*?url" {
+  const url: string;
+  export default url;
+}
