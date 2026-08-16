@@ -1,0 +1,82 @@
+import { useState } from "react";
+import { Dropzone } from "../../components/shell/Dropzone";
+import { Field, RunButton, Select } from "../../components/shell/fields";
+import { RunPanel } from "../../components/shell/RunPanel";
+import { useToolRun } from "../../components/shell/useToolRun";
+import type { ImageFormat } from "../../lib/image/codecs";
+import { findTool } from "../registry";
+import { DEFAULTS } from "./engine";
+
+const meta = findTool("image-converter");
+
+export default function Tool() {
+  const { state, run, reset, resultRef } = useToolRun("image-converter");
+  const [files, setFiles] = useState<File[]>([]);
+  const [format, setFormat] = useState<ImageFormat>(DEFAULTS.format);
+  const [quality, setQuality] = useState(DEFAULTS.quality);
+
+  return (
+    <div>
+      <Dropzone
+        accept={meta?.accept}
+        multiple
+        maxBytes={meta?.maxBytes}
+        files={files}
+        onChange={setFiles}
+      />
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <Field label="Convert to">
+          {(id) => (
+            <Select
+              id={id}
+              value={format}
+              onChange={(value) => setFormat(value as ImageFormat)}
+              options={[
+                { value: "webp", label: "WebP (small, wide support)" },
+                { value: "jpeg", label: "JPEG (photographs)" },
+                { value: "png", label: "PNG (lossless, keeps clear areas)" },
+                { value: "avif", label: "AVIF (smallest, slower)" },
+              ]}
+            />
+          )}
+        </Field>
+
+        <Field
+          label={`Quality: ${quality}`}
+          hint={
+            format === "png"
+              ? "PNG is lossless, so quality does nothing here."
+              : "Lower makes a smaller file."
+          }
+        >
+          {(id) => (
+            <input
+              id={id}
+              type="range"
+              min={10}
+              max={100}
+              value={quality}
+              disabled={format === "png"}
+              onChange={(event) => setQuality(Number(event.target.value))}
+              className="w-full accent-sky-600 disabled:opacity-40"
+            />
+          )}
+        </Field>
+      </div>
+
+      <div className="mt-6">
+        <RunButton
+          busy={state.busy}
+          disabled={files.length === 0}
+          onClick={() => run(files, { format, quality })}
+        >
+          Convert{" "}
+          {files.length > 1 ? `${files.length} pictures` : "the picture"}
+        </RunButton>
+      </div>
+
+      <RunPanel state={state} resultRef={resultRef} onReset={reset} />
+    </div>
+  );
+}
