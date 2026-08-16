@@ -1,0 +1,86 @@
+import { existsSync, readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import type { RawImage } from "../../lib/image/codecs";
+import { removeBackground } from "./engine";
+
+const MODEL = "public/models/u2netp.onnx";
+
+/**
+ * A picture with an obvious subject: a solid disc on a flat background.
+ *
+ * The state is built here rather than read from a photograph, so the test says
+ * exactly what it gives the model and the assertions below can be specific.
+ */
+function discOnBackground(width: number, height: number): RawImage {
+  const data = new Uint8ClampedArray(width * height * 4);
+  const centreX = width / 2;
+  const centreY = height / 2;
+  const radius = Math.min(width, height) * 0.3;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const at = (y * width + x) * 4;
+      const inside = (x - centreX) ** 2 + (y - centreY) ** 2 < radius * radius;
+      data[at] = inside ? 220 : 30;
+      data[at + 1] = inside ? 40 : 90;
+      data[at + 2] = inside ? 40 : 180;
+      data[at + 3] = 255;
+    }
+  }
+  return { data, width, height };
+}
+
+// The model is a build asset, not a source file. Skip rather than fail if it
+// has not been fetched, so a fresh checkout without it still runs the suite.
+const hasModel = existsSync(MODEL);
+
+describe.skipIf(!hasModel)("the background remover", () => {
+  const model = hasModel
+    ? new Uint8Array(readFileSync(MODEL))
+    : new Uint8Array();
+
+  it("keeps the width and the height of the picture", async () => {
+    const image = discOnBackground(96, 64);
+    const out = await removeBackground(image, model);
+
+    expect(out.width).toBe(96);
+    expect(out.height).toBe(64);
+    expect(out.data.length).toBe(96 * 64 * 4);
+  });
+
+  it("leaves the colour channels alone and changes only the alpha", async () => {
+    const image = discOnBackground(96, 64);
+    const before = new Uint8ClampedArray(image.data);
+    const out = await removeBackground(image, model);
+
+    for (let index = 0; index < 96 * 64; index += 1) {
+      expect(out.data[index * 4]).toBe(before[index * 4]);
+      expect(out.data[index * 4 + 1]).toBe(before[index * 4 + 1]);
+      expect(out.data[index * 4 + 2]).toBe(before[index * 4 + 2]);
+    }
+  });
+
+  it("produces a mask that is not flat", async () => {
+    // A mask that came out all one value would mean the model output was
+    // ignored, and every assertion about size would still pass. This is the
+    // check that the model actually did something.
+    const image = discOnBackground(96, 64);
+    const out = await removeBackground(image, model);
+
+    const alphas = new Set<number>();
+    for (let index = 0; index < 96 * 64; index += 1) {
+      alphas.add(out.data[index * 4 + 3]);
+    }
+    expect(alphas.size).toBeGreaterThan(1);
+  });
+
+  it("reports progress on the way through", async () => {
+    const seen: number[] = [];
+    await removeBackground(discOnBackground(64, 64), model, (fraction) =>
+      seen.push(fraction),
+    );
+
+    expect(seen.length).toBeGreaterThan(2);
+    expect([...seen].sort((a, b) => a - b)).toEqual(seen);
+  });
+});
