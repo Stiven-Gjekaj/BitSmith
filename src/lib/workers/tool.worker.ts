@@ -49,6 +49,7 @@ const engines: Record<string, () => Promise<EngineModule>> = {
   "strip-metadata": () => import("../../tools/strip-meta/engine"),
   "compress-image": () => import("../../tools/compress/engine"),
   "merge-pdf": () => import("../../tools/pdf-pages/engine"),
+  "image-to-pdf": () => import("../../tools/pdf-build/engine"),
   "remove-background": () => import("../../tools/bg-remove/engine"),
 };
 

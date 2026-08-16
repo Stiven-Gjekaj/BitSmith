@@ -179,6 +179,30 @@ export const tools: ToolMeta[] = [
     keywords: ["crop image", "resize image", "make a photo smaller"],
   },
   {
+    slug: "image-to-pdf",
+    title: "Image to PDF",
+    tagline: "Put pictures into one PDF, a page each.",
+    description:
+      "Turn photographs or scans into a single PDF, one page for each " +
+      "picture. Useful for sending a set of receipts or a signed form. " +
+      "Nothing is uploaded.",
+    inputKind: "files",
+    accept:
+      "image/png,image/jpeg,image/webp,image/avif,image/heic,image/heif," +
+      ".heic,.heif",
+    multiple: true,
+    maxBytes: 30 * MB,
+    runsOn: "device",
+    isolated: false,
+    keywords: [
+      "image to pdf",
+      "jpg to pdf",
+      "photo to pdf",
+      "scan to pdf",
+      "combine pictures into pdf",
+    ],
+  },
+  {
     slug: "merge-pdf",
     title: "Merge and Split PDF",
     tagline: "Join PDF files, or take the pages you want out of one.",
