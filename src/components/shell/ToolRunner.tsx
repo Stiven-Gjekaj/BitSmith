@@ -18,6 +18,7 @@ const uis: Record<
   "qr-code-generator": lazy(() => import("../../tools/qr-generate/Tool")),
   "image-converter": lazy(() => import("../../tools/image-convert/Tool")),
   "crop-image": lazy(() => import("../../tools/image-crop/Tool")),
+  "rotate-image": lazy(() => import("../../tools/image-rotate/Tool")),
   "merge-pdf": lazy(() => import("../../tools/pdf-pages/Tool")),
   "remove-background": lazy(() => import("../../tools/bg-remove/Tool")),
 };

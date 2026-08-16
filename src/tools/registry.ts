@@ -97,6 +97,27 @@ export const tools: ToolMeta[] = [
     ],
   },
   {
+    slug: "rotate-image",
+    title: "Rotate Image",
+    tagline: "Turn a picture the right way up, or mirror it.",
+    description:
+      "Turn a picture by a quarter, a half, or three quarters, and mirror it " +
+      "either way. Works on several pictures at once. Nothing is uploaded.",
+    inputKind: "files",
+    accept: "image/png,image/jpeg,image/webp,image/avif",
+    multiple: true,
+    maxBytes: 30 * MB,
+    runsOn: "device",
+    isolated: false,
+    keywords: [
+      "rotate image",
+      "rotate picture 90 degrees",
+      "flip image",
+      "mirror image",
+      "turn photo sideways",
+    ],
+  },
+  {
     slug: "crop-image",
     title: "Crop and Resize Image",
     tagline: "Cut a picture down, or change how big it is.",
