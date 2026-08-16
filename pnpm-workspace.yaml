@@ -1,0 +1,13 @@
+# pnpm 11 reads build-script approvals from this file. The same setting lived
+# under a "pnpm" key in package.json before version 11, and pnpm now ignores it
+# there without failing, so a copied older configuration looks correct and does
+# nothing.
+#
+# Both entries are needed to build at all:
+#   esbuild     installs a platform binary in a postinstall script, and Vite
+#               cannot bundle without it.
+#   protobufjs  builds the runtime that onnxruntime-web loads for the
+#               background remover.
+allowBuilds:
+  esbuild: true
+  protobufjs: true
