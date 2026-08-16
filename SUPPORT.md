@@ -10,8 +10,8 @@ There is no site to use yet, so most help today is about the plan.
 ## Understand the project
 
 - [README.md](README.md) says what the project is and what state it is in.
-- [docs/plan.md](docs/plan.md) holds every decision made before the code, and
-  the reason for each one.
+- [docs/milestones.md](docs/milestones.md) holds the work that is not built
+  yet, and the reason behind each decision that shapes it.
 - [AGENTS.md](AGENTS.md) sets the rules for anybody who changes this
   repository.
 
@@ -20,7 +20,7 @@ There is no site to use yet, so most help today is about the plan.
 - Search the existing
   [issues](https://github.com/Stiven-Gjekaj/bitsmith/issues) first, in case
   somebody has already asked.
-- If a decision in the plan looks wrong, open an issue and name the section.
+- If something in the milestones looks wrong, open an issue and name it.
 - If you found a bug, open a bug report. This applies once there is something
   to run.
 - If you want a tool that is not planned, open a feature request. Say what file

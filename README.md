@@ -1,16 +1,15 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Stiven-Gjekaj/bitsmith/main/public/logo.svg" alt="Bitsmith" width="104">
-
-# Bitsmith
+<img src="https://raw.githubusercontent.com/Stiven-Gjekaj/bitsmith/main/public/logo.svg" alt="Bitsmith" width="112">
 
 ### Small file tools that run fully in your browser
 
 _No upload, no account, no server_
 
 <p align="center">
-  <img src="https://img.shields.io/badge/stack-Astro%207.2%20%7C%20React%2019.2%20%7C%20TypeScript%206.0-38e8ff?style=for-the-badge" alt="Built with Astro 7.2, React 19.2, and TypeScript 6.0"/>
-  <img src="https://img.shields.io/badge/tests-56_passing-427819?style=for-the-badge" alt="56 tests passing"/>
+  <img src="https://img.shields.io/badge/Astro-7.2-BC52EE?style=for-the-badge&logo=astro&logoColor=white" alt="Astro 7.2"/>
+  <img src="https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19.2"/>
+  <img src="https://img.shields.io/badge/TypeScript-6.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript 6.0"/>
 </p>
 
 <p align="center">
@@ -277,8 +276,8 @@ need help.
 [AGENTS.md](AGENTS.md) sets the rules for commits and for writing.
 The [changelog](CHANGELOG.md) records what changed.
 
-Every decision made before the first line of code is in
-[docs/plan.md](docs/plan.md), with the reason for each one.
+[docs/milestones.md](docs/milestones.md) holds the work that is not built yet:
+video, office documents, the money plan, and the open questions.
 
 ---
 
@@ -290,9 +289,11 @@ project terms.
 
 The background removal model is `u2netp`, from the U-2-Net work, under the
 Apache 2.0 licence, converted to half precision by `scripts/make-model.py`.
-Confirm that licence yourself before you use this project commercially.
-Section 12 of [the plan](docs/plan.md) explains why a model licence is a trap
-worth checking.
+The anvil mark comes from [Lucide](https://lucide.dev) under the ISC licence,
+and that text is in [LICENSES/lucide.txt](LICENSES/lucide.txt).
+Confirm both yourself before you use this project commercially. A model
+licence is the trap worth checking, because several strong ones forbid
+commercial use.
 
 <div align="center">
 <sub>The work happens on your device. <a href="https://stiven-gjekaj.github.io/bitsmith/">Try it</a>.</sub>

@@ -63,8 +63,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how to take part.
 The Software uses open source libraries and machine learning models, each under
 its own licence.
 Those licences govern those components.
-A list of them lives with the source, and section 10 of
-[docs/plan.md](docs/plan.md) records the current choices.
+The [README](README.md) names the current choices, and the `LICENSES`
+directory holds the text of any that require it.
 
 ## 8. Project name
 

@@ -23,15 +23,14 @@ Say whether a tool exists and handles it badly, or whether none exists.
 ## Can it run in the browser
 
 This project runs every tool on the visitor's device.
-Section 2 of [docs/plan.md](../../docs/plan.md) explains the rule and the three
+[docs/milestones.md](../../docs/milestones.md) explains that rule and the three
 tiers.
 A request that needs a server is not refused, but it belongs to tier 3 and it
-carries a cost that the plan records.
+carries a cost that the milestones record.
 Say what you think, or leave this blank if you are not sure.
 
 ## Are you arguing against a decision
 
-The project is in the planning stage, so this is welcome.
-Name the section of [docs/plan.md](../../docs/plan.md) that you think is wrong,
-and say why.
-A decision is cheap to change now.
+This is welcome.
+Name the part of [docs/milestones.md](../../docs/milestones.md) that you think
+is wrong, and say why.

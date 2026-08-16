@@ -32,6 +32,22 @@ at https://stiven-gjekaj.github.io/bitsmith/.
 
 ### Changed
 
+- **The background remover runs on the graphics card.** About six seconds
+  becomes about one, with the same result. onnxruntime has two builds and
+  neither is imported at the top: the engine picks one at run time, so a
+  visitor fetches the 12.9 MB processor build or the 23.1 MB WebGPU build and
+  never both. A browser with no adapter, or a card that refuses the model,
+  falls back to the processor and says so on the page and in the console.
+- **The plan is gone.** Every decision it recorded has shipped or now sits in
+  a comment beside the thing it explains. What had not happened moved to
+  `docs/milestones.md`: video, office documents, the money plan, the address,
+  and the open questions. No source file references it, by design.
+- **A new mark**, the anvil from Lucide under the ISC licence, with the text
+  in `LICENSES/lucide.txt`. The header, the favicon, and `public/logo.svg` all
+  use it.
+- **Three stack badges** in place of one, and the title above them is gone
+  because the mark carries the name.
+
 - **The background model is half precision.** 4.36 MB becomes 2.26 MB with no
   loss: the mask separates subject from ground by 0.995 either way. Int8 was
   measured first and refused. It is smaller again and it does run faster, and

@@ -56,7 +56,6 @@ Report anything that looks like this immediately.
 
 - A missing security header that has no exploit path. Say what the exploit is.
 - A report that the site has no login, no rate limit, and no server side
-  validation. It has no server. That is the design, and section 2 of
-  [docs/plan.md](docs/plan.md) records it.
+  validation. It has no server, and that is the design.
 - A file that converts badly. That is a bug, so open a normal issue.
 - Findings from an automated scanner with no working demonstration.
