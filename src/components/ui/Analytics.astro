@@ -1,0 +1,45 @@
+---
+/**
+ * Counting visitors, without counting the visitor.
+ *
+ * Both choices below are cookieless and neither follows a person between
+ * sites, which is what lets this site measure anything at all without a
+ * consent banner in front of it. A banner would cost the first click of every
+ * visit, and the whole product is meant to take under thirty seconds.
+ *
+ * Nothing is sent while both settings are empty, so a fresh clone of this
+ * repository reports to nobody.
+ *
+ * This is the one place where the site contacts another company, and it does
+ * so only after somebody deliberately turns it on. The claim on each tool page
+ * is about the visitor's file, and that stays true either way: no analytics
+ * script here ever sees a file, because the file never leaves the worker that
+ * is converting it.
+ */
+import { site } from "../../site.config";
+
+const cloudflare = site.cloudflareAnalyticsToken;
+const goat = site.goatCounterCode;
+---
+
+{
+  cloudflare ? (
+    <script
+      is:inline
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={`{"token": "${cloudflare}"}`}
+    />
+  ) : null
+}
+
+{
+  !cloudflare && goat ? (
+    <script
+      is:inline
+      defer
+      data-goatcounter={`https://${goat}.goatcounter.com/count`}
+      src="//gc.zgo.at/count.js"
+    />
+  ) : null
+}
