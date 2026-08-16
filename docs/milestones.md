@@ -19,7 +19,7 @@ from the site, and version 1 is tier 1 only.
 
 | Tier | Where the work happens | What it needs | State |
 | ---- | ---------------------- | ------------- | ----- |
-| **1** | The device | Nothing special | Five tools, done |
+| **1** | The device | Nothing special | Ten tools, done |
 | **2** | The device | Cross-origin isolation | Not started |
 | **3** | A server | A backend, and new legal duties | Not started |
 
@@ -211,11 +211,24 @@ known place can tell a reflection along one diagonal from the other.
    any of the work above is working.
 2. Read the address section above again when search traffic starts.
 3. Write more conversion pairs only where a real answer exists to the three
-   questions the twelve already answer. A pair that cannot be given one does
+   questions the fourteen already answer. A pair that cannot be given one does
    not deserve a page, and thin pages lower the whole site.
+4. Strip the metadata from a WebP. The tool refuses WebP, AVIF and HEIC today
+   and says so. WebP is the reachable one of the three: it needs a RIFF walk,
+   dropping the `EXIF` and `XMP ` chunks, clearing the matching bits in the
+   `VP8X` flags byte, and rewriting the container length. The flag bits must
+   be read from the container specification rather than recalled. AVIF and
+   HEIC keep metadata in nested boxes reached through offset tables, and
+   rewriting those is a great deal of code for a fragile result.
+5. Decide whether the copied pdfjs character maps earn their size. Measured:
+   text in a Latin font draws correctly without the font folder, because pdfjs
+   carries the fourteen standard fonts itself. The maps are kept for documents
+   in other writing systems, which nothing here tests yet.
 
 Closed: the git email is `stivenagostingjekaj@gmail.com` and is now pinned in
-the repository configuration. The conversion pages use `/png-to-jpg`.
+the repository configuration. The conversion pages use `/png-to-jpg`. HEIC is
+read, under the LGPL terms recorded in the README, and the two pages for it
+are live. The background remover has browser coverage.
 
 ---
 
