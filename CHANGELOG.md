@@ -13,29 +13,38 @@ A version moves only when something is released.
 
 ## Unreleased
 
-The project is in the planning stage.
-No application code exists.
-Step 0 of the build order in section 9 of [the plan](docs/plan.md) has not
-started.
+Version 1 is built. All five tools work, and the site is live on GitHub Pages
+at https://stiven-gjekaj.github.io/bitsmith/.
 
 ### Added
 
-- The pre-development plan in `docs/plan.md`. It records the product, the
-  central rule that the browser does all of the work, the three tiers, the
-  budget, the name, the stack, the host, the build order, and the licence
-  traps.
-- The agent rules in `AGENTS.md`, including granular commits and Simplified
-  Technical English.
-- The MIT licence.
-- The tool configuration that keeps agent attribution out of a commit.
-- The project documents: readme, contributing, code of conduct, security,
-  support, and terms.
+- **The shell.** A drop area with a real file input beside it, a size limit
+  with a message, progress in a live region, a result list with downloads, and
+  focus that moves to the result when the work finishes.
+- **The tool registry.** One entry generates the route, the home page card,
+  the sitemap, the structured data, and the related links.
+- **Five tools.** A QR code generator, an image converter for PNG, JPEG, WebP
+  and AVIF, a cropper and resizer, a PDF merge and split, and a background
+  remover that runs u2netp in the browser.
+- **55 tests** across 6 files, run in Node with no browser.
+- **Two workflows.** CI checks the links, the lint, the types, the tests, and
+  the build. A second one deploys to GitHub Pages.
+
+### Fixed
+
+- The AVIF encoder was given its quality under the name `cqLevel`, which this
+  version of the encoder ignores in silence. Every AVIF came out at the default
+  quality and the slider did nothing. The type checker found it, and a test now
+  guards it.
 
 ### Decided
 
-- The name is Bitsmith. The launch address is `bitsmith.pages.dev`. The domain
+- The name is Bitsmith. The launch address is
+  `stiven-gjekaj.github.io/bitsmith`, on GitHub Pages. The domain
   `bitsmith.tools` is not registered, and section 4 of the plan records that
   risk.
+- The host is GitHub Pages and not Cloudflare Pages. Section 6 of the plan
+  records what that costs.
 - Version 1 runs fully in the browser and holds five tools: a QR code
   generator, an image converter, a cropper and resizer, a PDF page tool, and a
   background remover.
