@@ -32,6 +32,18 @@ at https://stiven-gjekaj.github.io/bitsmith/.
 
 ### Changed
 
+- **The background model is half precision.** 4.36 MB becomes 2.26 MB with no
+  loss: the mask separates subject from ground by 0.995 either way. Int8 was
+  measured first and refused. It is smaller again and it does run faster, and
+  it returns a mask that calls every pixel foreground, because U-2-Net nests
+  encoders and the activations cover a range that int8 cannot hold.
+  `scripts/make-model.py` does the conversion and records the numbers.
+- **A logo.** `public/logo.svg`, drawn in the repository. The header mark and
+  the favicon use the same geometry.
+- **Fewer badges.** The tool count, the home page script size, and the server
+  cost are gone. The stack and its versions are there instead, and the deploy
+  badge reads "deployed".
+
 - **A new look.** Dark by default, with a light palette for a visitor whose
   system asks for one. One token file holds every colour, so no component
   writes a hex value.
@@ -49,6 +61,11 @@ at https://stiven-gjekaj.github.io/bitsmith/.
 
 ### Fixed
 
+- A broken model could pass the tests. The background remover was checked for
+  a mask that is not flat, and a mask of pure noise is not flat either. The
+  int8 model passed that check while being useless. There is now a test that
+  compares the subject against the ground, and it was confirmed by putting the
+  broken model back and watching it fail.
 - Content that waited for a scroll observer could stay invisible if that
   observer never fired, which happened. The reveal is gone, and the entrance
   is now a CSS animation that cannot leave anything hidden.

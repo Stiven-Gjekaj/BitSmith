@@ -1,11 +1,15 @@
-# Pre-development plan
+# The plan
 
-This document records the decisions that come before the first line of
-application code.
-Each section gives a decision, the reason for it, and the risk that it
-carries.
+**Version 1 is built and live. This document is still current.**
+
+It was written before the first line of code, and it is kept because most of
+it has not happened yet. Sections 1 to 17 record why the built parts are the
+way they are, and the source cites them by number. Section 11 holds the money
+plan, which is not started. Section 18 holds video and document conversion,
+which are not started. Section 19 lists what is still open.
+
+Read section 9 for what was built, and section 18 for what comes next.
 Version 1 costs no money. Section 3 proves this.
-Open items are in the last section.
 
 ## 1. The product
 
@@ -301,8 +305,9 @@ Be clear about what the change costs, because two of these are permanent.
   terms if the traffic grows.
 
 The model is committed to the repository rather than kept in object storage.
-It is 4.5 MB, which is small enough that git does not suffer, and holding it
-here is what lets the site serve it from its own address.
+It is 2.3 MB at half precision, which is small enough that git does not
+suffer, and holding it here is what lets the site serve it from its own
+address.
 
 ### The earlier choice, for the record
 
@@ -450,8 +455,11 @@ A frozen page loses the visitor and hurts the speed score.
 
 ## 9. The order of the first features
 
-Each step adds exactly one new hard thing.
-Do not skip a step.
+**Every step below is done. All five tools are built and live.**
+
+Each step added exactly one new hard thing, and the order held: the shell
+first, then the tool that needed no WebAssembly, then the first codec, then a
+tool that reused it, then a different file type, then the model.
 
 | Step | Work | The new hard thing |
 |---|---|---|
@@ -749,6 +757,13 @@ Accept that those pages show no advertisements.
 Set a strict file size limit, because the browser holds the whole file
 in memory.
 
+**Making the background remover faster.** No direct cost.
+Half precision halved the download and left the time alone, because the
+runtime computes in single precision either way. Int8 was measured and it
+returns a mask that calls every pixel foreground, so it is not available.
+What is left is WebGPU, which needs a much larger runtime file and is only
+worth loading when the browser has it.
+
 **Step four: tier 3, office documents.** This step ends the zero cost
 era.
 A server has a real monthly bill, and the bill grows with use.
@@ -779,22 +794,20 @@ Only keep the interface in that shape.
 - Other languages. Reserve the `/[lang]/` path shape now, but write
   English only.
 
-## 19. Open items for you
+## 19. Open items
 
-Section 4 closes the name question.
-These items stay open.
+Sections 4, 6, 9, and 12 closed the questions about the name, the host, the
+build, and the licence. These are what is left.
 
-1. Take `bitsmith.pages.dev` now. Another person can take the name at
-   any hour, and the name is the launch address. This needs a free
-   Cloudflare account and nothing else.
-2. Choose the repository licence, and decide public or private. Section
-   3 and section 12 both bear on this.
-3. Choose the git email address. The repository now inherits
-   `stivenagostingjekaj@gmail.com` from your global git configuration.
-4. Confirm the Cloudflare file size limit, the R2 free amount, and the
-   jsDelivr file size limit. Do this before step 5 in section 9.
-5. Choose the background removal model, and read its licence text.
-6. Decide the address shape for conversion pairs. Section 14 gives the
-   choice.
-7. Confirm that your analytics choice needs no consent banner.
-8. Read the domain risk in section 4 again when search traffic starts.
+1. Choose the git email address. The repository uses
+   `stivenagostingjekaj@gmail.com` from the global git configuration, and it
+   is now in the public history of every commit.
+2. Decide the address shape for conversion pairs, before writing any of them.
+   Section 14 gives the choice, and changing it later costs search rank.
+3. Confirm that your analytics choice needs no consent banner. Nothing is
+   installed yet, so nothing is measured yet either.
+4. Read the domain risk in section 4 again when search traffic starts.
+   `bitsmith.tools` is still not registered by you.
+5. Decide whether the six seconds that the background remover takes is worth
+   more work. Half precision cut the download and not the time. Section 18
+   records what is left to try.

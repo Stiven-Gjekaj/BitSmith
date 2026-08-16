@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="https://raw.githubusercontent.com/Stiven-Gjekaj/bitsmith/main/public/logo.svg" alt="Bitsmith" width="104">
+
 # Bitsmith
 
 ### Small file tools that run fully in your browser
@@ -7,15 +9,13 @@
 _No upload, no account, no server_
 
 <p align="center">
-  <img src="https://img.shields.io/badge/tools-5_working-427819?style=for-the-badge" alt="Five tools are built and working"/>
-  <img src="https://img.shields.io/badge/tests-55_passing-427819?style=for-the-badge" alt="55 tests passing"/>
-  <img src="https://img.shields.io/badge/home_page_JavaScript-216_bytes-007ec6?style=for-the-badge" alt="The home page ships 216 bytes of JavaScript"/>
-  <img src="https://img.shields.io/badge/server_cost-none-427819?style=for-the-badge" alt="The design uses no server, so it costs nothing to run"/>
+  <img src="https://img.shields.io/badge/stack-Astro%207.2%20%7C%20React%2019.2%20%7C%20TypeScript%206.0-38e8ff?style=for-the-badge" alt="Built with Astro 7.2, React 19.2, and TypeScript 6.0"/>
+  <img src="https://img.shields.io/badge/tests-56_passing-427819?style=for-the-badge" alt="56 tests passing"/>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/ci.yml"><img src="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
-  <a href="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/deploy.yml"><img src="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/deploy.yml/badge.svg" alt="Deploy to GitHub Pages"/></a>
+  <a href="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Stiven-Gjekaj/bitsmith/ci.yml?label=ci&style=flat-square" alt="CI"/></a>
+  <a href="https://github.com/Stiven-Gjekaj/bitsmith/actions/workflows/deploy.yml"><img src="https://img.shields.io/github/actions/workflow/status/Stiven-Gjekaj/bitsmith/deploy.yml?label=deployed&style=flat-square" alt="Deployed"/></a>
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License"/>
 </p>
 
@@ -154,7 +154,7 @@ your file
 | Styles | Hand-written CSS on a token palette, and the system font stack |
 | Image codecs | The `@jsquash` modules from Squoosh, one per format |
 | PDF | `pdf-lib` |
-| Background removal | `u2netp` through `onnxruntime-web` |
+| Background removal | `u2netp` at half precision, through `onnxruntime-web` |
 | Tests | Vitest for the engines, run in Node with no browser |
 | Host | GitHub Pages, deployed by a workflow |
 
@@ -207,7 +207,7 @@ src/
     bg-remove/
   pages/                 the home page, and one route for every tool
 public/
-  models/u2netp.onnx     4.5 MB, served from this site and not a third party
+  models/u2netp-fp16.onnx  2.3 MB, served from this site and not a third party
 tests/
   fixtures/              committed pictures that the engine tests read
   setup/codecs.ts        hands the codecs their WebAssembly in Node
@@ -289,7 +289,7 @@ See [LICENSE](LICENSE) for the full text, and [TERMS.md](TERMS.md) for the
 project terms.
 
 The background removal model is `u2netp`, from the U-2-Net work, under the
-Apache 2.0 licence.
+Apache 2.0 licence, converted to half precision by `scripts/make-model.py`.
 Confirm that licence yourself before you use this project commercially.
 Section 12 of [the plan](docs/plan.md) explains why a model licence is a trap
 worth checking.
