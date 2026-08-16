@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { pairs } from "../../src/tools/image-convert/pairs";
 import {
   chooseOption,
   giveImage,
@@ -91,7 +92,7 @@ test("a conversion page answers the three questions", async ({ page }) => {
 test("every pair is reachable from the home page", async ({ page }) => {
   await page.goto("./");
   const links = page.locator("section.pairs a");
-  await expect(links).toHaveCount(12);
+  await expect(links).toHaveCount(pairs.length);
 
   // A link that renders is not a link that arrives. Follow one.
   await links.first().click();

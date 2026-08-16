@@ -1,4 +1,4 @@
-import type { EncodableFormat } from "../../lib/image/codecs";
+import type { DecodableFormat, EncodableFormat } from "../../lib/image/codecs";
 
 /**
  * One page for each pair of formats.
@@ -18,7 +18,10 @@ export interface Pair {
   /** The address. Written the way a person searches, so `jpg` and not
    *  `jpeg`. */
   slug: string;
-  from: EncodableFormat;
+  /** What arrives. May be a format this project only reads, such as HEIC. */
+  from: DecodableFormat;
+  /** What leaves. Narrower than `from` on purpose: a pair that asks for a
+   *  HEIC to be written will not compile. */
   to: EncodableFormat;
   /** How the source is named in a sentence. */
   fromLabel: string;
@@ -37,6 +40,7 @@ const PNG = "PNG";
 const JPG = "JPG";
 const WEBP = "WebP";
 const AVIF = "AVIF";
+const HEIC = "HEIC";
 
 export const pairs: Pair[] = [
   {
@@ -262,6 +266,57 @@ export const pairs: Pair[] = [
     caution:
       "The gain is only worth having if you serve the file to many people. For " +
       "a handful of pictures the WebP is already small enough.",
+  },
+  {
+    slug: "heic-to-jpg",
+    from: "heic",
+    to: "jpeg",
+    fromLabel: HEIC,
+    toLabel: JPG,
+    tagline: "Open an iPhone photograph on a machine that refuses it.",
+    why:
+      "An iPhone has saved photographs as HEIC since iOS 11, and almost " +
+      "nobody chose that setting. The trouble turns up somewhere else: a " +
+      "Windows desktop, an Android handset, a print shop counter, an " +
+      "insurance claim form, or an older upload box that answers with " +
+      '"unsupported file". JPG is the one every single one of those takes ' +
+      "without argument. This is the conversion that makes a camera roll " +
+      "usable away from the phone that filled it.",
+    cost:
+      "The JPG is usually the larger file, sometimes twice the size, because " +
+      "HEIC compresses far better than a format from 1992. Whatever the HEIC " +
+      "carried besides the picture is dropped as well: the depth map that " +
+      "portrait mode records, and the short piece of video that makes a Live " +
+      "Photo move. The still picture is what survives.",
+    caution:
+      "Keep the original in the camera roll. This street runs one way. " +
+      "Writing a HEIC needs an HEVC encoder covered by patents, so nothing " +
+      "here can turn the JPG back into one. Convert a copy.",
+  },
+  {
+    slug: "heic-to-png",
+    from: "heic",
+    to: "png",
+    fromLabel: HEIC,
+    toLabel: PNG,
+    tagline: "Bring an iPhone photograph into an editor at full quality.",
+    why:
+      "Editing is the reason to choose PNG here. A HEIC has already thrown " +
+      "away detail to be small, and every JPG saved on top of it throws away " +
+      "a little more. PNG records each pixel exactly and never degrades, so " +
+      "a picture headed for a design tool, a report, or a mock up begins " +
+      "from the best copy that remains, and survives being saved twenty " +
+      "times on the way.",
+    cost:
+      "Size, and a great deal of it. Recording pixels rather than " +
+      "approximating them means a photograph that sat in two megabytes as a " +
+      "HEIC can want twenty as a PNG. That is nothing on a desktop and " +
+      "genuinely painful over mobile data or as a mail attachment.",
+    caution:
+      "Do not choose PNG to send a picture to a person. Sharing is the one " +
+      "job it is bad at, and plenty of upload boxes refuse it on size alone. " +
+      "Convert to JPG for that. PNG repays its bulk only when the picture is " +
+      "about to be worked on.",
   },
   {
     slug: "avif-to-webp",
