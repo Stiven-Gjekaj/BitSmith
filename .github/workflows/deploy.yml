@@ -47,14 +47,22 @@ jobs:
         env:
           ANALYTICS: "on"
 
-      # A last check that the two values in astro.config.mjs still match this
-      # repository. If `base` is wrong, every page still builds and every link
-      # on the live site is broken, which is a failure that no build error
-      # reports.
-      - name: Check that the base path is in the built pages
+      # A last check that the base path still matches this repository.
+      #
+      # The name is read from the repository itself rather than written here.
+      # A previous version compared the build against a name spelled out in
+      # this file, so renaming the repository changed neither and the check
+      # stayed green while every asset on the live site returned 404. The page
+      # still loaded, without styles and without any tool working.
+      #
+      # GitHub Pages paths are case sensitive, so "bitsmith" and "BitSmith"
+      # are different sites.
+      - name: Check that the base path matches the repository name
         run: |
-          if ! grep -q '/bitsmith/_astro/' dist/index.html; then
-            echo "::error::dist/index.html has no /bitsmith/ asset path. The base in astro.config.mjs no longer matches the repository name."
+          expected="/${{ github.event.repository.name }}/_astro/"
+          if ! grep -q "$expected" dist/index.html; then
+            echo "::error::dist/index.html has no $expected asset path. The base in astro.config.mjs does not match the repository name, so every asset on the live site would be a 404."
+            grep -o '/[A-Za-z0-9_-]*/_astro/' dist/index.html | sort -u | head -3
             exit 1
           fi
           if [ ! -f dist/.nojekyll ]; then
