@@ -9,7 +9,7 @@ _No upload, no account, no server_
 <p align="center">
   <img src="https://img.shields.io/badge/tools-5_working-427819?style=for-the-badge" alt="Five tools are built and working"/>
   <img src="https://img.shields.io/badge/tests-55_passing-427819?style=for-the-badge" alt="55 tests passing"/>
-  <img src="https://img.shields.io/badge/home_page_JavaScript-0_bytes-007ec6?style=for-the-badge" alt="The home page ships no JavaScript at all"/>
+  <img src="https://img.shields.io/badge/home_page_JavaScript-216_bytes-007ec6?style=for-the-badge" alt="The home page ships 216 bytes of JavaScript"/>
   <img src="https://img.shields.io/badge/server_cost-none-427819?style=for-the-badge" alt="The design uses no server, so it costs nothing to run"/>
 </p>
 
@@ -151,15 +151,17 @@ your file
 | Framework | Astro, which sends no JavaScript until a visitor needs it |
 | Interactive parts | React islands, loaded only on a tool page |
 | Language | TypeScript, strict mode |
-| Styles | Tailwind CSS, and the system font stack |
+| Styles | Hand-written CSS on a token palette, and the system font stack |
 | Image codecs | The `@jsquash` modules from Squoosh, one per format |
 | PDF | `pdf-lib` |
 | Background removal | `u2netp` through `onnxruntime-web` |
 | Tests | Vitest for the engines, run in Node with no browser |
 | Host | GitHub Pages, deployed by a workflow |
 
-The home page sends **no JavaScript at all**.
-A tool page sends the shell and that one tool.
+The home page sends **216 bytes of JavaScript**, inline, and nothing else.
+That one handler moves the light that follows the pointer. Everything else
+that moves is CSS, so the compositor does it and the main thread stays free.
+A tool page sends the shell and that one tool on top of this.
 
 ---
 
@@ -182,11 +184,12 @@ that needs a server later can arrive without changing the shell.
 
 | Area | Files | Lines | Responsibility |
 | ---- | ----- | ----- | -------------- |
-| **Library** | `src/lib/` | 338 | Codecs, the worker pipeline, the engine contract, link building |
-| **Shell** | `src/components/` | 570 | Drop area, progress, results, download, run state |
-| **Tools** | `src/tools/` | 1171 | The registry, five engines, five interfaces |
-| **Pages** | `src/pages/`, `src/layouts/` | 249 | Routes, page shell, metadata |
-| **Total** | **24 files** | **2328** | Not counting 680 lines of tests |
+| **Library** | `src/lib/` | 465 | Codecs, the worker pipeline, the engine contract, link building |
+| **Shell** | `src/components/` | 822 | Drop area, progress, results, form fields, backdrop, icons |
+| **Tools** | `src/tools/` | 1283 | The registry, five engines, five interfaces |
+| **Pages** | `src/pages/`, `src/layouts/` | 664 | Routes, page shell, metadata |
+| **Styles** | `src/styles/global.css` | 506 | The token palette, the animations, the shell classes |
+| **Total** | **27 files** | **3234** | Not counting 689 lines of tests or the stylesheet |
 
 ```
 src/

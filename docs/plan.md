@@ -260,8 +260,10 @@ Every item in this table is free and open source.
 Astro is the important choice here.
 Search traffic is the only channel for this kind of site.
 Search rank depends on page speed.
-A page that sends no JavaScript loads fastest.
+A page that sends almost no JavaScript loads fastest.
 Astro gives that result by default, and React gives it only with care.
+The home page ships 216 bytes of it, for one pointer effect.
+A tool page loads its own tool on top of that, and no other tool.
 
 You write React components as usual.
 Astro decides when the browser loads them.

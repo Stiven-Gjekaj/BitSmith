@@ -30,8 +30,30 @@ at https://stiven-gjekaj.github.io/bitsmith/.
 - **Two workflows.** CI checks the links, the lint, the types, the tests, and
   the build. A second one deploys to GitHub Pages.
 
+### Changed
+
+- **A new look.** Dark by default, with a light palette for a visitor whose
+  system asks for one. One token file holds every colour, so no component
+  writes a hex value.
+- **Movement.** A drifting pair of gradient orbs, a grid that fades at the
+  edges, a light that follows the pointer, headings that carry the accent
+  through them, and content that arrives in order. Everything except the
+  pointer light is CSS, and all of it stops for a visitor who asks the system
+  for less motion.
+- **The home page now ships 216 bytes of JavaScript** rather than none. That
+  is the pointer effect and nothing else. The readme badge and section 5 of
+  the plan carried the old number and now carry the measured one.
+- **Icons and a mark**, drawn in the repository rather than pulled from an
+  icon set. Five icons is less code than a dependency, and each one inherits
+  the accent colour and the stroke weight of the design.
+
 ### Fixed
 
+- Content that waited for a scroll observer could stay invisible if that
+  observer never fired, which happened. The reveal is gone, and the entrance
+  is now a CSS animation that cannot leave anything hidden.
+- The main button failed contrast on the light palette, because dark text sat
+  on a mid-tone gradient. It has its own pair of colours now.
 - The AVIF encoder was given its quality under the name `cqLevel`, which this
   version of the encoder ignores in silence. Every AVIF came out at the default
   quality and the slider did nothing. The type checker found it, and a test now
