@@ -2,6 +2,7 @@
 import ToolIcon from "../components/ui/ToolIcon.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { href } from "../lib/url";
+import { pairs } from "../tools/image-convert/pairs";
 import { tools } from "../tools/registry";
 
 const title = "Bitsmith: small file tools that run in your browser";
@@ -65,7 +66,26 @@ const facts = [
     }
   </section>
 
-  <section class="facts rise" style="animation-delay:820ms">
+  <section class="pairs rise" style="animation-delay:800ms">
+    <h2 class="tag">Convert between two formats</h2>
+    <p class="pairs-note">
+      Each of these opens the converter already pointed the right way.
+    </p>
+    <ul class="pair-list">
+      {
+        pairs.map((pair) => (
+          <li>
+            <a href={href(pair.slug)}>
+              {pair.fromLabel} <span aria-hidden="true">&rarr;</span>{" "}
+              {pair.toLabel}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="facts rise" style="animation-delay:900ms">
     <h2 class="tag">Why the browser does the work</h2>
     <div class="fact-grid">
       {
@@ -194,8 +214,42 @@ const facts = [
     color: var(--glow);
   }
 
+  .pairs {
+    margin-top: 4rem;
+  }
+  .pairs-note {
+    margin-top: 0.6rem;
+    color: var(--mist);
+    font-size: 0.92rem;
+  }
+  .pair-list {
+    margin-top: 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .pair-list a {
+    display: inline-block;
+    padding: 0.42rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: color-mix(in oklab, var(--surface) 70%, transparent);
+    color: var(--mist);
+    font-size: 0.86rem;
+    text-decoration: none;
+    transition:
+      border-color 0.25s ease,
+      color 0.25s ease,
+      transform 0.25s ease;
+  }
+  .pair-list a:hover {
+    border-color: var(--glow);
+    color: var(--ink);
+    transform: translateY(-1px);
+  }
+
   .facts {
-    margin-top: 5rem;
+    margin-top: 4.5rem;
     padding-top: 2.25rem;
     border-top: 1px solid var(--line);
   }
