@@ -1,0 +1,53 @@
+---
+interface Props {
+  size?: number;
+}
+const { size = 26 } = Astro.props;
+---
+
+{/* A bit under a hammer. Two marks: the square is the bit, and the stroke
+    above it is the blow that shapes it. Drawn rather than downloaded, so it
+    costs no request and it inherits the accent colour. */}
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 32 32"
+  fill="none"
+  role="img"
+  aria-label="Bitsmith"
+  class="logo"
+>
+  <rect
+    x="9"
+    y="17"
+    width="14"
+    height="9"
+    rx="2"
+    stroke="currentColor"
+    stroke-width="2"
+  ></rect>
+  <path
+    d="M7 12.5 L16 6 L25 12.5"
+    stroke="url(#spark)"
+    stroke-width="2.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  ></path>
+  <circle cx="16" cy="21.5" r="1.9" fill="url(#spark)"></circle>
+  <defs>
+    <linearGradient id="spark" x1="7" y1="6" x2="25" y2="22">
+      <stop offset="0" stop-color="var(--glow)"></stop>
+      <stop offset="1" stop-color="var(--pulse)"></stop>
+    </linearGradient>
+  </defs>
+</svg>
+
+<style>
+  .logo {
+    color: var(--mist);
+    transition: color 0.3s ease;
+  }
+  a:hover .logo {
+    color: var(--ink);
+  }
+</style>
