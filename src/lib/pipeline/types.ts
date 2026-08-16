@@ -21,6 +21,15 @@ export interface EngineResult {
   name: string;
   type: string;
   bytes: Uint8Array;
+  /**
+   * One line about what happened to this file, when the size cannot say it.
+   *
+   * Removing metadata is the case that needs this. A file that carried none
+   * comes back the same size as one whose metadata was removed but was small,
+   * and the number on screen cannot tell those apart. Most engines leave this
+   * out, and nothing is shown when they do.
+   */
+  note?: string;
 }
 
 /**

@@ -62,6 +62,11 @@ function ResultRow({ result }: { result: EngineResult }) {
           <div className="min-w-0">
             <p className="truncate font-medium">{result.name}</p>
             <p className="tag mt-0.5">{readable(result.bytes.byteLength)}</p>
+            {result.note ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {result.note}
+              </p>
+            ) : null}
           </div>
 
           {url ? (
