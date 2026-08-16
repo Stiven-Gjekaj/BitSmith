@@ -46,6 +46,7 @@ const engines: Record<string, () => Promise<EngineModule>> = {
   "image-converter": () => import("../../tools/image-convert/engine"),
   "crop-image": () => import("../../tools/image-crop/engine"),
   "rotate-image": () => import("../../tools/image-rotate/engine"),
+  "strip-metadata": () => import("../../tools/strip-meta/engine"),
   "merge-pdf": () => import("../../tools/pdf-pages/engine"),
   "remove-background": () => import("../../tools/bg-remove/engine"),
 };

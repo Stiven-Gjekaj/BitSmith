@@ -97,6 +97,28 @@ export const tools: ToolMeta[] = [
     ],
   },
   {
+    slug: "strip-metadata",
+    title: "Remove Photo Metadata",
+    tagline: "Take the place, the date, and the camera out of a picture.",
+    description:
+      "A photograph carries where it was taken, when, and on what. This " +
+      "removes all of it without rebuilding the picture, so nothing is lost. " +
+      "JPEG and PNG. The file never leaves your device.",
+    inputKind: "files",
+    accept: "image/png,image/jpeg",
+    multiple: true,
+    maxBytes: 30 * MB,
+    runsOn: "device",
+    isolated: false,
+    keywords: [
+      "remove exif",
+      "remove gps from photo",
+      "strip metadata",
+      "remove location from picture",
+      "clear photo data",
+    ],
+  },
+  {
     slug: "rotate-image",
     title: "Rotate Image",
     tagline: "Turn a picture the right way up, or mirror it.",
