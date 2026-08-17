@@ -25,6 +25,32 @@ test("gives one picture for each page, numbered in order", async ({ page }) => {
   expect(sniff(await resultBytes(page))).toBe("png");
 });
 
+
+test("converts only the pages in the requested range", async ({ page }) => {
+  test.setTimeout(120_000);
+  await give(page, await madeOf(6));
+
+  await page.getByLabel("Pages").fill("2-4");
+
+  await runAndWait(page, /Turn the pages into pictures/);
+
+  const links = page.locator("a[download]");
+
+  await expect(links).toHaveCount(3);
+  await expect(links.nth(0)).toHaveAttribute(
+    "download",
+    "report-page-2.png",
+  );
+  await expect(links.nth(1)).toHaveAttribute(
+    "download",
+    "report-page-3.png",
+  );
+  await expect(links.nth(2)).toHaveAttribute(
+    "download",
+    "report-page-4.png",
+  );
+});
+
 /**
  * Proves that a page of text really arrives as a page of text.
  *

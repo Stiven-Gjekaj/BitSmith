@@ -14,7 +14,7 @@ export default function Tool() {
   const [files, setFiles] = useState<File[]>([]);
   const [dpi, setDpi] = useState(String(DEFAULTS.dpi));
   const [format, setFormat] = useState<EncodableFormat>(DEFAULTS.format);
-
+  const [pages, setPages] = useState(DEFAULTS.pages);
   return (
     <div>
       <Dropzone
@@ -58,6 +58,21 @@ export default function Tool() {
             />
           )}
         </Field>
+
+        <Field
+          label="Pages"
+          hint='Leave empty for all pages. Example: "1-3, 7, 9-"'
+        >
+          {(id) => (
+            <input
+              id={id}
+              type="text"
+              value={pages}
+              onChange={(event) => setPages(event.target.value)}
+              placeholder="1-3, 7, 9-"
+            />
+          )}
+        </Field>
       </div>
 
       <div className="mt-6">
@@ -69,6 +84,7 @@ export default function Tool() {
               dpi: Number(dpi),
               format,
               quality: DEFAULTS.quality,
+              pages,
             })
           }
         >
