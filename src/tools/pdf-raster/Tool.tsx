@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Dropzone } from "../../components/shell/Dropzone";
-import { Field, RunButton, Select } from "../../components/shell/fields";
+import {
+  Field,
+  RunButton,
+  Select,
+  TextInput,
+} from "../../components/shell/fields";
 import { RunPanel } from "../../components/shell/RunPanel";
 import { useToolRun } from "../../components/shell/useToolRun";
 import type { EncodableFormat } from "../../lib/image/codecs";
@@ -15,6 +20,7 @@ export default function Tool() {
   const [dpi, setDpi] = useState(String(DEFAULTS.dpi));
   const [format, setFormat] = useState<EncodableFormat>(DEFAULTS.format);
   const [pages, setPages] = useState(DEFAULTS.pages);
+
   return (
     <div>
       <Dropzone
@@ -64,11 +70,10 @@ export default function Tool() {
           hint='Leave empty for all pages. Example: "1-3, 7, 9-"'
         >
           {(id) => (
-            <input
+            <TextInput
               id={id}
-              type="text"
               value={pages}
-              onChange={(event) => setPages(event.target.value)}
+              onChange={setPages}
               placeholder="1-3, 7, 9-"
             />
           )}
