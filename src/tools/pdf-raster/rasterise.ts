@@ -1,5 +1,5 @@
 import type { RawImage } from "../../lib/image/codecs";
-
+import { parsePageRange } from "../pdf-pages/engine";
 /**
  * Draws the pages of a PDF, one at a time.
  *
@@ -36,6 +36,7 @@ export interface RasteriseOptions {
   dpi: number;
   /** A ceiling on pages, so a 400 page document says no rather than hangs. */
   maxPages: number;
+  pages: string;
 }
 
 export async function rasterise(
@@ -70,16 +71,18 @@ export async function rasterise(
   const document = await task.promise;
   try {
     const total = document.numPages;
-    if (total > options.maxPages) {
+    const pageIndexes = parsePageRange(options.pages, total);
+
+    if (pageIndexes.length > options.maxPages) {
       throw new Error(
-        `This PDF has ${total} pages, and this tool stops at ` +
-          `${options.maxPages}. Take the pages you want out first with the ` +
-          "PDF page tool, then convert those.",
+        `You selected ${pageIndexes.length} pages, and this tool stops at ` +
+          `${options.maxPages}.`,
       );
     }
 
     const scale = options.dpi / 72;
-    for (let number = 1; number <= total; number += 1) {
+    for (const index of pageIndexes) {
+      const number = index + 1;
       const page = await document.getPage(number);
       try {
         const viewport = page.getViewport({ scale });
@@ -113,7 +116,7 @@ export async function rasterise(
             width: drawn.width,
             height: drawn.height,
           },
-          number - 1,
+          index,
           total,
         );
       } finally {
@@ -122,7 +125,7 @@ export async function rasterise(
       }
     }
 
-    return total;
+    return pageIndexes.length;
   } finally {
     // The loading task owns the document, so it is the thing to shut down.
     await task.destroy();

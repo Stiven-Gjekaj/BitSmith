@@ -6,9 +6,15 @@ export interface RasterOptions {
   dpi: number;
   format: EncodableFormat;
   quality: number;
+  pages: string;
 }
 
-export const DEFAULTS: RasterOptions = { dpi: 150, format: "png", quality: 90 };
+export const DEFAULTS: RasterOptions = {
+  dpi: 150,
+  format: "png",
+  quality: 90,
+  pages: "",
+};
 
 /** Above this the answer is to take the pages wanted out first. */
 const MAX_PAGES = 60;
@@ -37,7 +43,7 @@ export const run: Engine<RasterOptions> = async (
   const results: EngineResult[] = [];
   await rasterise(
     file.bytes,
-    { dpi: options.dpi, maxPages: MAX_PAGES },
+    { dpi: options.dpi, maxPages: MAX_PAGES, pages: options.pages },
     async (image, index, total) => {
       onProgress(
         0.05 + 0.9 * ((index + 1) / total),
