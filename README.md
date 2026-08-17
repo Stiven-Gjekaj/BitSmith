@@ -99,6 +99,27 @@ The ten tools together cost nothing to run and nothing to serve.
 </tr>
 </table>
 
+### What they will not do
+
+Two limits are deliberate, so that meeting one reads as a decision rather
+than as something unfinished.
+
+**The metadata remover refuses AVIF and HEIC**, and says so on the page. It
+takes JPEG, PNG and WebP, where the metadata sits in a flat run of segments or
+chunks and can be lifted out with the picture untouched. AVIF and HEIC hold
+theirs in nested boxes found through tables of byte offsets, so removing one
+means rewriting those tables and every offset past it. One wrong offset does
+not give an obviously broken file; it gives a picture that some readers open
+and others refuse, which is the worst thing a tool promising not to touch your
+picture could hand back. Convert such a file here first, then clean the
+result.
+
+**Nothing is converted that a browser cannot decode**, which is why HEIC is
+read and never written. Writing one needs an HEVC encoder covered by patents.
+
+[docs/milestones.md](docs/milestones.md) records what was measured behind both,
+and what would have to change to revisit them.
+
 ---
 
 ## Quick Start
@@ -296,7 +317,9 @@ need help.
 The [changelog](CHANGELOG.md) records what changed.
 
 [docs/milestones.md](docs/milestones.md) holds the work that is not built yet:
-video, office documents, the money plan, and the open questions.
+video, office documents, the money plan, and the open questions. It also
+records the things that were looked at and deliberately left, with the
+measurements behind each and what would have to change to revisit them.
 
 ---
 
