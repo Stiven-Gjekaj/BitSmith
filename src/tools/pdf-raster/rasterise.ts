@@ -1,5 +1,6 @@
 import type { RawImage } from "../../lib/image/codecs";
 import { parsePageRange } from "../pdf-pages/engine";
+
 /**
  * Draws the pages of a PDF, one at a time.
  *
@@ -75,8 +76,9 @@ export async function rasterise(
 
     if (pageIndexes.length > options.maxPages) {
       throw new Error(
-        `You selected ${pageIndexes.length} pages, and this tool stops at ` +
-          `${options.maxPages}.`,
+        `That is ${pageIndexes.length} pages, and this tool stops at ` +
+          `${options.maxPages}. Ask for fewer in the pages box, for example ` +
+          `1-${options.maxPages}.`,
       );
     }
 
