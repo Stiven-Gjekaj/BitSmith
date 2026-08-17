@@ -91,17 +91,37 @@ closes months after you add it.
 
 ## Before you open a pull request
 
-Run the same checks that CI runs:
+Run the same checks that CI runs. There are three, and `pnpm verify` is only
+the first of them:
 
     pnpm verify
 
-That runs the lint, the type check, the tests, and the build. The link check
-in CI is a separate script:
+That runs the lint, the type check, the Node tests and the build.
+
+    pnpm test:e2e
+
+That runs the browser tests. **It needs `pnpm build` to have run first**, which
+`pnpm verify` does for you, so run them in that order. The browser tests drive
+the built site in `dist/` rather than a development server, because the built
+site is what a visitor gets. Run them without a build and the test server has
+nothing to serve, Playwright waits two minutes for it, and then everything
+fails at once for a reason that has nothing to do with your change.
+
+The first run also needs a browser:
+
+    pnpm exec playwright install chromium
+
+The link check is a separate script:
 
     bash scripts/check-links.sh
 
 Add tests for anything you change.
 Put them in the same commit as the code.
+
+Windows is not tested by anybody at the moment. CI runs on Ubuntu and the
+work so far has been done on macOS, so if something fails there in a way that
+looks nothing like your change, please say so in an issue rather than assuming
+it is you.
 
 ## Coding style
 

@@ -259,13 +259,42 @@ scripts/
 
 ## Testing
 
+There are two suites, and they answer different questions.
+
+**The engines, in Node.**
+
 ```
 pnpm vitest run
 ```
 
-55 tests across 6 files, and none of them needs a browser.
-The engines are pure, so Vitest runs them in Node against the committed
-fixtures in `tests/fixtures/`.
+181 tests across 18 files, and none of them needs a browser.
+Most engines are pure, so Vitest runs them against the committed fixtures in
+`tests/fixtures/`.
+
+**The site, in a browser.**
+
+```
+pnpm build
+pnpm test:e2e
+```
+
+114 tests across 12 files, in Chromium and in a Pixel 7 viewport.
+
+The build is not optional, and running the tests without it is the first
+thing that goes wrong for a newcomer.
+These tests drive the built site in `dist/` rather than a development server,
+because the built site is what a visitor gets: a worker that a bundler has
+renamed, a base path that only exists in production, and a lazy chunk that
+arrives late are all faults that only the build can show.
+Without `dist/` the test server has nothing to serve, and Playwright waits two
+minutes and then gives up.
+
+`pnpm verify` runs the lint, the type check, the Node tests and the build.
+It does not run the browser tests, because they need a browser installed:
+
+```
+pnpm exec playwright install chromium
+```
 
 Three rules shape these tests, and each one comes from a way a test can lie.
 
