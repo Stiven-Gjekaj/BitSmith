@@ -261,21 +261,85 @@ limit is over a million.
 3. Write more conversion pairs only where a real answer exists to the three
    questions the fourteen already answer. A pair that cannot be given one does
    not deserve a page, and thin pages lower the whole site.
-4. Strip the metadata from an AVIF or a HEIC. Both keep it in nested boxes
-   reached through tables of offsets, so removing one means rewriting those
-   tables and every offset after them. The tool refuses both today and says
-   so. This is a great deal of code for a fragile result, and it may never be
-   worth doing.
-5. Decide whether the copied pdfjs character maps earn their size. Measured:
-   text in a Latin font draws correctly without the font folder, because pdfjs
-   carries the fourteen standard fonts itself. The maps are kept for documents
-   in other writing systems, which nothing here tests yet.
 
 Closed: WebP metadata stripping is done, so the tool now takes JPEG, PNG and
 WebP. The git email is `stivenagostingjekaj@gmail.com` and is now pinned in
 the repository configuration. The conversion pages use `/png-to-jpg`. HEIC is
 read, under the LGPL terms recorded in the README, and the two pages for it
 are live. The background remover has browser coverage.
+
+---
+
+## Two things that are deliberately not done
+
+Both were looked at, both were measured, and both were left. They sit here
+rather than in the open items above because neither is waiting for time or for
+a decision. The decision is made. What is written down is the reasoning, so
+that somebody arriving later does not spend a day rediscovering it.
+
+Either could be reopened, and what would have to change is named in each case.
+
+### Removing the metadata from an AVIF or a HEIC
+
+The tool takes JPEG, PNG and WebP, and refuses the other two with a sentence
+that says why.
+
+The three that work are flat. A JPEG is a run of segments, a PNG is a run of
+chunks, and a WebP is a RIFF container, so removing a piece means copying out
+everything except that piece, and the picture data is never touched. WebP
+already needed two steps beyond that, a flags byte and a container length, and
+both were places to be quietly wrong.
+
+AVIF and HEIC are not flat. Their metadata lives in `meta` boxes as items
+described in `iinf`, referenced through `iref`, and found by byte offsets held
+in `iloc`. Removing an item means rewriting the item tables and then every
+offset that pointed past it. One wrong offset does not give an obviously
+broken file. It gives a picture that some readers open and others refuse.
+
+Against that: the number of people holding an AVIF with a location tag they
+want gone is small, and they already have a route, which is to convert it here
+first and clean the result.
+
+**What would change the answer.** A library that does the rewriting, or a
+measured demand for it. Not a spare afternoon. The failure here is a corrupted
+picture handed back by the one tool whose whole promise is that it does not
+touch the picture.
+
+### Whether the copied pdfjs character maps earn their size
+
+They stay, and the reason is narrower than it first appears.
+
+pdfjs does not carry the standard fonts or the character maps inside its code.
+It asks for them over the network from a folder the caller names, and
+`scripts/copy-pdfjs.mjs` copies both into `public/` on every build. Measured:
+
+| Folder | Size | Files |
+| ------ | ---- | ----- |
+| `cmaps` | 1.6 MB | 169 |
+| `standard_fonts` | 800 KB | 16 |
+| Together | 2.4 MB | 2 percent of the built site |
+
+The measurement that decides it is what happens without them. The font folder
+was pointed at a directory that does not exist, and a document naming
+Helvetica without embedding it still drew its text, because pdfjs carries the
+fourteen standard fonts itself. So for every document the tests cover, these
+folders do nothing whatever.
+
+They are kept for the documents the tests do not cover. A PDF holding
+Japanese, Chinese, Korean, Arabic or Cyrillic text needs the character maps to
+know which glyph a code point means, and without them that text does not
+render. Nothing in the suite has such a document, so this is reasoning and not
+measurement, and it is written as reasoning on purpose.
+
+Keeping them costs 2.4 MB of build output and nothing at all to a visitor,
+because a file is fetched only when a document asks for it. Dropping them
+costs a PDF in a writing system the author cannot read coming out blank,
+silently, with no error anywhere.
+
+**What would change the answer.** One test with a document in a non-Latin
+writing system, run with the maps removed. If the text still draws, the maps
+go. Until somebody does that, 2.4 MB of build output is the cheaper side of
+the bet.
 
 ---
 
