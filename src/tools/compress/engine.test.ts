@@ -33,16 +33,39 @@ describe("the compress engine", () => {
     expect(result.name).toBe("holiday.jpg");
   });
 
-  it("says what it asked for and what it delivered", async () => {
+  it("reports the input size, output size, and quality", async () => {
+    const target = 1200;
+
     const [result] = await run(
       [file("holiday.png")],
-      { targetBytes: 1200, format: "jpeg" },
+      { targetBytes: target, format: "jpeg" },
       () => {},
     );
-    expect(result.note).toMatch(/Asked for/);
-    expect(result.note).toMatch(/quality \d+/);
+
+    expect(result.note).toMatch(
+      new RegExp(
+        `^${Math.round(png.length / 1024)} KB in, ` +
+          `${Math.round(result.bytes.length / 1024)} KB out at ` +
+          `quality \\d+, which is what was asked for\\.$`,
+      ),
+    );
   });
 
+  it("says when the picture already fits", async () => {
+    const target = 5 * 1024;
+
+    const [result] = await run(
+      [file("small.png")],
+      { targetBytes: target, format: "jpeg" },
+      () => {},
+    );
+
+    expect(result.note).toBe(
+      `${Math.round(png.length / 1024)} KB in, ` +
+        `already within the requested ${Math.round(target / 1024)} KB limit; ` +
+        `delivered at best quality.`,
+    );
+  });
   /**
    * An impossible target says so, and says what is possible. A message that
    * only refused would leave the visitor guessing what to type next.
@@ -73,8 +96,9 @@ describe("the compress engine", () => {
     expect([...seen].sort((a, b) => a - b)).toEqual(seen);
   });
 
-  it("takes a generous target in one probe", async () => {
+  it("does not search when the input already fits", async () => {
     const probes: string[] = [];
+
     await run(
       [file("a.png")],
       { targetBytes: 5 * 1024 * 1024, format: "jpeg" },
@@ -82,9 +106,9 @@ describe("the compress engine", () => {
         if (label) probes.push(label);
       },
     );
-    // Only the read and the finish. A search that ran anyway would add more.
+
     expect(probes.filter((label) => label.startsWith("Trying"))).toHaveLength(
-      1,
+      0,
     );
   });
 });
