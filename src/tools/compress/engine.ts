@@ -59,26 +59,19 @@ export const run: Engine<CompressOptions> = async (
 
     onProgress(start, `Reading ${file.name}`);
     const image = await decode(file.bytes);
-    const alreadyFits = file.bytes.length <= options.targetBytes;
-    const attempt = alreadyFits
-      ? {
-          bytes: await encode(image, options.format, 100),
-          quality: 100,
-          probes: 1,
-        }
-      : await searchQuality(
-          (quality) => encode(image, options.format, quality),
-          options.targetBytes,
-          {
-            maxProbes: PROBE_BUDGET[options.format],
-            onProbe: (done, of) => {
-              onProgress(
-                start + share * (0.1 + 0.85 * (done / of)),
-                `Trying quality ${done} of at most ${of}`,
-              );
-            },
-          },
-        );
+    const attempt = await searchQuality(
+      (quality) => encode(image, options.format, quality),
+      options.targetBytes,
+      {
+        maxProbes: PROBE_BUDGET[options.format],
+        onProbe: (done, of) => {
+          onProgress(
+            start + share * (0.1 + 0.85 * (done / of)),
+            `Trying quality ${done} of at most ${of}`,
+          );
+        },
+      },
+    );
 
     if (!attempt) {
       // The smallest this format can reach is reported, so the message says
@@ -96,13 +89,14 @@ export const run: Engine<CompressOptions> = async (
       name: withExtension(file.name, EXTENSION[options.format]),
       type: MIME[options.format],
       bytes: attempt.bytes,
-      note: alreadyFits
-        ? `${readable(file.bytes.length)} in, ` +
-          `already within the requested ${readable(options.targetBytes)} limit; ` +
-          `delivered at best quality.`
-        : `${readable(file.bytes.length)} in, ` +
-          `${readable(attempt.bytes.length)} out at quality ${attempt.quality}, ` +
-          `which is what was asked for.`,
+      note:
+        attempt.probes === 1
+          ? `${readable(file.bytes.length)} in, ` +
+            `already within the requested ${readable(options.targetBytes)} limit; ` +
+            `delivered at best quality.`
+          : `${readable(file.bytes.length)} in, ` +
+            `${readable(attempt.bytes.length)} out at quality ${attempt.quality}, ` +
+            `which is what was asked for.`,
     });
   }
 

@@ -96,7 +96,7 @@ describe("the compress engine", () => {
     expect([...seen].sort((a, b) => a - b)).toEqual(seen);
   });
 
-  it("does not search when the input already fits", async () => {
+  it("checks the output once when the input already fits", async () => {
     const probes: string[] = [];
 
     await run(
@@ -108,7 +108,7 @@ describe("the compress engine", () => {
     );
 
     expect(probes.filter((label) => label.startsWith("Trying"))).toHaveLength(
-      0,
+      1,
     );
   });
 });

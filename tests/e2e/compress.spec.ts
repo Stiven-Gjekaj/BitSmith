@@ -7,6 +7,7 @@ import {
   runAndWait,
   sniff,
   toolReady,
+  giveJpegFixture,
 } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
@@ -74,4 +75,17 @@ test("refuses a target it cannot reach, and names one it can", async ({
   await expect(page.getByText(/smallest this format gets it is/)).toBeVisible({
     timeout: 30_000,
   });
+});
+
+test("keeps a small JPEG inside the requested size", async ({ page }) => {
+  await giveJpegFixture(page, "gradient.jpg", "gradient.jpg");
+
+  await page.getByLabel(/Fit inside/).fill("1");
+
+  await runAndWait(page, /Compress the picture/);
+
+  const bytes = await resultBytes(page);
+
+  expect(bytes.length).toBeLessThanOrEqual(1024);
+  expect(sniff(bytes)).toBe("jpeg");
 });
