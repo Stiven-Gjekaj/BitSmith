@@ -43,7 +43,11 @@ test("says what it asked for and what it delivered", async ({ page }) => {
 
   await runAndWait(page, /Compress the picture/);
 
-  await expect(page.getByText(/Asked for .* delivered .* quality/)).toBeVisible();
+  await expect(
+    page.getByText(
+      /KB in, .* KB out at quality .* which is what was asked for/,
+    ),
+  ).toBeVisible();
 });
 
 test("writes WebP when asked for it", async ({ page }) => {
