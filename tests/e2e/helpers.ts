@@ -207,6 +207,19 @@ export async function giveImages(
   );
 }
 
+export async function giveJpegFixture(
+  page: Page,
+  name: string,
+  fixture: string,
+): Promise<void> {
+  await toolReady(page);
+  await page.setInputFiles("input[type=\"file\"]", {
+    name,
+    mimeType: "image/jpeg",
+    buffer: readFileSync(`tests/fixtures/${fixture}`),
+  });
+}
+
 /** Hands a PDF with a known page count to the file input. */
 export async function givePdf(
   page: Page,

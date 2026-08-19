@@ -59,7 +59,6 @@ export const run: Engine<CompressOptions> = async (
 
     onProgress(start, `Reading ${file.name}`);
     const image = await decode(file.bytes);
-
     const attempt = await searchQuality(
       (quality) => encode(image, options.format, quality),
       options.targetBytes,
@@ -91,8 +90,13 @@ export const run: Engine<CompressOptions> = async (
       type: MIME[options.format],
       bytes: attempt.bytes,
       note:
-        `Asked for ${readable(options.targetBytes)}, delivered ` +
-        `${readable(attempt.bytes.length)} at quality ${attempt.quality}.`,
+        attempt.probes === 1
+          ? `${readable(file.bytes.length)} in, ` +
+            `already within the requested ${readable(options.targetBytes)} limit; ` +
+            `delivered at best quality.`
+          : `${readable(file.bytes.length)} in, ` +
+            `${readable(attempt.bytes.length)} out at quality ${attempt.quality}, ` +
+            `which is what was asked for.`,
     });
   }
 
