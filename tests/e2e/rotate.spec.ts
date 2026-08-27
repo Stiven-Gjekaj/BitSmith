@@ -18,11 +18,19 @@ test("will not run without a picture", async ({ page }) => {
 });
 
 /**
- * The tool starts at 90 right.
+ * The tool starts at 90 right, and the size test below has to work around it
+ * twice over.
  *
- * First choose None so the default cannot make this test pass when the Enter
- * key does nothing. The changed size then proves that the keyboard choice
- * reached the engine.
+ * None is chosen first, so a keyboard that does nothing at all leaves the
+ * default in place and the aria-pressed assertion fails.
+ *
+ * The turn chosen after that is a half rather than a quarter, and that is the
+ * part worth explaining. A 120 by 90 picture turned a quarter either way
+ * comes out 90 by 120, which is also what the default would give. So a
+ * quarter turn cannot tell a keyboard that reached the engine from one whose
+ * value never travelled: measured, that version passed with the engine wired
+ * to ignore the choice entirely. A half turn leaves the picture 120 by 90,
+ * which the default never produces, so the size is now evidence.
  */
 const turnNames = ["None", "90 right", "180", "90 left"] as const;
 const mirrorNames = ["Left to right", "Top to bottom"] as const;
@@ -90,13 +98,10 @@ test("a keyboard turn changes the picture size", async ({ page }) => {
   await page.keyboard.press("Space");
   await expect(none).toHaveAttribute("aria-pressed", "true");
 
-  const left = page.getByRole("button", {
-    name: "90 left",
-    exact: true,
-  });
-  await left.focus();
+  const half = page.getByRole("button", { name: "180", exact: true });
+  await half.focus();
   await page.keyboard.press("Enter");
-  await expect(left).toHaveAttribute("aria-pressed", "true");
+  await expect(half).toHaveAttribute("aria-pressed", "true");
 
   await runAndWait(page, /Turn the picture/);
 
@@ -107,8 +112,9 @@ test("a keyboard turn changes the picture size", async ({ page }) => {
     bytes.byteLength,
   );
 
-  expect(view.getUint32(16)).toBe(90);
-  expect(view.getUint32(20)).toBe(120);
+  // A half turn keeps the sides. The default would swap them.
+  expect(view.getUint32(16)).toBe(120);
+  expect(view.getUint32(20)).toBe(90);
 });
 
 /**
