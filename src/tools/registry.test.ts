@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { uis } from "../components/shell/ToolRunner";
+import { engines } from "../lib/workers/engines";
 import { findTool, tools } from "./registry";
 
 describe("the registry", () => {
@@ -54,5 +56,44 @@ describe("which tools accept a HEIC", () => {
 
   it("keeps a HEIC out of the cropper, which would have to draw it", () => {
     expect(accepts("crop-image")).not.toContain("heic");
+  });
+});
+
+/**
+ * Every tool needs an entry in three maps, and two of them fail quietly.
+ *
+ * A slug missing from the worker map throws only when a visitor presses Run.
+ * A slug missing from the interface map is quieter still: the build passes,
+ * the route exists, the page renders "This tool is not available", and the
+ * browser test that looks for console errors sees nothing, because nothing is
+ * logged. The icon map is the only one that stops the build.
+ *
+ * These are the tests that make the two quiet ones loud.
+ */
+describe("the three maps a tool must appear in", () => {
+  it("gives every tool an engine", () => {
+    for (const tool of tools) {
+      expect(Object.keys(engines), tool.slug).toContain(tool.slug);
+    }
+  });
+
+  it("gives every tool an interface", () => {
+    for (const tool of tools) {
+      expect(Object.keys(uis), tool.slug).toContain(tool.slug);
+    }
+  });
+
+  /**
+   * The other direction. A map entry left behind after a tool is removed is
+   * dead code that still looks alive, and it keeps a chunk in the build.
+   */
+  it("has no engine or interface for a tool that does not exist", () => {
+    const slugs = new Set(tools.map((tool) => tool.slug));
+    for (const slug of Object.keys(engines)) {
+      expect(slugs, `engines has ${slug}`).toContain(slug);
+    }
+    for (const slug of Object.keys(uis)) {
+      expect(slugs, `uis has ${slug}`).toContain(slug);
+    }
   });
 });

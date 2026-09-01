@@ -11,7 +11,7 @@ export interface ToolPreset {
   [key: string]: unknown;
 }
 
-const uis: Record<
+export const uis: Record<
   string,
   React.LazyExoticComponent<(props: { preset?: ToolPreset }) => React.ReactNode>
 > = {

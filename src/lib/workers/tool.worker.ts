@@ -9,7 +9,8 @@
  * Each engine arrives through a dynamic import, so a visitor who opens the QR
  * page never downloads the background removal model.
  */
-import type { Engine, EngineFile, EngineResult } from "../pipeline/types";
+import type { EngineFile, EngineResult } from "../pipeline/types";
+import { type EngineModule, engines } from "./engines";
 
 export type WorkerRequest =
   | {
@@ -31,28 +32,6 @@ export type WorkerResponse =
   | { id: number; kind: "done"; results: EngineResult[] }
   | { id: number; kind: "ready"; note?: string }
   | { id: number; kind: "error"; message: string };
-
-interface EngineModule {
-  run: Engine<never>;
-  /**
-   * Optional. A tool with a large model loads it before it is needed, and may
-   * report something about how it will run.
-   */
-  prepare?: (options: never) => Promise<string | undefined>;
-}
-
-const engines: Record<string, () => Promise<EngineModule>> = {
-  "qr-code-generator": () => import("../../tools/qr-generate/engine"),
-  "image-converter": () => import("../../tools/image-convert/engine"),
-  "crop-image": () => import("../../tools/image-crop/engine"),
-  "rotate-image": () => import("../../tools/image-rotate/engine"),
-  "strip-metadata": () => import("../../tools/strip-meta/engine"),
-  "compress-image": () => import("../../tools/compress/engine"),
-  "merge-pdf": () => import("../../tools/pdf-pages/engine"),
-  "image-to-pdf": () => import("../../tools/pdf-build/engine"),
-  "pdf-to-image": () => import("../../tools/pdf-raster/engine"),
-  "remove-background": () => import("../../tools/bg-remove/engine"),
-};
 
 const post = (message: WorkerResponse) => {
   (self as unknown as DedicatedWorkerGlobalScope).postMessage(message);
