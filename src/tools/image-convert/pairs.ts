@@ -418,6 +418,57 @@ export const pairs: Pair[] = [
       "about to be worked on.",
   },
   {
+    slug: "heic-to-webp",
+    from: "heic",
+    to: "webp",
+    fromLabel: HEIC,
+    toLabel: WEBP,
+    tagline: "Put an iPhone photograph on a web page without it getting fat.",
+    why:
+      "Both of these squeeze a photograph hard, so this is the rare " +
+      "conversion where almost nothing is traded away. What changes is who " +
+      "can open the result. A browser will not display the file your phone " +
+      "produced; it will display this one, on every engine released in the " +
+      "last several years. If a picture is going into a page, a theme, or a " +
+      "shop listing, this is the destination that keeps it light.",
+    cost:
+      "A second squeeze on an already squeezed picture always costs a little " +
+      "fine detail, and it is worth choosing a high setting for anything " +
+      "with skin or sky in it. The file will land near the size it started " +
+      "at rather than far below, because there was not much slack left to " +
+      "take.",
+    caution:
+      "Not for anybody's inbox. Mail clients and older desktop software are " +
+      "the two places WebP still stumbles, and a recipient who cannot open " +
+      "an attachment will not write back to say so. JPG for a person, WebP " +
+      "for a page.",
+  },
+  {
+    slug: "heic-to-avif",
+    from: "heic",
+    to: "avif",
+    fromLabel: HEIC,
+    toLabel: AVIF,
+    tagline: "Trade a locked format for an open one and keep the size.",
+    why:
+      "These two are close relatives, built on video compression, which is " +
+      "why an iPhone photograph and an AVIF of it end up around the same " +
+      "weight. The difference is ownership. AVIF was made to be free of the " +
+      "patent licensing that keeps HEIC an Apple format in practice, so this " +
+      "is the conversion for archiving a picture in something a program " +
+      "twenty years from now will still be permitted to read.",
+    cost:
+      "Patience. This is the slowest thing offered here, and a large " +
+      "photograph will hold the page for several seconds while it is " +
+      "written, so a folder of them is an errand rather than a moment. The " +
+      "picture itself gives up very little.",
+    caution:
+      "Check where it is going first. Reach for this only when whatever " +
+      "opens the file is something you chose, because support is thinner " +
+      "than for anything else on this list and an older phone may show an " +
+      "empty box. Anywhere else, WebP asks fewer questions.",
+  },
+  {
     slug: "avif-to-webp",
     from: "avif",
     to: "webp",
