@@ -258,13 +258,15 @@ limit is over a million.
    is set the site measures nothing, and nothing can be known about whether
    any of the work above is working.
 2. Read the address section above again when search traffic starts.
-3. Write more conversion pairs only where a real answer exists to the three
-   questions the eighteen already answer. With the six formats now read, the
-   only pair left unwritten is the two HEIC ones in issue 1. More pages needs
-   another readable format. A pair that cannot be given one does
+3. There are no conversion pairs left to write. Every combination the six
+   readable formats allow has a page, twenty of them, and each answers the
+   three questions in its own words. More pages now needs another readable
+   format, and the entry on reading an SVG below is where that conversation
+   starts. A pair that cannot be given one does
    not deserve a page, and thin pages lower the whole site.
 
-Closed: GIF is read, and its four conversion pages are live. WebP metadata
+Closed: GIF is read, and its four conversion pages are live. The two
+remaining HEIC pages are written, so the pairs are complete at twenty. WebP metadata
 stripping is done, so the tool now takes JPEG, PNG and
 WebP. The git email is `stivenagostingjekaj@gmail.com` and is now pinned in
 the repository configuration. The conversion pages use `/png-to-jpg`. HEIC is

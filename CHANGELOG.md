@@ -15,8 +15,8 @@ A version moves only when something is released.
 
 ### The GIF update
 
-Eighteen conversion pages instead of fourteen, which is every pair the six
-readable formats allow bar two.
+Twenty conversion pages instead of fourteen, which is every pair the six
+readable formats allow, with none left over.
 
 **Added**
 
@@ -24,8 +24,10 @@ readable formats allow bar two.
   JavaScript, so it runs in Node as well as a browser and the engine tests
   stay where they are. Reading only, enforced by the type split that already
   covers HEIC.
-- **Four conversion pages**: `gif-to-png`, `gif-to-jpg`, `gif-to-webp` and
-  `gif-to-avif`.
+- **Six conversion pages**: `gif-to-png`, `gif-to-jpg`, `gif-to-webp` and
+  `gif-to-avif`, then `heic-to-webp` and `heic-to-avif`, which finish the set.
+  Measured across all 190 comparisons, the worst vocabulary overlap is 0.255
+  between two pages that were already there, against a threshold of 0.6.
 - The converter, the compressor, the rotator, the cropper and the PDF builder
   all take a GIF. The metadata remover refuses one, with a reason.
 
