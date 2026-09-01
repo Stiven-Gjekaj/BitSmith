@@ -243,7 +243,20 @@ async function decodeGif(bytes: Uint8Array): Promise<RawImage> {
   const lib = (loaded as { default?: unknown }).default ?? loaded;
   const { GifReader } = lib as { GifReader: new (b: Uint8Array) => GifFrames };
 
-  const reader = new GifReader(bytes);
+  // omggif throws its own messages, and they are written for whoever is
+  // reading its source. A damaged file gives "Invalid block size", which
+  // tells a visitor nothing about what to do next. Found by feeding a
+  // corrupted GIF to the built site by hand.
+  let reader: GifFrames;
+  try {
+    reader = new GifReader(bytes);
+  } catch {
+    throw new Error(
+      "This GIF could not be read. The file may be damaged, or only part of " +
+        "it may have downloaded.",
+    );
+  }
+
   const width = reader.width;
   const height = reader.height;
   if (width === 0 || height === 0 || reader.numFrames() === 0) {

@@ -425,8 +425,25 @@ describe("decode, on a GIF", () => {
     expect([...image.data.subarray(0, 3)]).toEqual([255, 0, 0]);
   });
 
-  it("refuses a damaged GIF rather than hanging", async () => {
-    await expect(decode(gif.subarray(0, 20))).rejects.toThrow();
+  it("refuses a GIF cut off near the start", async () => {
+    await expect(decode(gif.subarray(0, 20))).rejects.toThrow(
+      /holds no picture/,
+    );
+  });
+
+  /**
+   * The message matters as much as the refusal. Left to itself omggif throws
+   * "Invalid block size" for a file damaged further in, which is written for
+   * whoever is reading its source rather than for the person holding the
+   * file. Found by feeding a corrupted GIF to the built site by hand.
+   */
+  it("refuses a GIF damaged further in, and says something useful", async () => {
+    // Cut inside the picture data rather than before it. Measured against
+    // this fixture: a cut before 780 bytes leaves a file with no frames, and
+    // a cut after it leaves one the reader refuses outright.
+    await expect(decode(gif.subarray(0, 1000))).rejects.toThrow(
+      /could not be read/,
+    );
   });
 });
 
