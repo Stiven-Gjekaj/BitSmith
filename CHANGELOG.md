@@ -13,6 +13,48 @@ A version moves only when something is released.
 
 ## Unreleased
 
+### The GIF update
+
+Eighteen conversion pages instead of fourteen, which is every pair the six
+readable formats allow bar two.
+
+**Added**
+
+- **GIF reading**, through `omggif`: MIT, no dependencies, 38 KB of plain
+  JavaScript, so it runs in Node as well as a browser and the engine tests
+  stay where they are. Reading only, enforced by the type split that already
+  covers HEIC.
+- **Four conversion pages**: `gif-to-png`, `gif-to-jpg`, `gif-to-webp` and
+  `gif-to-avif`.
+- The converter, the compressor, the rotator, the cropper and the PDF builder
+  all take a GIF. The metadata remover refuses one, with a reason.
+
+**Changed**
+
+- **One list of the formats a tool can write, where there were five.** They
+  had drifted: WebP was called four different things depending on which tool
+  you looked at. The worse half was silence, because a format missing from
+  one of those lists was never offered and nothing said so.
+- **A tool missing from the engine or interface map now fails a test.** Both
+  used to fail quietly, and the interface one was the quietest fault in the
+  project: the build passed, the page said the tool was not available, and
+  the console error test saw nothing because nothing was logged.
+- **The refused list in the metadata remover is keyed to the format union**,
+  so adding a format now demands a decision at compile time. It asked for one
+  immediately, about GIF.
+
+**Decided**
+
+- **Only the first frame of an animated GIF is read.** Every format this
+  project writes holds one picture, so there is nowhere for the rest to go.
+  The conversion pages say so.
+- **SVG is not read, and the measurements are in `docs/milestones.md`.** It
+  cannot join the same way: rasterising one needs an `<img>` element, which
+  exists only on the main thread, and `decode()` also runs in Node for the
+  engine tests.
+
+---
+
 ### The formats and tools update
 
 Ten tools instead of five, and fourteen conversion pages instead of twelve.
