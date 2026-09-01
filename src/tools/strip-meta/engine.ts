@@ -46,6 +46,12 @@ type Strippable = keyof typeof STRIPPERS;
 const REFUSED: Record<Exclude<DecodableFormat, Strippable>, string> = {
   avif: "AVIF",
   heic: "HEIC",
+  // A GIF can carry a comment block and an application block, and stripping
+  // them is a different walk again. It is also the format least likely to
+  // carry anything private: a GIF is made from something else, and whatever
+  // the camera knew was lost at that step. Refused until somebody shows a
+  // GIF that needs it.
+  gif: "GIF",
 };
 
 /**

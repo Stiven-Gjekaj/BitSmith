@@ -24,7 +24,7 @@ export type EncodableFormat = "png" | "jpeg" | "webp" | "avif";
  * asks for it. Keeping the two directions in separate types is what makes
  * encode(image, "heic") refuse to compile rather than fail at run time.
  */
-export type DecodableFormat = EncodableFormat | "heic";
+export type DecodableFormat = EncodableFormat | "heic" | "gif";
 
 /** A plain ImageData, so that Node needs no browser global. */
 export interface RawImage {
@@ -39,6 +39,7 @@ export const MIME: Record<DecodableFormat, string> = {
   webp: "image/webp",
   avif: "image/avif",
   heic: "image/heic",
+  gif: "image/gif",
 };
 
 export const EXTENSION: Record<DecodableFormat, string> = {
@@ -47,6 +48,7 @@ export const EXTENSION: Record<DecodableFormat, string> = {
   webp: "webp",
   avif: "avif",
   heic: "heic",
+  gif: "gif",
 };
 
 /**
@@ -110,6 +112,11 @@ export function sniff(bytes: Uint8Array): DecodableFormat | null {
 
   const ascii = (start: number, length: number) =>
     String.fromCharCode(...bytes.subarray(start, start + length));
+
+  // GIF: the version is in the signature, and both are still in the wild.
+  if (ascii(0, 6) === "GIF87a" || ascii(0, 6) === "GIF89a") {
+    return "gif";
+  }
 
   // WebP: "RIFF" then a size then "WEBP".
   if (ascii(0, 4) === "RIFF" && ascii(8, 4) === "WEBP") {
@@ -187,8 +194,8 @@ export async function decode(bytes: Uint8Array): Promise<RawImage> {
   const format = sniff(bytes);
   if (!format) {
     throw new Error(
-      "This file is not a PNG, JPEG, WebP, AVIF, or HEIC image. Check that " +
-        "you picked the right file.",
+      "This file is not a PNG, JPEG, WebP, AVIF, HEIC, or GIF image. Check " +
+        "that you picked the right file.",
     );
   }
 
@@ -210,7 +217,50 @@ export async function decode(bytes: Uint8Array): Promise<RawImage> {
       return (await avif.decode(buffer)) as RawImage;
     case "heic":
       return await decodeHeic(bytes);
+    case "gif":
+      return await decodeGif(bytes);
   }
+}
+
+/**
+ * Decodes the first frame of a GIF.
+ *
+ * The first frame, and only the first, and that is a decision rather than a
+ * limitation of the library. A GIF may be animated, and every format this
+ * project writes holds one picture. Somebody converting a GIF to a JPEG wants
+ * a picture; there is nowhere for the other frames to go. The conversion
+ * pages say so, because a person who fed in an animation and got a still
+ * deserves to have been told first.
+ *
+ * Pulling every frame out is a different tool answering a different question.
+ *
+ * The import sits inside the function for the same reason the HEIC one does.
+ * omggif is small, at 38 KB, so this costs little today. The habit is what
+ * keeps it cheap when the next format is not small.
+ */
+async function decodeGif(bytes: Uint8Array): Promise<RawImage> {
+  const loaded = await import("omggif");
+  const lib = (loaded as { default?: unknown }).default ?? loaded;
+  const { GifReader } = lib as { GifReader: new (b: Uint8Array) => GifFrames };
+
+  const reader = new GifReader(bytes);
+  const width = reader.width;
+  const height = reader.height;
+  if (width === 0 || height === 0 || reader.numFrames() === 0) {
+    throw new Error("This GIF holds no picture. The file may be damaged.");
+  }
+
+  const data = new Uint8ClampedArray(width * height * 4);
+  reader.decodeAndBlitFrameRGBA(0, data);
+  return { data, width, height };
+}
+
+/** Only the parts of the GIF reader that this file uses. */
+interface GifFrames {
+  width: number;
+  height: number;
+  numFrames(): number;
+  decodeAndBlitFrameRGBA(frame: number, out: Uint8ClampedArray): void;
 }
 
 /**

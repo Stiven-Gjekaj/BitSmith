@@ -24,6 +24,17 @@
  *
  * It is committed like the others. Anybody regenerating it needs a machine
  * that can write HEIC, which in practice means macOS.
+ *
+ * `gradient.gif` is the same story with a wider choice of tools. It was made
+ * on macOS from the same PNG:
+ *
+ *     sips -s format gif tests/fixtures/gradient.png \
+ *       --out tests/fixtures/gradient.gif
+ *
+ * The animated GIF that the codec tests use is not committed at all. It is
+ * two frames of two pixels, built inside the test with omggif's writer,
+ * because what makes that case interesting is that the frames differ, and
+ * saying so in code is clearer than a binary taken on trust.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";

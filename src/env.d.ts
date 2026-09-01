@@ -23,3 +23,14 @@ declare module "*?url" {
   const url: string;
   export default url;
 }
+
+/**
+ * omggif ships no types and its published ones are a separate package that
+ * would have to be kept in step. The shape this project uses is three
+ * properties, written out beside the call in `src/lib/image/codecs.ts`, so
+ * declaring the module as `unknown` keeps the compiler checking every use.
+ */
+declare module "omggif" {
+  const omggif: unknown;
+  export default omggif;
+}

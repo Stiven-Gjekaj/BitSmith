@@ -65,6 +65,9 @@ importers:
       lucide-react:
         specifier: ^1.31.0
         version: 1.31.0(react@19.2.8)
+      omggif:
+        specifier: ^1.0.10
+        version: 1.0.10
       onnxruntime-web:
         specifier: ^1.27.0
         version: 1.27.0
@@ -2608,6 +2611,9 @@ packages:
 
   ohash@2.0.12:
     resolution: {integrity: sha512-65S/5gk9YSsaRjcyf7Nfa6h/d3E8/1gslpXfI4W7Dxn/oap8IKRuNT5VXkLQ1YFKIEg4apRY4Pj6aiwFzrDdmw==}
+
+  omggif@1.0.10:
+    resolution: {integrity: sha512-LMJTtvgc/nugXj0Vcrrs68Mn2D1r0zf630VNtqtpI1FEO7e+O9FP4gqs9AcnBaSEeoHIPm28u6qgPR0oyEpGSw==}
 
   oniguruma-parser@0.12.2:
     resolution: {integrity: sha512-6HVa5oIrgMC6aA6WF6XyyqbhRPJrKR02L20+2+zpDtO5QAzGHAUGw5TKQvwi5vctNnRHkJYmjAhRVQF2EKdTQw==}
@@ -6175,6 +6181,8 @@ snapshots:
       ufo: 1.6.4
 
   ohash@2.0.12: {}
+
+  omggif@1.0.10: {}
 
   oniguruma-parser@0.12.2: {}
 

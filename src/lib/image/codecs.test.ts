@@ -6,6 +6,7 @@ import { decode, encode, sniff } from "./codecs";
 const png = new Uint8Array(readFileSync("tests/fixtures/gradient.png"));
 const jpg = new Uint8Array(readFileSync("tests/fixtures/gradient.jpg"));
 const heic = new Uint8Array(readFileSync("tests/fixtures/gradient.heic"));
+const gif = new Uint8Array(readFileSync("tests/fixtures/gradient.gif"));
 
 /**
  * Reads the first bytes directly, without calling sniff.
@@ -21,6 +22,10 @@ describe("the fixtures", () => {
 
   it("gradient.jpg really starts with the JPEG marker", () => {
     expect([...jpg.subarray(0, 3)]).toEqual([0xff, 0xd8, 0xff]);
+  });
+
+  it("gradient.gif really starts with a GIF signature", () => {
+    expect(String.fromCharCode(...gif.subarray(0, 6))).toMatch(/^GIF8[79]a$/);
   });
 
   it("gradient.heic really is an ISO base media file with a HEIC brand", () => {
@@ -148,7 +153,7 @@ describe("decode", () => {
       "Dear reader, this is not a picture.",
     );
     await expect(decode(text)).rejects.toThrow(
-      /not a PNG, JPEG, WebP, AVIF, or HEIC/,
+      /not a PNG, JPEG, WebP, AVIF, HEIC, or GIF/,
     );
   });
 });
@@ -374,3 +379,81 @@ describe("decode, on a photograph that records its own rotation", () => {
     expect([withNone.width, withNone.height]).toEqual([64, 48]);
   });
 });
+
+describe("decode, on a GIF", () => {
+  it("names it from the signature", () => {
+    expect(sniff(gif)).toBe("gif");
+  });
+
+  it("knows the other signature as well, which is still in the wild", () => {
+    const older = new Uint8Array(gif);
+    older[4] = "7".charCodeAt(0);
+    expect(sniff(older)).toBe("gif");
+  });
+
+  it("gives the size the fixture was made at", async () => {
+    const image = await decode(gif);
+    expect(image.width).toBe(64);
+    expect(image.height).toBe(48);
+    expect(image.data.length).toBe(64 * 48 * 4);
+  });
+
+  it("gives pixels that vary across the picture", async () => {
+    const image = await decode(gif);
+    const first = image.data.subarray(0, 4).join(",");
+    const last = image.data.subarray(image.data.length - 4).join(",");
+    expect(first).not.toBe(last);
+  });
+
+  /**
+   * The decision this format needed: an animated GIF gives back its first
+   * frame, not a failure and not a later frame.
+   *
+   * The input is built here rather than committed, because what makes the
+   * case interesting is that the two frames differ, and a test that says so
+   * in code is clearer than a binary that has to be taken on trust. It is an
+   * input, not an expected value, so building it proves nothing false.
+   */
+  it("gives the first frame of an animation, not the last", async () => {
+    const animated = await twoFrameGif();
+    expect(sniff(animated)).toBe("gif");
+
+    const image = await decode(animated);
+    expect([image.width, image.height]).toEqual([2, 2]);
+    // Frame one is red throughout, frame two is blue. Red is what should
+    // arrive.
+    expect([...image.data.subarray(0, 3)]).toEqual([255, 0, 0]);
+  });
+
+  it("refuses a damaged GIF rather than hanging", async () => {
+    await expect(decode(gif.subarray(0, 20))).rejects.toThrow();
+  });
+});
+
+/** A two by two GIF of two frames, red then blue. */
+async function twoFrameGif(): Promise<Uint8Array> {
+  const { GifWriter } = (await import("omggif")) as unknown as {
+    GifWriter: new (
+      buf: Uint8Array,
+      w: number,
+      h: number,
+      opts: { loop: number },
+    ) => {
+      addFrame(
+        x: number,
+        y: number,
+        w: number,
+        h: number,
+        indexed: number[],
+        opts: { palette: number[]; delay: number },
+      ): void;
+      end(): number;
+    };
+  };
+  const buffer = new Uint8Array(1024);
+  const writer = new GifWriter(buffer, 2, 2, { loop: 0 });
+  const palette = [0xff0000, 0x0000ff];
+  writer.addFrame(0, 0, 2, 2, [0, 0, 0, 0], { palette, delay: 10 });
+  writer.addFrame(0, 0, 2, 2, [1, 1, 1, 1], { palette, delay: 10 });
+  return buffer.subarray(0, writer.end());
+}
