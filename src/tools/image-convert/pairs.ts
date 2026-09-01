@@ -41,6 +41,7 @@ const JPG = "JPG";
 const WEBP = "WebP";
 const AVIF = "AVIF";
 const HEIC = "HEIC";
+const GIF = "GIF";
 
 export const pairs: Pair[] = [
   {
@@ -266,6 +267,104 @@ export const pairs: Pair[] = [
     caution:
       "The gain is only worth having if you serve the file to many people. For " +
       "a handful of pictures the WebP is already small enough.",
+  },
+  {
+    slug: "gif-to-png",
+    from: "gif",
+    to: "png",
+    fromLabel: GIF,
+    toLabel: PNG,
+    tagline: "Keep a GIF drawing sharp, and keep its clear background.",
+    why:
+      "A GIF is usually a drawing, a logo, or a piece of a screen, and those " +
+      "are the things PNG was built for. Both keep an edge crisp instead of " +
+      "smearing it, and both can hold a see through background, so a badge " +
+      "that sat on a web page will still sit on one after the change. PNG is " +
+      "also the format a design tool will open without complaint, which a " +
+      "GIF is not always.",
+    cost:
+      "The file usually grows. A GIF is held to 256 colours and a PNG is " +
+      "not, so the PNG carries more information even when the picture looks " +
+      "the same. Where a GIF had a background that was either fully there or " +
+      "fully gone, the PNG keeps that exactly, with none of the jagged " +
+      "outline that a GIF gets around a curve.",
+    caution:
+      "Only the first picture survives. If the GIF moves, what you get is " +
+      "the moment it starts on and nothing after it, because a PNG holds one " +
+      "picture and has nowhere to put the rest. Keep the GIF if the movement " +
+      "was the point.",
+  },
+  {
+    slug: "gif-to-jpg",
+    from: "gif",
+    to: "jpeg",
+    fromLabel: GIF,
+    toLabel: JPG,
+    tagline: "Turn a GIF into the one format every form accepts.",
+    why:
+      "Some upload boxes take a JPG and nothing else: a job application, a " +
+      "printing service, an older shop system. A photograph that somebody " +
+      "saved as a GIF, which happens more than it should, belongs as a JPG " +
+      "anyway, because that is the format built for a photograph and the one " +
+      "that will be a sensible size.",
+    cost:
+      "Two things go at once. Any see through area turns solid, and this " +
+      "tool fills it with black, so a logo made to sit on a coloured page " +
+      "will arrive in a box. Detail is also thrown away to make the file " +
+      "small, and the banding a GIF already has from its 256 colours does " +
+      "not survive that kindly.",
+    caution:
+      "Think twice for anything with a hard edge or lettering. JPG puts a " +
+      "grey haze around sharp lines, and a GIF is usually made of sharp " +
+      "lines. PNG is the better destination for a drawing, and it is one " +
+      "click away.",
+  },
+  {
+    slug: "gif-to-webp",
+    from: "gif",
+    to: "webp",
+    fromLabel: GIF,
+    toLabel: WEBP,
+    tagline: "Make a GIF far smaller for a web page.",
+    why:
+      "This is the change that saves the most bandwidth. WebP holds the same " +
+      "sharp edges and the same see through background as a GIF, in a " +
+      "fraction of the bytes, and every browser released in the last several " +
+      "years opens one. For anything that will be served to a lot of people, " +
+      "that saving is real money and a page that appears sooner.",
+    cost:
+      "WebP can hold an animation and this conversion does not give it one. " +
+      "That is the sharpest loss on this page: the format could have carried " +
+      "the movement, and what is written here is the first picture only. " +
+      "Some older desktop software also still refuses to open a WebP.",
+    caution:
+      "Keep the GIF as well if the thing has to play somewhere you do not " +
+      "control, such as an email, a chat window, or a forum that rewrites " +
+      "what you upload. A still WebP in place of a moving GIF is a poor " +
+      "surprise for a reader.",
+  },
+  {
+    slug: "gif-to-avif",
+    from: "gif",
+    to: "avif",
+    fromLabel: GIF,
+    toLabel: AVIF,
+    tagline: "Squeeze a GIF as small as it will go.",
+    why:
+      "AVIF is the smallest of everything offered here, and a GIF is one of " +
+      "the least efficient things you can start from, so the difference is " +
+      "usually dramatic. Reach for this when the picture is going somewhere " +
+      "you control, a page you built or an app you ship, and the only thing " +
+      "that matters is how few bytes cross the wire.",
+    cost:
+      "Time. Writing an AVIF is slow next to the others, and you will wait " +
+      "seconds for anything large, which is why this is a poor choice for a " +
+      "batch. Support is also the narrowest here, so an older phone or an " +
+      "office desktop that is behind may show nothing at all.",
+    caution:
+      "Do not send an AVIF to another person and expect it to open. It is a " +
+      "format for a place you control, not for an attachment. Send WebP, or " +
+      "send a JPG if you have no idea what will be at the other end.",
   },
   {
     slug: "heic-to-jpg",
