@@ -23,10 +23,6 @@ export const DEFAULTS: StripOptions = {};
  * WebP used to be on this list and is not any more. Its metadata sits in
  * plain chunks in a flat container, which is the same shape of work as PNG.
  */
-const REFUSED: Record<string, string> = {
-  avif: "AVIF",
-  heic: "HEIC",
-};
 
 const STRIPPERS = {
   jpeg: stripJpeg,
@@ -37,6 +33,20 @@ const STRIPPERS = {
 /** The formats this can actually do, taken from the table rather than said
  *  twice. Adding a stripper is then the only edit needed. */
 type Strippable = keyof typeof STRIPPERS;
+
+/**
+ * Keyed to the formats that are not strippable, rather than to `string`.
+ *
+ * With `Record<string, string>` a newly readable format was neither refused
+ * here nor handled by a stripper. It fell past both and reached the run time
+ * error below, which says the right thing but says it too late and only to
+ * whoever happened to try. Now the compiler asks the question the moment a
+ * format is added: refuse it, or write a stripper for it.
+ */
+const REFUSED: Record<Exclude<DecodableFormat, Strippable>, string> = {
+  avif: "AVIF",
+  heic: "HEIC",
+};
 
 /**
  * Narrows a sniffed format to one this tool handles.
@@ -71,19 +81,14 @@ export const run: Engine<StripOptions> = async (
           "or a WebP.",
       );
     }
-    const refused = REFUSED[format];
-    if (refused) {
-      throw new Error(
-        `${file.name} is ${refused}. This tool works on JPEG, PNG and WebP, ` +
-          "where the metadata can be removed without the picture being " +
-          "rebuilt.",
-      );
-    }
-
+    // One question rather than two. Asking whether a stripper exists narrows
+    // the format, so the refusal below can name it and the compiler can check
+    // that every format without a stripper has something to say.
     if (!canStrip(format)) {
       throw new Error(
-        `${file.name} is a ${format.toUpperCase()} and this tool has no way ` +
-          "to remove its metadata without rebuilding the picture.",
+        `${file.name} is ${REFUSED[format]}. This tool works on JPEG, PNG ` +
+          "and WebP, where the metadata can be removed without the picture " +
+          "being rebuilt.",
       );
     }
 
