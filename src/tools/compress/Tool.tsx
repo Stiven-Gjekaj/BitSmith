@@ -8,6 +8,7 @@ import {
 } from "../../components/shell/fields";
 import { RunPanel } from "../../components/shell/RunPanel";
 import { useToolRun } from "../../components/shell/useToolRun";
+import { encodableExcept } from "../../lib/image/codecs";
 import { findTool } from "../registry";
 import { type CompressFormat, DEFAULTS } from "./engine";
 
@@ -63,11 +64,9 @@ export default function Tool() {
               id={id}
               value={format}
               onChange={(value) => setFormat(value as CompressFormat)}
-              options={[
-                { value: "jpeg", label: "JPEG (photographs, fastest)" },
-                { value: "webp", label: "WebP (smaller, wide support)" },
-                { value: "avif", label: "AVIF (smallest, slowest)" },
-              ]}
+              // No PNG. It is lossless, so the search has no lever to pull,
+              // and the hint above says so.
+              options={encodableExcept("png")}
             />
           )}
         </Field>

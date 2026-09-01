@@ -5,6 +5,7 @@ import { RunPanel } from "../../components/shell/RunPanel";
 import { useToolRun } from "../../components/shell/useToolRun";
 import { Slider } from "../../components/ui/slider";
 import type { EncodableFormat } from "../../lib/image/codecs";
+import { ENCODABLE } from "../../lib/image/codecs";
 import { findTool } from "../registry";
 import { DEFAULTS } from "./engine";
 
@@ -47,12 +48,7 @@ export default function Tool({ preset }: Props) {
               id={id}
               value={format}
               onChange={(value) => setFormat(value as EncodableFormat)}
-              options={[
-                { value: "webp", label: "WebP (small, wide support)" },
-                { value: "jpeg", label: "JPEG (photographs)" },
-                { value: "png", label: "PNG (lossless, keeps clear areas)" },
-                { value: "avif", label: "AVIF (smallest, slower)" },
-              ]}
+              options={ENCODABLE}
             />
           )}
         </Field>

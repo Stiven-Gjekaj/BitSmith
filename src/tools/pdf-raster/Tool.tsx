@@ -9,6 +9,7 @@ import {
 import { RunPanel } from "../../components/shell/RunPanel";
 import { useToolRun } from "../../components/shell/useToolRun";
 import type { EncodableFormat } from "../../lib/image/codecs";
+import { encodableExcept } from "../../lib/image/codecs";
 import { findTool } from "../registry";
 import { DEFAULTS } from "./engine";
 
@@ -56,11 +57,9 @@ export default function Tool() {
               id={id}
               value={format}
               onChange={(value) => setFormat(value as EncodableFormat)}
-              options={[
-                { value: "png", label: "PNG (sharp text)" },
-                { value: "jpeg", label: "JPEG (smaller files)" },
-                { value: "webp", label: "WebP (smaller still)" },
-              ]}
+              // No AVIF. A page of text gains little from it and costs
+              // seconds a page to write.
+              options={encodableExcept("avif")}
             />
           )}
         </Field>

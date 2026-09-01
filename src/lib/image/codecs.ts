@@ -50,6 +50,38 @@ export const EXTENSION: Record<DecodableFormat, string> = {
 };
 
 /**
+ * How each format that can be written is described to a visitor.
+ *
+ * One list, because there were five. Every tool that offers a format used to
+ * spell the set out again, and the copies had drifted: WebP was called
+ * "WebP", "WebP (small, wide support)", "WebP (smaller, wide support)" and
+ * "WebP (smaller still)" depending on which tool you were looking at, so
+ * somebody comparing two of them was told two different things about one
+ * format.
+ *
+ * Drift was the visible half. The worse half was silence: a format missing
+ * from one of those lists is simply never offered, and nothing at build time,
+ * test time or run time says so.
+ *
+ * A tool that offers a subset says which, and says why. See the compress tool
+ * for the example: it cannot offer PNG, because PNG is lossless and its
+ * search has no lever to pull.
+ */
+export const ENCODABLE: { value: EncodableFormat; label: string }[] = [
+  { value: "png", label: "PNG (lossless, keeps clear areas)" },
+  { value: "jpeg", label: "JPEG (photographs)" },
+  { value: "webp", label: "WebP (small, wide support)" },
+  { value: "avif", label: "AVIF (smallest, slowest)" },
+];
+
+/** The subset a tool offers, in the order above. */
+export function encodableExcept(
+  ...without: EncodableFormat[]
+): { value: EncodableFormat; label: string }[] {
+  return ENCODABLE.filter((option) => !without.includes(option.value));
+}
+
+/**
  * Names the format from the bytes themselves.
  *
  * The type that a browser reports on a File comes from the operating system

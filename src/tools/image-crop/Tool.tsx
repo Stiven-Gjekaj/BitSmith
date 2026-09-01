@@ -9,6 +9,7 @@ import {
 import { RunPanel } from "../../components/shell/RunPanel";
 import { useToolRun } from "../../components/shell/useToolRun";
 import type { EncodableFormat } from "../../lib/image/codecs";
+import { ENCODABLE } from "../../lib/image/codecs";
 import { findTool } from "../registry";
 import { CropCanvas } from "./CropCanvas";
 
@@ -191,12 +192,7 @@ export default function Tool() {
                 id={id}
                 value={format}
                 onChange={(value) => setFormat(value as EncodableFormat)}
-                options={[
-                  { value: "png", label: "PNG" },
-                  { value: "jpeg", label: "JPEG" },
-                  { value: "webp", label: "WebP" },
-                  { value: "avif", label: "AVIF" },
-                ]}
+                options={ENCODABLE}
               />
             )}
           </Field>
