@@ -61,7 +61,7 @@ The ten tools together cost nothing to run and nothing to serve.
   turns a link or a note into an SVG or a PNG.
 - **[Image converter](https://stiven-gjekaj.github.io/BitSmith/image-converter/)**
   moves a picture between PNG, JPEG, WebP and AVIF, and reads the HEIC an
-  iPhone writes.
+  iPhone writes and the GIF everything else does.
 - **[Compress image](https://stiven-gjekaj.github.io/BitSmith/compress-image/)**
   makes a picture fit inside a size an upload form allows.
 - **[Remove photo metadata](https://stiven-gjekaj.github.io/BitSmith/strip-metadata/)**
@@ -186,6 +186,7 @@ your file
 | Styles | Hand-written CSS on a token palette, and the system font stack |
 | Image codecs | The `@jsquash` modules from Squoosh, one per format |
 | HEIC reading | `libheif`, through `libheif-js`, fetched only when a HEIC arrives |
+| GIF reading | `omggif`, fetched only when a GIF arrives |
 | PDF writing | `pdf-lib` |
 | PDF drawing | `pdfjs-dist` |
 | Background removal | `u2netp` at half precision, through `onnxruntime-web` |
@@ -223,12 +224,12 @@ Those two are covered in a browser instead.
 
 | Area | Files | Lines | Responsibility |
 | ---- | ----- | ----- | -------------- |
-| **Library** | `src/lib/` | 957 | Codecs, Exif, transforms, the worker pipeline, the engine contract |
-| **Shell** | `src/components/` | 1832 | Drop area, progress, results, form fields, backdrop, icons |
-| **Tools** | `src/tools/` | 3525 | The registry, ten engines, ten interfaces, the conversion pages |
+| **Library** | `src/lib/` | 1061 | Codecs, Exif, transforms, the worker pipeline, the engine contract |
+| **Shell** | `src/components/` | 1859 | Drop area, progress, results, form fields, backdrop, icons |
+| **Tools** | `src/tools/` | 3785 | The registry, ten engines, ten interfaces, the conversion pages |
 | **Pages** | `src/pages/`, `src/layouts/` | 300 | Routes, page shell, metadata |
 | **Styles** | `src/styles/global.css` | 254 | The token palette, the animations, the shell classes |
-| **Total** | **62 files** | **6844** | Not counting 3327 lines of tests |
+| **Total** | **64 files** | **7091** | Not counting 3637 lines of tests |
 
 ```
 src/
