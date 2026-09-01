@@ -177,6 +177,22 @@ export async function giveHeic(page: Page, name: string): Promise<void> {
   });
 }
 
+/**
+ * Hands the tool the committed GIF fixture.
+ *
+ * Read from disk rather than built here, for the same reason as the HEIC: a
+ * GIF written by this suite would be a GIF written by the library under test.
+ */
+export async function giveGif(page: Page, name: string): Promise<void> {
+  await hydrated(page);
+  await page.locator('input[type="file"]').first().waitFor({ state: "attached" });
+  await page.setInputFiles('input[type="file"]', {
+    name,
+    mimeType: "image/gif",
+    buffer: readFileSync("tests/fixtures/gradient.gif"),
+  });
+}
+
 export async function giveImage(
   page: Page,
   name: string,

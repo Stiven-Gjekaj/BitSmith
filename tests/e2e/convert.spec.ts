@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import {
   chooseOption,
+  giveGif,
   giveHeic,
   giveImage,
   giveImages,
@@ -105,4 +106,20 @@ test("reads the HEIC an iPhone writes", async ({ page }) => {
 
   expect(await resultName(page)).toBe("IMG_4021.jpg");
   expect(sniff(await resultBytes(page))).toBe("jpeg");
+});
+
+/**
+ * The GIF decoder has to reach a real browser, and no Node test can show it.
+ * omggif arrives through an import inside decode(), so the built site has to
+ * find that chunk under /BitSmith at the moment a GIF turns up.
+ */
+test("reads a GIF", async ({ page }) => {
+  await giveGif(page, "reaction.gif");
+  await expect(page.getByText("reaction.gif")).toBeVisible();
+
+  await chooseOption(page, "Convert to", /PNG/);
+  await runAndWait(page, /Convert/);
+
+  expect(await resultName(page)).toBe("reaction.png");
+  expect(sniff(await resultBytes(page))).toBe("png");
 });

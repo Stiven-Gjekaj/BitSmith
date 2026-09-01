@@ -80,7 +80,7 @@ export const tools: ToolMeta[] = [
     // file this tool exists to read.
     accept:
       "image/png,image/jpeg,image/webp,image/avif,image/heic,image/heif," +
-      ".heic,.heif",
+      "image/gif,.heic,.heif,.gif",
     multiple: true,
     maxBytes: 30 * MB,
     runsOn: "device",
@@ -107,7 +107,7 @@ export const tools: ToolMeta[] = [
     inputKind: "files",
     accept:
       "image/png,image/jpeg,image/webp,image/avif,image/heic,image/heif," +
-      ".heic,.heif",
+      "image/gif,.heic,.heif,.gif",
     multiple: true,
     maxBytes: 30 * MB,
     runsOn: "device",
@@ -150,7 +150,7 @@ export const tools: ToolMeta[] = [
       "Turn a picture by a quarter, a half, or three quarters, and mirror it " +
       "either way. Works on several pictures at once. Nothing is uploaded.",
     inputKind: "files",
-    accept: "image/png,image/jpeg,image/webp,image/avif",
+    accept: "image/png,image/jpeg,image/webp,image/avif,image/gif,.gif",
     multiple: true,
     maxBytes: 30 * MB,
     runsOn: "device",
@@ -171,7 +171,7 @@ export const tools: ToolMeta[] = [
       "Crop a picture to the part you want, or resize it to an exact width " +
       "and height. Runs in your browser with no upload.",
     inputKind: "files",
-    accept: "image/png,image/jpeg,image/webp,image/avif",
+    accept: "image/png,image/jpeg,image/webp,image/avif,image/gif,.gif",
     multiple: false,
     maxBytes: 30 * MB,
     runsOn: "device",
@@ -211,7 +211,7 @@ export const tools: ToolMeta[] = [
     inputKind: "files",
     accept:
       "image/png,image/jpeg,image/webp,image/avif,image/heic,image/heif," +
-      ".heic,.heif",
+      "image/gif,.heic,.heif,.gif",
     multiple: true,
     maxBytes: 30 * MB,
     runsOn: "device",
