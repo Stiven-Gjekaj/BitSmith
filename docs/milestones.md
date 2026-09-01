@@ -259,10 +259,13 @@ limit is over a million.
    any of the work above is working.
 2. Read the address section above again when search traffic starts.
 3. Write more conversion pairs only where a real answer exists to the three
-   questions the fourteen already answer. A pair that cannot be given one does
+   questions the eighteen already answer. With the six formats now read, the
+   only pair left unwritten is the two HEIC ones in issue 1. More pages needs
+   another readable format. A pair that cannot be given one does
    not deserve a page, and thin pages lower the whole site.
 
-Closed: WebP metadata stripping is done, so the tool now takes JPEG, PNG and
+Closed: GIF is read, and its four conversion pages are live. WebP metadata
+stripping is done, so the tool now takes JPEG, PNG and
 WebP. The git email is `stivenagostingjekaj@gmail.com` and is now pinned in
 the repository configuration. The conversion pages use `/png-to-jpg`. HEIC is
 read, under the LGPL terms recorded in the README, and the two pages for it
@@ -270,14 +273,57 @@ are live. The background remover has browser coverage.
 
 ---
 
-## Two things that are deliberately not done
+## Things that are deliberately not done
 
-Both were looked at, both were measured, and both were left. They sit here
-rather than in the open items above because neither is waiting for time or for
-a decision. The decision is made. What is written down is the reasoning, so
-that somebody arriving later does not spend a day rediscovering it.
+Each was looked at, each was measured, and each was left. They sit here rather
+than in the open items above because none is waiting for time or for a
+decision. The decision is made. What is written down is the reasoning, so that
+somebody arriving later does not spend a day rediscovering it.
 
-Either could be reopened, and what would have to change is named in each case.
+Any of them could be reopened, and what would have to change is named in each
+case.
+
+### Reading an SVG
+
+Not done, and this is the entry worth reading before anybody tries, because
+the obvious approach fails in a way that looks like a bug in your own code.
+
+"svg to png" is among the most searched image conversions there is, so the
+demand is not in question. What is in question is whether it fits how this
+project is built, and it does not. Measured in Chromium on the live site:
+
+| Route | Result |
+| ----- | ------ |
+| `createImageBitmap` on an SVG blob, main thread | fails, "the source image could not be decoded" |
+| `createImageBitmap` on an SVG blob, inside a worker | the same failure |
+| An `<img>` element drawn to a canvas | works, 64 by 48, correct centre pixel |
+
+So the only route that works needs an `<img>`, and an `<img>` exists only on
+the main thread. Every engine here runs in a worker.
+
+The second constraint is the harder one. `decode()` in
+`src/lib/image/codecs.ts` also runs in Node, because that is what lets engine
+tests read a fixture without a browser. Node has no `<img>` either. So SVG
+cannot be a `DecodableFormat` beside PNG, JPEG, WebP, AVIF, HEIC and GIF,
+however convenient that would be.
+
+One more measurement, because it is a trap of its own: an SVG carrying a
+`viewBox` and no width or height reported 75 by 150 through an `<img>`. That
+is a browser default, not anything in the file. Any SVG tool must therefore
+ask the visitor what size they want, or it will invent one and look as though
+it lost the picture.
+
+**What it would take.** Its own tool, not a format: a main thread rasteriser
+in the shape of `src/tools/pdf-raster/rasterise.ts`, which is already the
+precedent for a browser-only module with its pure half tested separately. A
+size control. Its own conversion pages, which would have to preset that tool
+rather than the converter. That is a piece of work, not an afternoon, and it
+is why it is not in the update that added GIF.
+
+**What would change the answer.** Nothing about the browser; the measurements
+above will stay true. It is a question of appetite for a second rasterising
+tool, and of whether the search demand justifies it once there is traffic
+data to look at.
 
 ### Removing the metadata from an AVIF or a HEIC
 
@@ -342,6 +388,40 @@ go. Until somebody does that, 2.4 MB of build output is the cheaper side of
 the bet.
 
 ---
+
+### The duplicated files in the build
+
+Left alone, and recorded so that the number does not surprise anybody reading
+the deploy log.
+
+The built site is 101 MB, and **45 MB of that is the same bytes stored twice**.
+Measured by hashing every file over 500 KB in `dist/`:
+
+| Size | Copies | Where |
+| ---- | ------ | ----- |
+| 23.1 MB | 2 | `ort/ort-wasm-simd-threaded.asyncify.wasm` and an `_astro` copy |
+| 12.9 MB | 2 | `ort/ort-wasm-simd-threaded.wasm` and an `_astro` copy |
+| 3.4 MB | 2 | `avif_enc_mt`, once with a dash and once with a dot before the hash |
+| 3.3 MB | 2 | `avif_enc`, the same |
+| 1.2 MB | 2 | `pdf.worker.min`, the same |
+| 1.1 MB | 2 | `avif_dec`, the same |
+
+Two separate causes. The onnxruntime pair exists because
+`scripts/copy-ort.mjs` puts a copy in `public/ort/` and Vite emits its own
+from the import; the running code sets `wasmPaths` to `/ort/`, so the `_astro`
+copies are never fetched. The others are one file emitted under two names
+that differ only in the character before the content hash.
+
+**It costs a visitor nothing.** Nobody downloads a file that is never
+requested, and the pages weigh what they weighed. What it costs is deploy
+size and the CI artefact that moves between the build job and the browser job.
+
+It is left because it is a build problem rather than a user problem, and
+because the fix means changing how two libraries are bundled, which is a good
+way to break WebAssembly loading for no gain a visitor can feel.
+
+**What would change the answer.** A CI that has become slow enough to notice,
+or a plan to move to a host that charges for storage.
 
 ## Search, which is the only channel
 
